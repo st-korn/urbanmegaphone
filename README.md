@@ -137,8 +137,7 @@ You need to have raster tiles of map to put them on background of your city. The
 
 ![Resume your selection](/images/sasplanet-lastselection.png)
 
-2.11. Stich all tiles in some bitmaps. Select output format `GeoTIFF`. Put bitmaps on `RESULT/` folder with any filename, for example - your city name. Use `18th` zoom. Use `ESPG 3857` projection.
-Calculate number of tiles to split the resulting image so that each side of bitmap contains less than `10.000 pixels`.
+2.11. Stich all tiles in some bitmaps. Select output format `GeoTIFF`. Put bitmaps on `RESULT/` folder with any filename, for example - your city name. Use `18th` zoom. Use `ESPG 3857` projection. Calculate number of tiles to split the resulting image so that each side of bitmap contains less than `10.000 pixels`. Use `TIFF` format without compression: LZW compression by SAS Planet causes an error exception in vtkTIFFReader.
 
 ![Stitch bitmaps](/images/sasplanet-stitch.png)
 
