@@ -49,12 +49,12 @@ git clone https://github.com/st-korn/urbanmegaphone.git
 
     1.3 Download one or more DEM fragments
     
-    ![ASTER GDEM download](https://github.com/st-korn/urbanmegaphone/blob/master/images/astergdem-download.PNG?raw=true)
+    ![ASTER GDEM download](https://github.com/st-korn/urbanmegaphone/blob/main/images/astergdem-download.png?raw=true)
 
     1.4 You will download ZIP-archive with two sub-archives. One version 001 and one version 003:
 
-    ![ASTER GDEM archive](https://github.com/st-korn/urbanmegaphone/blob/master/images/astergdem-archive.PNG?raw=true)
+    ![ASTER GDEM archive](https://github.com/st-korn/urbanmegaphone/blob/main/images/astergdem-archive.png?raw=true)
 
     1.5 We need version 003. Unpack it and put `ASTGTMV003_NxxEyyy_dem.tif` to `DEM\` folder of your project.
     
-    ![ASTER GDEM v003](https://github.com/st-korn/urbanmegaphone/blob/master/images/astergdem-v003.PNG?raw=true)
+    ![ASTER GDEM v003](https://github.com/st-korn/urbanmegaphone/blob/main/images/astergdem-v003.png?raw=true)
