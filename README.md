@@ -123,7 +123,7 @@ You need to have raster tiles of map to put them on background of your city. The
 
 2.7. Select rectangle area around your city:
 
-![Draw rectangle area around your city](/images/sasplanet-download.png)+](/images/sasplanet-rectangle.png)
+![Draw rectangle area around your city](/images/sasplanet-rectangle.png)
 
 2.8. Download all tiles on `18th` zoom `OSM Mapnik` map for your selected rectangle:
 
