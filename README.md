@@ -144,4 +144,4 @@ Calculate number of tiles to split the resulting image so that each side of bitm
 
 2.12. If you did everything correctly, the following set of files will appear in the `RESULT/` folder:
 
-![Contents of the RESULT folder](https://github.com/st-korn/urbanmegaphone/blob/main/images/sasplanet-result.png?raw=true | width=100)
+![Contents of the RESULT folder](/images/sasplanet-result.png)
