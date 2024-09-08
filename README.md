@@ -26,11 +26,11 @@
 - `show.py` - script for displaying the prepared model
 
     and folders:
-- `images\` - for images of this documentation
-- `DEM\` - for digital elevation models
-- `RASTER\` - for the raster background of the map
-- `HOUSES\` - for vector layers of urban houses
-- `MEGAPHONES\` - for points locations of loudspeakers
+- `images/` - for images of this documentation
+- `DEM/` - for digital elevation models
+- `RASTER/` - for the raster background of the map
+- `HOUSES/` - for vector layers of urban houses
+- `MEGAPHONES/` - for points locations of loudspeakers
 
 4. You can run our scripts immediately, because all folders contains sampla data (fake, but it is enough to demonstration).
 
@@ -59,7 +59,7 @@ Do these steps to download ASTER GDEM for your city:
 
 ![ASTER GDEM archive](https://github.com/st-korn/urbanmegaphone/blob/main/images/astergdem-archive.png?raw=true)
 
-1.1.5. We need version 003. Unpack it and put `ASTGTMV003_NxxEyyy_dem.tif` to `DEM\` folder of your project
+1.1.5. We need version 003. Unpack it and put `ASTGTMV003_NxxEyyy_dem.tif` to `DEM/` folder of your project
 
 ![ASTER GDEM v003](https://github.com/st-korn/urbanmegaphone/blob/main/images/astergdem-v003.png?raw=true)
 
@@ -91,6 +91,28 @@ Do these steps to download SRTM DEM for your city:
 
 ![SRTM download format selection](https://github.com/st-korn/urbanmegaphone/blob/main/images/srtm-download.png?raw=true)
 
-1.2.8. You will receive file `nXX_eYYY_1arc_v3.tif`. Save it to `DEM\` folder of your project
+1.2.8. You will receive file `nXX_eYYY_1arc_v3.tif`. Save it to `DEM/` folder of your project
 
 ![SRTM file](https://github.com/st-korn/urbanmegaphone/blob/main/images/srtm-v3.png?raw=true)
+
+### 2. Raster map for background
+
+You need to have raster tiles of map to put them on background of your city. There are many sources to get these tiles. We recomend you use [OpenStreetMap](osm.org) tiles.
+
+2.1 Go to [SAS Planet site](https://www.sasgis.org/download/) and download the lastes stable version of `SAS Planeta`
+
+2.2 Save archive into any folder, and then unzip it
+
+![SAS Planet archive file](https://github.com/st-korn/urbanmegaphone/blob/main/images/sasplanet-source.png?raw=true)
+
+2.3 Go to the `Maps \ sas.maps` folder and run `Update.cmd`. It will download settings for all currently aviable maps for SAS Planet
+
+![SAS Planet script for maps update](https://github.com/st-korn/urbanmegaphone/blob/main/images/sasplanet-gotomap.gif?raw=true)
+
+2.4 You will get this window while `git` working:
+
+![SAS Planet maps updating](https://github.com/st-korn/urbanmegaphone/blob/main/images/sasplanet-mapupdate.png?raw=true)
+
+2.5 Next you can run `SASPlanet.exe`:
+
+![Run SAS Planet](https://github.com/st-korn/urbanmegaphone/blob/main/images/sasplanet-rum.png?raw=true)
