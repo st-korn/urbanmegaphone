@@ -37,7 +37,7 @@
 !!! Screen of run every command
 
 
-## What i need prepare to modeling?
+## What i need prepare to my own modeling?
 
 ### 1. Digital elevation model of earth's surface
 
@@ -99,20 +99,49 @@ Do these steps to download SRTM DEM for your city:
 
 You need to have raster tiles of map to put them on background of your city. There are many sources to get these tiles. We recomend you use [OpenStreetMap](osm.org) tiles.
 
-2.1 Go to [SAS Planet site](https://www.sasgis.org/download/) and download the lastes stable version of `SAS Planeta`
+2.1. Go to [SAS Planet site](https://www.sasgis.org/download/) and download the lastes stable version of `SAS Planeta`
 
-2.2 Save archive into any folder, and then unzip it
+2.2. Save archive into any folder, and then unzip it
 
 ![SAS Planet archive file](https://github.com/st-korn/urbanmegaphone/blob/main/images/sasplanet-source.png?raw=true)
 
-2.3 Go to the `Maps \ sas.maps` folder and run `Update.cmd`. It will download settings for all currently aviable maps for SAS Planet
+2.3. Go to the `Maps \ sas.maps` folder and run `Update.cmd`. It will download settings for all currently aviable maps for SAS Planet
 
 ![SAS Planet script for maps update](https://github.com/st-korn/urbanmegaphone/blob/main/images/sasplanet-gotomap.gif?raw=true)
 
-2.4 You will get this window while `git` working:
+2.4. You will get this window while `git` working:
 
 ![SAS Planet maps updating](https://github.com/st-korn/urbanmegaphone/blob/main/images/sasplanet-mapupdate.png?raw=true)
 
-2.5 Next you can run `SASPlanet.exe`:
+2.5. Next you can run `SASPlanet.exe`:
 
-![Run SAS Planet](https://github.com/st-korn/urbanmegaphone/blob/main/images/sasplanet-rum.png?raw=true)
+![Run SAS Planet](https://github.com/st-korn/urbanmegaphone/blob/main/images/sasplanet-run.png?raw=true)
+
+2.6. In the SAS Planet window select menu `Maps -> City -> OSM OpenStreetMap.org - MAPNIK` map
+
+![Change map in SAS Planet](https://github.com/st-korn/urbanmegaphone/blob/main/images/sasplanet-changemap.png?raw=true)
+
+2.7. Select rectangle area around your city:
+
+![Draw rectangle area around your city](https://github.com/st-korn/urbanmegaphone/blob/main/images/sasplanet-download.png?raw=true)+](https://github.com/st-korn/urbanmegaphone/blob/main/images/sasplanet-rectangle.png?raw=true)
+
+2.8. Download all tiles on `18th` zoom `OSM Mapnik` map for your selected rectangle:
+
+![Download tiles](https://github.com/st-korn/urbanmegaphone/blob/main/images/sasplanet-download.png?raw=true)
+
+2.9. Wait, while tiles are downloading...
+
+![Progress window](https://github.com/st-korn/urbanmegaphone/blob/main/images/sasplanet-downloading.png?raw=true)
+
+2.10. Resume your last rectangular selection:
+
+![Resume your selection](https://github.com/st-korn/urbanmegaphone/blob/main/images/sasplanet-lastselection.png?raw=true)
+
+2.11. Stich all tiles in some bitmaps. Select output format `GeoTIFF`. Put bitmaps on `RESULT/` folder with any filename, for example - your city name. Use `18th` zoom. Use `ESPG 3857` projection.
+Calculate number of tiles to split the resulting image so that each side of bitmap contains less than `10.000 pixels`.
+
+![Stitch bitmaps](https://github.com/st-korn/urbanmegaphone/blob/main/images/sasplanet-stitch.png?raw=true)
+
+2.12. If you did everything correctly, the following set of files will appear in the `RESULT/` folder:
+
+![Contents of the RESULT folder](https://github.com/st-korn/urbanmegaphone/blob/main/images/sasplanet-stitch.png?raw=true)
