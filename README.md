@@ -49,7 +49,7 @@ git clone https://github.com/st-korn/urbanmegaphone.git
 
     1.3 Download one or more DEM fragments
     
-    [<img src="images/astergdem-download.png" width="50%" height="50%" alt="ASTER GDEM download">](images/astergdem-download.png)
+    ![ASTER GDEM download](https://github.com/st-korn/urbanmegaphone/blob/master/images/astergdem-download.PNG?raw=true)
 
     1.4 You will download ZIP-archive with two sub-archives. One version 001 and one version 003:
 
