@@ -34,30 +34,63 @@
 
 4. You can run our scripts immediately, because all folders contains sampla data (fake, but it is enough to demonstration).
 
+!!! Screen of run every command
 
 
 ## What i need prepare to modeling?
 
-### Digital elevation model of earth's surface
+### 1. Digital elevation model of earth's surface
 
-1. You need to download ASTER GDEM or SRTM [digital elevation model](https://en.wikipedia.org/wiki/Digital_elevation_model) model. Both of these models are approximately the same accuracy. You can read more about the comparison of these models [here](https://visioterra.fr/telechargement/A003_VISIOTERRA_COMMUNICATION/HYP-082-VtWeb_SRTM_ASTER-GDEM_local_statistics_comparison.pdf) or [here](https://www.e3s-conferences.org/articles/e3sconf/pdf/2020/66/e3sconf_icgec2020_01027.pdf)
+You need to download ASTER GDEM or SRTM [digital elevation model](https://en.wikipedia.org/wiki/Digital_elevation_model) model. Both of these models are approximately the same accuracy. You can read more about the comparison of these models [here](https://visioterra.fr/telechargement/A003_VISIOTERRA_COMMUNICATION/HYP-082-VtWeb_SRTM_ASTER-GDEM_local_statistics_comparison.pdf) or [here](https://www.e3s-conferences.org/articles/e3sconf/pdf/2020/66/e3sconf_icgec2020_01027.pdf)
 
-    #### 1.1. ASTER GDEM
+#### 1.1. ASTER GDEM
 
-    Do these steps to download ASTER GDEM for your city:
+Do these steps to download ASTER GDEM for your city:
 
-    1.1.1. Go to https://gdemdl.aster.jspacesystems.or.jp/index_en.html
+1.1.1. Go to https://gdemdl.aster.jspacesystems.or.jp/index_en.html
 
-    1.1.2. Select rectangle area of required territory
+1.1.2. Select rectangle area of required territory
 
-    1.1.3. Download one or more DEM fragments
-    
-    ![ASTER GDEM download](https://github.com/st-korn/urbanmegaphone/blob/main/images/astergdem-download.png?raw=true)
+1.1.3. Download one or more DEM fragments
 
-    1.1.4. You will download ZIP-archive with two sub-archives. One version 001 and one version 003:
+![ASTER GDEM download](https://github.com/st-korn/urbanmegaphone/blob/main/images/astergdem-download.png?raw=true)
 
-    ![ASTER GDEM archive](https://github.com/st-korn/urbanmegaphone/blob/main/images/astergdem-archive.png?raw=true)
+1.1.4. You will download ZIP-archive with two sub-archives. One version 001 and one version 003:
 
-    1.1.5. We need version 003. Unpack it and put `ASTGTMV003_NxxEyyy_dem.tif` to `DEM\` folder of your project.
-    
-    ![ASTER GDEM v003](https://github.com/st-korn/urbanmegaphone/blob/main/images/astergdem-v003.png?raw=true)
+![ASTER GDEM archive](https://github.com/st-korn/urbanmegaphone/blob/main/images/astergdem-archive.png?raw=true)
+
+1.1.5. We need version 003. Unpack it and put `ASTGTMV003_NxxEyyy_dem.tif` to `DEM\` folder of your project
+
+![ASTER GDEM v003](https://github.com/st-korn/urbanmegaphone/blob/main/images/astergdem-v003.png?raw=true)
+
+#### 1.2. SRTM
+
+Do these steps to download SRTM DEM for your city:
+
+1.2.1. Go to [USGS Earth Explorer](https://earthexplorer.usgs.gov/)
+
+1.2.2. Login or create new NASA account (answer on some questions about your job)
+
+1.2.3. Position the map on your city and click `Use map` button on `Polygon` tab:
+
+![SRTM use map to define rectangly area](https://github.com/st-korn/urbanmegaphone/blob/main/images/srtm-select.png?raw=true)
+
+1.2.4. Zoom out and drag the four vertices of the polygon to make it better encircle the city. On finish click `Data Sets >>`
+
+![SRTM manaully editing the polygon](https://github.com/st-korn/urbanmegaphone/blob/main/images/srtm-edit.png?raw=true)
+
+1.2.5. On the left tree, expand leaf `Digital Elevation`, then expand leaf `SRTM` and select `SRTM 1 Arc-Second Global` dataset, then click `Results >>`
+
+![SRTM selecting required dataset of DEM](https://github.com/st-korn/urbanmegaphone/blob/main/images/srtm-edit.png?raw=true)
+
+1.2.6. Earth Explorer will found one or more datasets of selected area. For each dataset you can click `footprint` button to see area of dataset on the map. Then you click `download` button to download dataset file
+
+![SRTM dataset preview](https://github.com/st-korn/urbanmegaphone/blob/main/images/srtm-preview.png?raw=true)
+
+1.2.7. Next you get a window, which ask of downloaded file format. Select `GeoTIFF` format:
+
+![SRTM download format selection](https://github.com/st-korn/urbanmegaphone/blob/main/images/srtm-download.png?raw=true)
+
+1.2.8. You will receive file `nXX_eYYY_1arc_v3.tif`. Save it to `DEM\` folder of your project
+
+![SRTM file](https://github.com/st-korn/urbanmegaphone/blob/main/images/srtm-v3.png?raw=true)
