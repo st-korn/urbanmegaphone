@@ -4,8 +4,8 @@
 ![Loudspeakers of a city warning system on the roof of a house](/images/photo.jpg)\
 <sub><sup>Photo by Petr Kovalev, TASS</sup></sub>
 
-## How it works?
-
+- [1. What i need to use this product?](#What-i-need-to-use-this-product?)
+- [2. What i need prepare to my own modeling?](#What-i-need-prepare-to-my-own-modeling?)
 
 ## What i need to use this product?
 
@@ -144,3 +144,9 @@ You need to have raster tiles of map to put them on background of your city. The
 2.12. If you did everything correctly, the following set of files will appear in the `RESULT/` folder:
 
 ![Contents of the RESULT folder](/images/sasplanet-result.png)
+
+### Vector map of houses
+
+## How it works?
+
+
