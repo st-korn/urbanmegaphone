@@ -4,8 +4,9 @@
 ![Loudspeakers of a city warning system on the roof of a house](/images/photo.jpg)\
 <sub><sup>Photo by Petr Kovalev, TASS</sup></sub>
 
-- [1. What i need to use this product?](#What-i-need-to-use-this-product?)
-- [2. What i need prepare to my own modeling?](#What-i-need-prepare-to-my-own-modeling?)
+1. [What i need to use this product?](#what-i-need-to-use-this-product)
+2. [What i need prepare to my own modeling?](#what-i-need-prepare-to-my-own-modeling)
+3. [How it works?](#how-it-works)
 
 ## What i need to use this product?
 
