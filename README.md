@@ -4,9 +4,13 @@
 ![Loudspeakers of a city warning system on the roof of a house](/images/photo.jpg)\
 <sub><sup>Photo by Petr Kovalev, TASS</sup></sub>
 
-1. [What i need to use this product?](#what-i-need-to-use-this-product)
-2. [What i need prepare to my own modeling?](#what-i-need-prepare-to-my-own-modeling)
-3. [How it works?](#how-it-works)
+Table of contents:
+- [What i need to use this product?](#what-i-need-to-use-this-product)
+- [What i need prepare to my own modeling?](#what-i-need-prepare-to-my-own-modeling)
+    - [Digital elevation model of earth's surface](#1-digital-elevation-model-of-earths-surface)
+    - [Raster map for background](#2-raster-map-for-background)
+    - [Vector map of houses](#3-vector-map-of-houses)
+- [How it works?](#how-it-works)
 
 ## What i need to use this product?
 
@@ -146,7 +150,7 @@ You need to have raster tiles of map to put them on background of your city. The
 
 ![Contents of the RESULT folder](/images/sasplanet-result.png)
 
-### Vector map of houses
+### 3. Vector map of houses
 
 ## How it works?
 
