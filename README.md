@@ -1,4 +1,4 @@
-![Loudspeakers of a city warning system on the roof of a house](/images/logo.png)
+![Loudspeakers of a city warning system on the roof of a house](/images/logo2.png)
 
 - [How to run it?](#how-to-run-it)
 - [How it works?](#how-it-works)
@@ -16,7 +16,7 @@
 
 1. Please, install `python 3` from https://www.python.org/
 
-2. Install `vtk` library for python https://vtk.org/ via:
+2. Install `vtk` library for python https://vtk.org/ and several others via:
     ```
     pip install vtk
     pip install geotiff
@@ -29,7 +29,7 @@
     git clone https://github.com/st-korn/urbanmegaphone.git
     ```
 
-3. Run our script immediately, because all folders contains sampla data (fake, but it is enough to demonstration).
+3. Run our script immediately, because all folders contains sampla data (fake, but it is enough to demonstration):
     ```
     cd urbanmegaphone
     ./urbanmegaphone.py
