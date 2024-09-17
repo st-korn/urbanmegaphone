@@ -10,7 +10,6 @@
     - [Raster map for background](#2-raster-map-for-background)
     - [Vector map of buildings](#3-vector-map-of-buildings)
 
-<br />
 
 # How to run it?
 
@@ -35,7 +34,6 @@
     ./urbanmegaphone.py
     ```
 
-<br />
 
 # How it works?
 
@@ -90,6 +88,7 @@ Signed `int32` values of array's cells means:
 Positive integer numbers of voxel cells are links to flat array with Voxel class:
 
 If `int32` is not enough to store information about all the important voxels in the world, it can be replaced with `int64`
+
 
 # What i need prepare to my own modeling?
 
