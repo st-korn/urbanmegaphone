@@ -158,11 +158,14 @@ You need to have raster tiles of map to put them on background of your city. The
 
 Project work with three coordinate systems:
 
-- `WGS 84` aka `EPSG:4326` - degrees on WGS'84 datum
+- `WGS 84` aka `EPSG:4326` - degrees on WGS'84 datum for [DEM Models](#1-digital-elevation-model-of-earths-surface)
 
-- `ESPG:3857` - Metric Mercator's projection. It has conversion formulas for a sphere, but applies them to WGS'84 datum ellipsoid. [See more...](https://epsg.io/3857). All meridians are vertical, all parallels are horizontal.
+- `ESPG:3857` - Metric Mercator's projection. It has conversion formulas for a sphere, but applies them to WGS'84 datum ellipsoid. [See more](https://en.wikipedia.org/wiki/Web_Mercator_projection). All meridians are vertical, all parallels are horizontal. This projection is used for [raster background](#2-raster-map-for-background).
 
 - Internal integer coordinate system of primitive voxel wolrd. We find lowrest x,y,z coordinates and put then in (0,0,0) of our new world. Then we use an accuracy value (default `3m`) for an voxel edge. The whole world is built from these voxels. All world details smaller than half a voxel edge are considered as an error and are ignored.
+
+![Parallel transfer the world to the new zero point of reference](/images/coordinates.png)
+![Voxel world](/images/voxels-grid.png)
 
 ### 2. The arrangement of voxels in computer memory
 
@@ -179,6 +182,8 @@ Signed `int32` values of array's cells means:
 - **positive integer number** if this cell belongs to an **important object** (currently these are only **buildings**)
 - **-1** if this cell belongs to the earth's surface
 - **negative integer number** if this cell is located below earth's surface
+
+![Each voxel contains an integer](/images/voxels.png)
 
 Positive integer numbers of voxel cells are links to flat array with Voxel class:
 
