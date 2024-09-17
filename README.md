@@ -1,5 +1,5 @@
 # Urban megaphone
-3D-modeling of sound wave coverage among urban houses
+3D-modeling of sound wave coverage among urban buildings and streets
 
 ![Loudspeakers of a city warning system on the roof of a house](/images/photo.jpg)\
 <sub><sup>Photo by Petr Kovalev, TASS</sup></sub>
@@ -21,6 +21,7 @@ Table of contents:
 2. Install `vtk` library for python https://vtk.org/ via:
     ```
     pip install vtk
+    pip install geotiff
     ```
 
 3. Clone this repository. In any forlder do:
@@ -28,16 +29,16 @@ Table of contents:
     git clone https://github.com/st-korn/urbanmegaphone.git
     ```
 
-    This action will create folder `urbanmegaphone` with two !!!files:
-- `prepare.py` - script to preparation and generation 3D-model
-- `show.py` - script for displaying the prepared model
+    This action will create folder `urbanmegaphone` with:
+- `urbanmegaphone.py` - script to generation 3D-model and calculation alarm coverage
 
     and folders:
-- `images/` - for images of this documentation
-- `DEM/` - for digital elevation models
-- `RASTER/` - for the raster background of the map
-- `BUILDINGS/` - for vector layers of urban buildings
-- `MEGAPHONES/` - for points locations of loudspeakers
+- `modules/` - python core modules
+- `images/` - images of this documentation
+- `DEM/` - digital elevation models
+- `RASTER/` - raster background of the map
+- `BUILDINGS/` - vector layers of urban buildings
+- `MEGAPHONES/` - points locations of loudspeakers
 
 4. You can run our scripts immediately, because all folders contains sampla data (fake, but it is enough to demonstration).
 
