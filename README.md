@@ -1,12 +1,8 @@
-# Urban megaphone
-3D-modeling of sound wave coverage among urban buildings and streets
+![Loudspeakers of a city warning system on the roof of a house](/images/logo.png)
 
-![Loudspeakers of a city warning system on the roof of a house](/images/photo.jpg)\
-<sub><sup>Photo by Petr Kovalev, TASS</sup></sub>
-
-Table of contents:
-- [What i need to use this product?](#what-i-need-to-use-this-product)
+- [How to run it?](#how-to-run-it)
 - [How it works?](#how-it-works)
+    - [ Files and folders](#1-files-and-folders)
     - [Coordinate system](#1-coordinate-system)
     - [The arrangement of voxels in computer memory](#2-the-arrangement-of-voxels-in-computer-memory)
 - [What i need prepare to my own modeling?](#what-i-need-prepare-to-my-own-modeling)
@@ -14,7 +10,9 @@ Table of contents:
     - [Raster map for background](#2-raster-map-for-background)
     - [Vector map of buildings](#3-vector-map-of-buildings)
 
-## What i need to use this product?
+<br />
+
+# How to run it?
 
 1. Please, install `python 3` from https://www.python.org/
 
@@ -31,7 +29,19 @@ Table of contents:
     git clone https://github.com/st-korn/urbanmegaphone.git
     ```
 
-    This action will create folder `urbanmegaphone` with:
+3. Run our script immediately, because all folders contains sampla data (fake, but it is enough to demonstration).
+    ```
+    cd urbanmegaphone
+    ./urbanmegaphone.py
+    ```
+
+<br />
+
+# How it works?
+
+## 1. Files and folders
+
+Project folder contains these files:
 - `urbanmegaphone.py` - script to generation 3D-model and calculation alarm coverage
 
     and folders:
@@ -41,14 +51,10 @@ Table of contents:
 - `RASTER/` - raster background of the map
 - `BUILDINGS/` - vector layers of urban buildings
 - `MEGAPHONES/` - points locations of loudspeakers
-
-4. You can run our scripts immediately, because all folders contains sampla data (fake, but it is enough to demonstration).
-
 !!! Screen of run every command
 
-## How it works?
 
-### 1. Coordinate system
+## 2. Coordinate system
 
 Project work with three coordinate systems:
 
@@ -63,7 +69,7 @@ Project work with three coordinate systems:
 
 ![Voxel world](/images/voxels-grid4.png)
 
-### 2. The arrangement of voxels in computer memory
+## 3. The arrangement of voxels in computer memory
 
 We create one big 3D-array of `int32` by `numpy` library:
 - first array's dimension is **longitude** of our world
@@ -85,13 +91,13 @@ Positive integer numbers of voxel cells are links to flat array with Voxel class
 
 If `int32` is not enough to store information about all the important voxels in the world, it can be replaced with `int64`
 
-## What i need prepare to my own modeling?
+# What i need prepare to my own modeling?
 
-### 1. Digital elevation model of earth's surface
+## 1. Digital elevation model of earth's surface
 
 You need to download ASTER GDEM or SRTM [digital elevation model](https://en.wikipedia.org/wiki/Digital_elevation_model) model. Both of these models are approximately the same accuracy. You can read more about the comparison of these models [here](https://visioterra.fr/telechargement/A003_VISIOTERRA_COMMUNICATION/HYP-082-VtWeb_SRTM_ASTER-GDEM_local_statistics_comparison.pdf) or [here](https://www.e3s-conferences.org/articles/e3sconf/pdf/2020/66/e3sconf_icgec2020_01027.pdf)
 
-#### 1.1. ASTER GDEM
+### 1.1. ASTER GDEM
 
 Do these steps to download ASTER GDEM for your city:
 
@@ -111,7 +117,7 @@ Do these steps to download ASTER GDEM for your city:
 
 ![ASTER GDEM v003](/images/astergdem-v003.png)
 
-#### 1.2. SRTM
+### 1.2. SRTM
 
 Do these steps to download SRTM DEM for your city:
 
@@ -143,7 +149,7 @@ Do these steps to download SRTM DEM for your city:
 
 ![SRTM file](/images/srtm-v3.png)
 
-### 2. Raster map for background
+## 2. Raster map for background
 
 You need to have raster tiles of map to put them on background of your city. There are many sources to get these tiles. We recomend you use [OpenStreetMap](osm.org) tiles.
 
@@ -193,4 +199,4 @@ You need to have raster tiles of map to put them on background of your city. The
 
 ![Contents of the RESULT folder](/images/sasplanet-result.png)
 
-### 3. Vector map of buildings
+## 3. Vector map of buildings
