@@ -23,6 +23,7 @@ Table of contents:
     pip install vtk
     pip install geotiff
     pip install loguru
+    pip install imagecodecs
     ```
 
 3. Clone this repository. In any forlder do:

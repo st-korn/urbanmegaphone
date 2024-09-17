@@ -7,7 +7,8 @@
 # ============================================
 
 # Standart modules
-import logging # Write log
+import sys # use default outputs
+from loguru import logger # Write log
 
 # Own core modules
 from modules.settings import * # Settings defenition
@@ -25,4 +26,5 @@ boundsMax = [None, None, None]
 # ============================================
 
 # Apply selected logging level
-logging.basicConfig(level=logLevel)
+logger.remove()
+logger.add(sys.stderr, level=logLevel)
