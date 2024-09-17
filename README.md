@@ -6,11 +6,13 @@
 
 Table of contents:
 - [What i need to use this product?](#what-i-need-to-use-this-product)
+- [How it works?](#how-it-works)
+    - [Coordinate system](#1-coordinate-system)
+    - [The arrangement of voxels in computer memory](#2-the-arrangement-of-voxels-in-computer-memory)
 - [What i need prepare to my own modeling?](#what-i-need-prepare-to-my-own-modeling)
     - [Digital elevation model of earth's surface](#1-digital-elevation-model-of-earths-surface)
     - [Raster map for background](#2-raster-map-for-background)
     - [Vector map of buildings](#3-vector-map-of-buildings)
-- [How it works?](#how-it-works)
 
 ## What i need to use this product?
 
@@ -41,6 +43,44 @@ Table of contents:
 
 !!! Screen of run every command
 
+## How it works?
+
+### 1. Coordinate system
+
+Project work with three coordinate systems:
+
+- `WGS 84` aka `EPSG:4326` - degrees on WGS'84 datum for [DEM Models](#1-digital-elevation-model-of-earths-surface)
+
+- `ESPG:3857` - Metric Mercator's projection. It has conversion formulas for a sphere, but applies them to WGS'84 datum ellipsoid. [See more](https://en.wikipedia.org/wiki/Web_Mercator_projection). All meridians are vertical, all parallels are horizontal. This projection is used for [raster background](#2-raster-map-for-background).
+
+- Internal integer coordinate system of primitive voxel wolrd. We find lowrest x,y,z coordinates and put then in (0,0,0) of our new world. Then we use an accuracy value (default `3m`) for an voxel edge. The whole world is built from these voxels. All world details smaller than half a voxel edge are considered as an error and are ignored.
+
+![Parallel transfer the world to the new zero point of reference](/images/coordinates.png)\
+<sub><sup>3D-city designed by [Freepik](www.freepik.com)</sup></sub>
+
+![Voxel world](/images/voxels-grid2.png)
+
+### 2. The arrangement of voxels in computer memory
+
+We create one big 3D-array of `int32` by `numpy` library:
+- first array's dimension is **longitude** of our world
+- second array's dimension is **latitude** of our world
+- third array's dimension is **height** of our world
+
+Latitude and longitude are calculated from the whole set of tiles [background raster map](#2-raster-map-for-background).
+Height calculates from the [digital elevation model of earth's surface](#1-digital-elevation-model-of-earths-surface) and by the height of the tallest building of [vector buildings map](#3-vector-map-of-buildings).
+
+Signed `int32` values of array's cells means:
+- **zero** if this cell does not contains anything
+- **positive integer number** if this cell belongs to an **important object** (currently these are only **buildings**)
+- **-1** if this cell belongs to the earth's surface
+- **negative integer number** if this cell is located below earth's surface
+
+![Each voxel contains an integer](/images/voxels.png)
+
+Positive integer numbers of voxel cells are links to flat array with Voxel class:
+
+If `int32` is not enough to store information about all the important voxels in the world, it can be replaced with `int64`
 
 ## What i need prepare to my own modeling?
 
@@ -151,40 +191,3 @@ You need to have raster tiles of map to put them on background of your city. The
 ![Contents of the RESULT folder](/images/sasplanet-result.png)
 
 ### 3. Vector map of buildings
-
-## How it works?
-
-### 1. Coordinate system
-
-Project work with three coordinate systems:
-
-- `WGS 84` aka `EPSG:4326` - degrees on WGS'84 datum for [DEM Models](#1-digital-elevation-model-of-earths-surface)
-
-- `ESPG:3857` - Metric Mercator's projection. It has conversion formulas for a sphere, but applies them to WGS'84 datum ellipsoid. [See more](https://en.wikipedia.org/wiki/Web_Mercator_projection). All meridians are vertical, all parallels are horizontal. This projection is used for [raster background](#2-raster-map-for-background).
-
-- Internal integer coordinate system of primitive voxel wolrd. We find lowrest x,y,z coordinates and put then in (0,0,0) of our new world. Then we use an accuracy value (default `3m`) for an voxel edge. The whole world is built from these voxels. All world details smaller than half a voxel edge are considered as an error and are ignored.
-
-![Parallel transfer the world to the new zero point of reference](/images/coordinates.png)
-![Voxel world](/images/voxels-grid.png)
-
-### 2. The arrangement of voxels in computer memory
-
-We create one big 3D-array of `int32` by `numpy` library:
-- first array's dimension is **longitude** of our world
-- second array's dimension is **latitude** of our world
-- third array's dimension is **height** of our world
-
-Latitude and longitude are calculated from the whole set of tiles [background raster map](#2-raster-map-for-background).
-Height calculates from the [digital elevation model of earth's surface](#1-digital-elevation-model-of-earths-surface) and by the height of the tallest building of [vector buildings map](#3-vector-map-of-buildings).
-
-Signed `int32` values of array's cells means:
-- **zero** if this cell does not contains anything
-- **positive integer number** if this cell belongs to an **important object** (currently these are only **buildings**)
-- **-1** if this cell belongs to the earth's surface
-- **negative integer number** if this cell is located below earth's surface
-
-![Each voxel contains an integer](/images/voxels.png)
-
-Positive integer numbers of voxel cells are links to flat array with Voxel class:
-
-If `int32` is not enough to store information about all the important voxels in the world, it can be replaced with `int64`
