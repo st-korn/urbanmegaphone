@@ -1,4 +1,4 @@
-![Loudspeakers of a city warning system on the roof of a house](/images/logo2.png)
+![Loudspeakers of a city warning system on the roof of a house](/images/logo3.png)
 
 - [How to run it?](#how-to-run-it)
 - [How it works?](#how-it-works)
@@ -132,7 +132,7 @@ Do these steps to download SRTM DEM for your city:
 
 1.2.5. On the left tree, expand leaf `Digital Elevation`, then expand leaf `SRTM` and select `SRTM 1 Arc-Second Global` dataset, then click `Results >>`
 
-![SRTM selecting required dataset of DEM](/images/srtm-edit.png)
+![SRTM selecting required dataset of DEM](/images/srtm-search.png)
 
 1.2.6. Earth Explorer will found one or more datasets of selected area. For each dataset you can click `footprint` button to see area of dataset on the map. Then you click `download` button to download dataset file
 
