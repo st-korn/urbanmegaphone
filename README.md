@@ -22,6 +22,7 @@ Table of contents:
     ```
     pip install vtk
     pip install geotiff
+    pip install loguru
     ```
 
 3. Clone this repository. In any forlder do:
@@ -59,7 +60,7 @@ Project work with three coordinate systems:
 ![Parallel transfer the world to the new zero point of reference](/images/coordinates.png)\
 <sub><sup>3D-city designed by [Freepik](www.freepik.com)</sup></sub>
 
-![Voxel world](/images/voxels-grid2.png)
+![Voxel world](/images/voxels-grid4.png)
 
 ### 2. The arrangement of voxels in computer memory
 

@@ -11,4 +11,4 @@ from modules.reader import * # Read all data from files to memory
 
 # Real work
 # ============================================
-ReadWorldParameters()
+ReadWorldBounds()

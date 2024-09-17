@@ -7,13 +7,22 @@
 # ============================================
 
 # Standart modules
-from pyproj import Transformer # Transform cartographic projections and coordinates
+import logging # Write log
+
+# Own core modules
+from modules.settings import * # Settings defenition
 
 
 # Global variables defenition
 # ============================================
 
-# Transformer degrees of WGS84 datum to meters of Web-Mercator projection
-# Use: transWgsMeter.transform(40, 50) => (571666.4475041276, 5539109.815175673)
-transWgsMeter = Transformer.from_crs(4326, 3857)
+# World dimensions (meters, Web-Mercator ESPG:3857)
+boundsMin = [None, None, None]
+boundsMax = [None, None, None]
 
+
+# Environment initialization
+# ============================================
+
+# Apply selected logging level
+logging.basicConfig(level=logLevel)
