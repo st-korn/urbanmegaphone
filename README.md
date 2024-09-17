@@ -39,10 +39,8 @@
 
 ## 1. Files and folders
 
-Project folder contains these files:
+Project folder contains these files and folders:
 - `urbanmegaphone.py` - script to generation 3D-model and calculation alarm coverage
-
-    and folders:
 - `modules/` - python core modules
 - `images/` - images of this documentation
 - `DEM/` - digital elevation models
