@@ -63,7 +63,7 @@ Project work with three coordinate systems:
 ![Parallel transfer the world to the new zero point of reference](/images/coordinates.png)\
 <sub><sup>3D-city designed by [Freepik](www.freepik.com)</sup></sub>
 
-![Voxel world](/images/voxels-grid4.png)
+![Voxel world](/images/voxels-grid5.png)
 
 ## 3. The arrangement of voxels in computer memory
 
