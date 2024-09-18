@@ -85,11 +85,13 @@ def ReadWorldBounds():
 # Accept two or three coordinates in meters
 # and return two or three integer coordinates
 # ============================================
+'''
 def coordM2Int(meters):
     ints = []
     for i in range(len(meters)):
         ints.append( int(np.round( (meters[i]-boundsMin[i])/sizeVoxel ).item()) )
     return ints
+'''
 
 # ============================================
 # Accept two or three coordinates in meters
