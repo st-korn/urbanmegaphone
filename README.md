@@ -81,7 +81,7 @@ Signed `int32` values of array's cells means:
 - **-1** if this cell belongs to the earth's surface
 - **negative integer number** if this cell is located below earth's surface
 
-![Each voxel contains an integer](/images/voxels_.png)
+![Each voxel contains an integer](/images/voxels5.png)
 
 Positive integer numbers of voxel cells are links to flat array with Voxel class:
 
