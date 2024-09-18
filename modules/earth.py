@@ -62,14 +62,15 @@ def GenerateEarthSurface():
             # Collect points of surface
             points = vtkPoints()
             for lon, lat in np.ndindex(dem.shape):
-                points.InsertNextPoint(coordM2Float([lons[lon,lat],lats[lon,lat],dem[lon,lat]]))
+                points.InsertNextPoint(coordM2Float([lons[lon,lat],dem[lon,lat],-lats[lon,lat],]))
             pntsTextureDEM.append(points)
 
             # Create surface from points
             polyData = vtkPolyData()
             polyData.SetPoints(points)
             surface = vtk.vtkSurfaceReconstructionFilter()
-            surface.SetNeighborhoodSize(2)
+            surface.SetNeighborhoodSize(4)
+            #surface.SetSampleSpacing(2)
             surface.SetInputData(polyData)
             srfsfltTextureDEM.append(surface)
             cf = vtk.vtkContourFilter()
