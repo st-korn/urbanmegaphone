@@ -53,3 +53,7 @@ actTextureDEM = [] # vtkActor
 # Apply selected logging level
 logger.remove()
 logger.add(sys.stderr, level=logLevel)
+
+# Prepare VTK rendering window
+Window.AddRenderer(Renderer)
+Interactor.SetRenderWindow(Window)

@@ -12,6 +12,7 @@ from geotiff import GeoTiff # GeoTIFF format reader
 import numpy as np # Work with DEM matrix
 from vtkmodules.vtkCommonCore import vtkPoints # Use points cloud in 3D-world
 from vtkmodules.vtkCommonDataModel import vtkPolyData # Use 3D-primitives
+from vtkmodules.vtkRenderingCore import (vtkActor, vtkPolyDataMapper) # Use VTK rendering
 import vtk # Use other 3D-visualization features
 
 # Own core modules
@@ -22,7 +23,7 @@ from modules.bounds import * # Read raster and DEM data and calculate wolrd boun
 
 # ============================================
 # Read .tif files of RASTER and DEM models
-# Find the dimensions of the world being explored
+# Generate 3D-surface with textures
 # ============================================
 def GenerateEarthSurface():
 
@@ -70,14 +71,25 @@ def GenerateEarthSurface():
             surface = vtk.vtkSurfaceReconstructionFilter()
             surface.SetNeighborhoodSize(2)
             surface.SetInputData(polyData)
+            srfsfltTextureDEM.append(surface)
             cf = vtk.vtkContourFilter()
             cf.SetInputConnection(surface.GetOutputPort())
             cf.SetValue(0, 0.0)
+            cntrfltTextureDEM.append(cf)
             reverse = vtk.vtkReverseSense()
             reverse.SetInputConnection(cf.GetOutputPort())
             reverse.ReverseCellsOn()
             reverse.ReverseNormalsOn()
             reverse.Update()
+            rvrsfltTextureDEM.append(reverse)
             polyData = reverse.GetOutput()
             pldtTextureDEM.append(polyData)
-
+            # Prepare surface for view
+            mapper = vtkPolyDataMapper()
+            mapper.SetInputData(polyData)
+            mapper.ScalarVisibilityOff()
+            mapTextureDEM.append(mapper)
+            actor = vtkActor()
+            actor.SetMapper(mapper)
+            #actor.SetTexture(atext)
+            actTextureDEM.append(actor)
