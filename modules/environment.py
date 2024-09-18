@@ -11,6 +11,7 @@ import sys # use default outputs
 from loguru import logger # Write log
 from vtkmodules.vtkIOImage import vtkImageReader2Factory # Read raster images from files
 from vtkmodules.vtkRenderingCore import ( vtkRenderer, vtkRenderWindow, vtkRenderWindowInteractor ) # All for render 3D-models
+import vtkmodules.vtkRenderingOpenGL2 # Use OpenGL for render
 
 # Own core modules
 from modules.settings import * # Settings defenition
