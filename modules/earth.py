@@ -27,9 +27,6 @@ from modules.bounds import * # Read raster and DEM data and calculate wolrd boun
 # ============================================
 def GenerateEarthSurface():
 
-    # Use global variables
-    global boundsMin, boundsMax, bounds
-
     logger.info("Generate earth surface")
 
     logger.info("Loop through raster files")
