@@ -1,5 +1,5 @@
 # ============================================
-# Module: Read all data from files to memory
+# Module: Read raster and DEM data and calculate wolrd bounds
 # ============================================
 
 # Modules import
@@ -23,7 +23,7 @@ from modules.environment import * # Environment defenition
 def ReadWorldBounds():
 
     # Use global variables
-    global boundsMin, boundsMax
+    global boundsMin, boundsMax, bounds
 
     logger.info("Find the dimensions of the world being explored")
 
@@ -72,3 +72,20 @@ def ReadWorldBounds():
         logger.debug("Lowrest point: {}m, highest point {}m", min, max)
 
     logger.success("Bounds of our world:  {} - {}", boundsMin, boundsMax)
+
+    # Calculate bounds of voxel's world
+    for i in [0,1,2]:
+        bounds[i] = int(np.ceil((boundsMax[i] - boundsMin[i]) / sizeVoxel).item())
+    
+    logger.success("Bounds of voxel's world:  {}", bounds)
+
+
+# ============================================
+# Accept two or three coordinates in meters
+# and return two or three integer coordinates
+# ============================================
+def coordM2Int(meters):
+    ints = []
+    for i in range(len(meters)):
+        ints.append( int(np.round( (meters[i]-boundsMin[i])/sizeVoxel ).item()) )
+    return ints

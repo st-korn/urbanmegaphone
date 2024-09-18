@@ -7,8 +7,10 @@
 # ============================================
 
 # Own core modules
-from modules.reader import * # Read all data from files to memory
+from modules.bounds import * # Read raster and DEM data and calculate wolrd bounds
+from modules.earth import * # Read raster and DEM data and generate earth surface
 
 # Real work
 # ============================================
 ReadWorldBounds()
+GenerateEarthSurface()

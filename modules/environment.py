@@ -9,6 +9,8 @@
 # Standart modules
 import sys # use default outputs
 from loguru import logger # Write log
+from vtkmodules.vtkIOImage import vtkImageReader2Factory # Read raster images from files
+from vtkmodules.vtkRenderingCore import ( vtkRenderer, vtkRenderWindow, vtkRenderWindowInteractor ) # All for render 3D-models
 
 # Own core modules
 from modules.settings import * # Settings defenition
@@ -21,6 +23,29 @@ from modules.settings import * # Settings defenition
 boundsMin = [None, None, None]
 boundsMax = [None, None, None]
 
+# Voxel's world dimensions (integer)
+bounds = [None, None, None]
+
+
+# Single VTK objects
+readerFactory = vtkImageReader2Factory()
+Renderer = vtkRenderer()
+Window = vtkRenderWindow()
+Interactor = vtkRenderWindowInteractor()
+
+# Arrays of VTK objects: original raster texture files
+imgrdrTextures = [] # vtkImageReader2
+
+# Arrays of VTK objects: intersection raster textures and DEM
+pntsTextureDEM = [] # vtkPoints
+pldtTextureDEM = [] # vtkPolyData
+srfsfltTextureDEM = [] # vtkSurfaceReconstructionFilter
+cntrfltTextureDEM = [] # vtkContourFilter
+rvrsfltTextureDEM = [] # vtkReverseSense
+fltarTextureDEM = [] # vtkFloatArray array of texture coordinates
+txtrTextureDEM = [] # vtkTexture
+mapTextureDEM = [] # vtkPolyDataMapper
+actTextureDEM = [] # vtkActor
 
 # Environment initialization
 # ============================================
