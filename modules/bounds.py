@@ -89,3 +89,13 @@ def coordM2Int(meters):
     for i in range(len(meters)):
         ints.append( int(np.round( (meters[i]-boundsMin[i])/sizeVoxel ).item()) )
     return ints
+
+# ============================================
+# Accept two or three coordinates in meters
+# and return two or three float coordinates of integer space (without rounding)
+# ============================================
+def coordM2Float(meters):
+    floats = []
+    for i in range(len(meters)):
+        floats.append( float( (meters[i]-boundsMin[i])/sizeVoxel ) )
+    return floats
