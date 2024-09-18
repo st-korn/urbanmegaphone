@@ -51,8 +51,10 @@ def GenerateEarthSurface():
             gtfD = GeoTiff(fileD, as_crs=3857)
         
             # Read intersection DEM and Raster bounds
-            dem = np.array(gtfD.read_box(boxR))
-            lons, lats = gtfD.get_coord_arrays(boxR)
+            boxIntersection = (( max([boxR[0][0], gtfD.tif_bBox_converted[0][0]]), min([boxR[0][1], gtfD.tif_bBox_converted[0][1]]) ),
+                               ( min([boxR[1][0], gtfD.tif_bBox_converted[1][0]]), max([boxR[1][1], gtfD.tif_bBox_converted[1][1]]) ))
+            dem = np.array(gtfD.read_box(boxIntersection))
+            lons, lats = gtfD.get_coord_arrays(boxIntersection)
 
             logger.debug("{file} intersection: {dim} @ ({src}) = ({dst})", file=fileD.name, dim=dem.shape, src=[float(lons[0,0]),float(lats[0,0]),float(dem[0,0])], dst=coordM2Float([lons[0,0],lats[0,0],dem[0,0]]))
 
@@ -66,7 +68,7 @@ def GenerateEarthSurface():
             polyData = vtkPolyData()
             polyData.SetPoints(points)
             surface = vtk.vtkSurfaceReconstructionFilter()
-            surface.SetNeighborhoodSize(4)
+            surface.SetNeighborhoodSize(7)
             #surface.SetSampleSpacing(2)
             surface.SetInputData(polyData)
             srfsfltTextureDEM.append(surface)

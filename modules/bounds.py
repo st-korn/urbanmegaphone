@@ -58,18 +58,19 @@ def ReadWorldBounds():
         logger.debug("{file}: ESPG:{proj} {box} => {projected}", file=file.name, proj=gtf.crs_code, box=gtf.tif_bBox, projected=gtf.tif_bBox_converted)
 
         # Read intersection DEM and Raster bounds
-        dem = np.array(gtf.read_box([(boundsMin[0],boundsMax[1]),(boundsMax[0],boundsMin[1])]))
+        dem = np.array(gtf.read_box([( max([boundsMin[0], gtf.tif_bBox_converted[0][0]]), min([boundsMax[1], gtf.tif_bBox_converted[0][1]]) ),
+                                     ( min([boundsMax[0], gtf.tif_bBox_converted[1][0]]), max([boundsMin[1], gtf.tif_bBox_converted[1][1]]) ) ]))
         logger.debug("DEM intersection dimensions: {}", dem.shape)
         logger.trace(dem)
 
         # Find lowrest and highest value of DEM heights
-        min = np.min(dem).item()
-        max = np.max(dem).item()
-        if boundsMin[2] is None: boundsMin[2] = min
-        if min < boundsMin[2]: boundsMin[2] = min
-        if boundsMax[2] is None: boundsMax[2] = max
-        if max < boundsMax[2]: boundsMax[2] = max
-        logger.debug("Lowrest point: {}m, highest point {}m", min, max)
+        minZ = np.min(dem).item()
+        maxZ = np.max(dem).item()
+        if boundsMin[2] is None: boundsMin[2] = minZ
+        if minZ < boundsMin[2]: boundsMin[2] = minZ
+        if boundsMax[2] is None: boundsMax[2] = maxZ
+        if maxZ < boundsMax[2]: boundsMax[2] = maxZ
+        logger.debug("Lowrest point: {}m, highest point {}m", minZ, maxZ)
 
     logger.success("Bounds of our world:  {} - {}", boundsMin, boundsMax)
 
