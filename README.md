@@ -60,10 +60,7 @@ Project work with three coordinate systems:
 
 - Internal integer coordinate system of primitive voxel wolrd. We find lowrest x,y,z coordinates and put then in (0,0,0) of our new world. Then we use an accuracy value (default `3m`) for an voxel edge. The whole world is built from these voxels. All world details smaller than half a voxel edge are considered as an error and are ignored.
 
-![Parallel transfer the world to the new zero point of reference](/images/coordinates.png)\
-<sub><sup>3D-city designed by [Freepik](www.freepik.com)</sup></sub>
-
-![Voxel world](/images/voxels-grid5.png)
+![Parallel transfer the world to the new zero point of reference](/images/coordinates4.png)\
 
 ## 3. The arrangement of voxels in computer memory
 
