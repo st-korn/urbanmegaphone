@@ -23,7 +23,7 @@
     pip install imagecodecs
     ```
 
-3. Clone this repository. In any forlder do:
+3. Clone this repository. In any folder run:
     ```
     git clone https://github.com/st-korn/urbanmegaphone.git
     ```
@@ -54,13 +54,28 @@ Project folder contains these files and folders:
 
 Project work with three coordinate systems:
 
-- `WGS 84` aka `EPSG:4326` - degrees on WGS'84 datum for [DEM Models](#1-digital-elevation-model-of-earths-surface)
+- `WGS 84` aka `EPSG:4326` - degrees on WGS'84 datum for [DEM Models](#1-digital-elevation-model-of-earths-surface) This projection is automatically converted to `ESPG:3857` when DEM's images opening. \
+\
+![WGS 84 projection](/images/coord1.png)
 
-- `ESPG:3857` - Metric Mercator's projection. It has conversion formulas for a sphere, but applies them to WGS'84 datum ellipsoid. [See more](https://en.wikipedia.org/wiki/Web_Mercator_projection). All meridians are vertical, all parallels are horizontal. This projection is used for [raster background](#2-raster-map-for-background).
+- `ESPG:3857` - Metric Web-Mercator's projection. It has conversion formulas for a sphere, but applies them to WGS'84 datum ellipsoid. [See more](https://en.wikipedia.org/wiki/Web_Mercator_projection). All meridians are vertical, all parallels are horizontal. This projection is used for [raster background](#2-raster-map-for-background).
+These two projections have a very distant coordinate center located in the Atlantic Ocean. 
+Note that northern points have a higher `latitude` coordinate value than southern points.\
+\
+![Web-Mercator's projection](/images/coord2.png)
 
-- Internal integer coordinate system of primitive voxel wolrd. We find lowrest x,y,z coordinates and put then in (0,0,0) of our new world. Then we use an accuracy value (default `3m`) for an voxel edge. The whole world is built from these voxels. All world details smaller than half a voxel edge are considered as an error and are ignored.
+- When we work with raster image, we operate local coordinat system of pixels. They have two dimensions `x,y`. Coordinate center is left-top pixel of raster image. Here northern points have a lower `y` coordinate value than southern points.\
+\
+![Raster's pixel coordinate system](/images/coord3.png)
 
-![Parallel transfer the world to the new zero point of reference](/images/coordinates4.png)\
+- Internal integer coordinate system of primitive voxel wolrd. We find lowrest x,y,z coordinates and put then in (0,0,0) of our new world. Then we use an accuracy value (default `3m`) for an voxel edge. The whole world is built from these voxels. All world details smaller than half a voxel edge are considered as an error and are ignored.\
+\
+![Voxel's world coordinate system](/images/coord4.png)
+
+- Render window of **Visualization ToolKit** library has its own coordinate system. Y-axis is directed upwards. Horizontal Z-axis is directed away from us. Therefore, all points of our 3D-world are located in the negative half of Z-axis.\
+\
+![VTK's 3D rendering coordinate system](/images/coord5.png)
+<sub><sup>3D-city designed by [Freepik](www.freepik.com)</sup></sub>
 
 ## 3. The arrangement of voxels in computer memory
 
