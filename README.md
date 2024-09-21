@@ -68,11 +68,11 @@ Note that northern points have a higher `latitude` coordinate value than souther
 \
 ![Raster's pixel coordinate system](/images/coord3.png)
 
-- Internal integer coordinate system of primitive voxel wolrd. We find lowrest x,y,z coordinates and put then in (0,0,0) of our new world. Then we use an accuracy value (default `3m`) for an voxel edge. The whole world is built from these voxels. All world details smaller than half a voxel edge are considered as an error and are ignored.\
+- Internal integer coordinate system of primitive voxel wolrd. We find lowrest `x,y,z` coordinates and put then in `(0,0,0)` of our new world. Then we use an accuracy value (default `3m`) for an voxel edge. The whole world is built from these voxels. All world details smaller than half a voxel edge are considered as an error and are ignored.\
 \
 ![Voxel's world coordinate system](/images/coord4.png)
 
-- Render window of **Visualization ToolKit** library has its own coordinate system. Y-axis is directed upwards. Horizontal Z-axis is directed away from us. Therefore, all points of our 3D-world are located in the negative half of Z-axis.\
+- Render window of **Visualization ToolKit** library has its own coordinate system. `y`-axis is directed upwards. Horizontal `z`-axis is directed away from us. Therefore, all points of our 3D-world are located in the negative half of `z`-axis. Coordinate values in VTK's coordinate system equals internal integer coordiates. But they don't have to be integers. They can take real values ​​where needed. For example, to more accurately display the relief of the earth's surface.\
 \
 ![VTK's 3D rendering coordinate system](/images/coord5.png)
 <sub><sup>3D-city designed by [Freepik](www.freepik.com)</sup></sub>
