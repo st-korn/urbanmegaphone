@@ -21,11 +21,11 @@ from modules.settings import * # Settings defenition
 # ============================================
 
 # World dimensions (meters, Web-Mercator ESPG:3857)
-boundsMin = [None, None, None]
-boundsMax = [None, None, None]
+boundsMin = [None, None, None] #lon, lat, height
+boundsMax = [None, None, None] #lon, lat, height
 
 # Voxel's world dimensions (integer)
-bounds = [None, None, None]
+bounds = [None, None, None] #x_lon, y_lat, z_height
 
 
 # Single VTK objects

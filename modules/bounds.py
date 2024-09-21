@@ -91,23 +91,12 @@ def ReadWorldBounds():
 
 
 # ============================================
-# Accept two or three coordinates in meters
-# and return two or three integer coordinates
-# ============================================
-'''
-def coordM2Int(meters):
-    ints = []
-    for i in range(len(meters)):
-        ints.append( int(np.round( (meters[i]-boundsMin[i])/sizeVoxel ).item()) )
-    return ints
-'''
-
-# ============================================
-# Accept two or three coordinates in meters
-# and return two or three float coordinates of integer space (without rounding)
+# Accept three coordinates in meters [lon, lat, height]
+# and return three float coordinates of VTK space without rounding [x_vtk, y_vtk, z_vtk]
 # ============================================
 def coordM2Float(meters):
     floats = []
-    for i in range(len(meters)):
-        floats.append( float( (meters[i]-boundsMin[i])/sizeVoxel ) )
+    floats.append( (meters[0]-boundsMin[0])/sizeVoxel )
+    floats.append( (meters[2]-boundsMin[2])/sizeVoxel )
+    floats.append( (meters[1]-boundsMin[1])/sizeVoxel*(-1) )
     return floats
