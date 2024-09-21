@@ -2,9 +2,9 @@
 
 - [How to run it?](#how-to-run-it)
 - [How it works?](#how-it-works)
-    - [ Files and folders](#1-files-and-folders)
-    - [Coordinate system](#1-coordinate-system)
-    - [The arrangement of voxels in computer memory](#2-the-arrangement-of-voxels-in-computer-memory)
+    - [Files and folders](#1-files-and-folders)
+    - [Coordinate system](#2-coordinate-system)
+    - [The arrangement of voxels in computer memory](#3-the-arrangement-of-voxels-in-computer-memory)
 - [What i need prepare to my own modeling?](#what-i-need-prepare-to-my-own-modeling)
     - [Digital elevation model of earth's surface](#1-digital-elevation-model-of-earths-surface)
     - [Raster map for background](#2-raster-map-for-background)
@@ -48,7 +48,6 @@ Project folder contains these files and folders:
 - `BUILDINGS/` - vector layers of urban buildings
 - `MEGAPHONES/` - points locations of loudspeakers
 !!! Screen of run every command
-
 
 ## 2. Coordinate system
 
