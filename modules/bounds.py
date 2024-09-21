@@ -58,8 +58,17 @@ def ReadWorldBounds():
         logger.debug("{file}: ESPG:{proj} {box} => {projected}", file=file.name, proj=gtf.crs_code, box=gtf.tif_bBox, projected=gtf.tif_bBox_converted)
 
         # Read intersection DEM and Raster bounds
-        dem = np.array(gtf.read_box([( max([boundsMin[0], gtf.tif_bBox_converted[0][0]]), min([boundsMax[1], gtf.tif_bBox_converted[0][1]]) ),
-                                     ( min([boundsMax[0], gtf.tif_bBox_converted[1][0]]), max([boundsMin[1], gtf.tif_bBox_converted[1][1]]) ) ]))
+        # Fix issue #60 @ python geotiff library
+        boxIntersection = (( max([boundsMin[0], gtf.tif_bBox_converted[0][0]]), min([boundsMax[1], gtf.tif_bBox_converted[0][1]]) ),
+                           ( min([boundsMax[0], gtf.tif_bBox_converted[1][0]]), max([boundsMin[1], gtf.tif_bBox_converted[1][1]]) ) )
+        try:
+            dem = np.array(gtf.read_box(boxIntersection))
+        except:
+            logger.warning("DEM intersection not found")
+            continue
+        if (dem.shape[0] == 0) or (dem.shape[1] == 0):
+            logger.warning("DEM intersection not found")
+            continue
         logger.debug("DEM intersection dimensions: {}", dem.shape)
         logger.trace(dem)
 

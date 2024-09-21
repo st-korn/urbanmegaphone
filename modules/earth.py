@@ -51,9 +51,17 @@ def GenerateEarthSurface():
             gtfD = GeoTiff(fileD, as_crs=3857)
         
             # Read intersection DEM and Raster bounds
+            # Fix issue #60 @ python geotiff library
             boxIntersection = (( max([boxR[0][0], gtfD.tif_bBox_converted[0][0]]), min([boxR[0][1], gtfD.tif_bBox_converted[0][1]]) ),
                                ( min([boxR[1][0], gtfD.tif_bBox_converted[1][0]]), max([boxR[1][1], gtfD.tif_bBox_converted[1][1]]) ))
-            dem = np.array(gtfD.read_box(boxIntersection))
+            try:
+                dem = np.array(gtfD.read_box(boxIntersection))
+            except:
+                logger.warning("DEM intersection not found")
+                continue
+            if (dem.shape[0] == 0) or (dem.shape[1] == 0):
+                logger.warning("DEM intersection not found")
+                continue
             lons, lats = gtfD.get_coord_arrays(boxIntersection)
 
             logger.debug("{file} intersection: {dim} @ ({src}) = ({dst})", file=fileD.name, dim=dem.shape, src=[float(lons[0,0]),float(lats[0,0]),float(dem[0,0])], dst=coordM2Float([lons[0,0],lats[0,0],dem[0,0]]))
