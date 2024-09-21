@@ -34,7 +34,8 @@ def ReadWorldBounds():
         # Open GeoTIFF and conver coordinates to Web-Mercator
         gtf = GeoTiff(file, as_crs=3857)
         
-        logger.debug("{file}: ESPG:{proj} {box} => {projected}", file=file.name, proj=gtf.crs_code, box=gtf.tif_bBox, projected=gtf.tif_bBox_converted)
+        logger.debug("{file}: ESPG:{proj}", file=file.name, proj=gtf.crs_code)
+        logger.debug("{box} => {projected}", box=gtf.tif_bBox, projected=gtf.tif_bBox_converted)
         
         # Find total bounds of all rasters
         box = gtf.tif_bBox_converted
@@ -55,18 +56,14 @@ def ReadWorldBounds():
         # Open GeoTIFF and conver coordinates to Web-Mercator
         gtf = GeoTiff(file, as_crs=3857)
         
-        logger.debug("{file}: ESPG:{proj} {box} => {projected}", file=file.name, proj=gtf.crs_code, box=gtf.tif_bBox, projected=gtf.tif_bBox_converted)
+        logger.debug("{file}: ESPG:{proj}", file=file.name, proj=gtf.crs_code)
+        logger.debug("{box} => {projected}", box=gtf.tif_bBox, projected=gtf.tif_bBox_converted)
 
         # Read intersection DEM and Raster bounds
-        # Fix issue #60 @ python geotiff library
-        boxIntersection = (( max([boundsMin[0], gtf.tif_bBox_converted[0][0]]), min([boundsMax[1], gtf.tif_bBox_converted[0][1]]) ),
-                           ( min([boundsMax[0], gtf.tif_bBox_converted[1][0]]), max([boundsMin[1], gtf.tif_bBox_converted[1][1]]) ) )
+        boxIntersection = ((boundsMin[0],boundsMax[1]),(boundsMax[0],boundsMin[1]))
         try:
             dem = np.array(gtf.read_box(boxIntersection))
         except:
-            logger.warning("DEM intersection not found")
-            continue
-        if (dem.shape[0] == 0) or (dem.shape[1] == 0):
             logger.warning("DEM intersection not found")
             continue
         logger.debug("DEM intersection dimensions: {}", dem.shape)
@@ -96,7 +93,7 @@ def ReadWorldBounds():
 # ============================================
 def coordM2Float(meters):
     floats = []
-    floats.append( (meters[0]-boundsMin[0])/sizeVoxel )
-    floats.append( (meters[2]-boundsMin[2])/sizeVoxel )
-    floats.append( (meters[1]-boundsMin[1])/sizeVoxel*(-1) )
+    floats.append( (float(meters[0])-boundsMin[0])/sizeVoxel )
+    floats.append( (float(meters[2])-boundsMin[2])/sizeVoxel )
+    floats.append( (float(meters[1])-boundsMin[1])/sizeVoxel*(-1) )
     return floats

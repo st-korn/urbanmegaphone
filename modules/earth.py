@@ -51,20 +51,21 @@ def GenerateEarthSurface():
             gtfD = GeoTiff(fileD, as_crs=3857)
         
             # Read intersection DEM and Raster bounds
-            # Fix issue #60 @ python geotiff library
-            boxIntersection = (( max([boxR[0][0], gtfD.tif_bBox_converted[0][0]]), min([boxR[0][1], gtfD.tif_bBox_converted[0][1]]) ),
-                               ( min([boxR[1][0], gtfD.tif_bBox_converted[1][0]]), max([boxR[1][1], gtfD.tif_bBox_converted[1][1]]) ))
             try:
-                dem = np.array(gtfD.read_box(boxIntersection))
+                dem = np.array(gtfD.read_box(boxR, outer_points=SurfaceOutline))
             except:
-                logger.warning("DEM intersection not found")
+                logger.warning("{}: DEM intersection not found", fileD.name)
                 continue
-            if (dem.shape[0] == 0) or (dem.shape[1] == 0):
-                logger.warning("DEM intersection not found")
-                continue
-            lons, lats = gtfD.get_coord_arrays(boxIntersection)
+            lons, lats = gtfD.get_coord_arrays(boxR, outer_points=SurfaceOutline)
 
-            logger.debug("{file} intersection: {dim} @ ({src}) = ({dst})", file=fileD.name, dim=dem.shape, src=[float(lons[0,0]),float(lats[0,0]),float(dem[0,0])], dst=coordM2Float([lons[0,0],lats[0,0],dem[0,0]]))
+            logger.debug("{file} intersection: {dim}",file=fileD.name, dim=dem.shape)
+            logger.debug("@ ({src}) = ({dst})", src=[float(lons[0,0]),float(lats[0,0]),float(dem[0,0])], dst=coordM2Float([lons[0,0],lats[0,0],dem[0,0]]))
+            logger.trace("@ ({src}) = ({dst})", src=[float(lons[0,dem.shape[1]-1]),float(lats[0,dem.shape[1]-1]),float(dem[0,dem.shape[1]-1])], 
+                                                dst=coordM2Float([lons[0,dem.shape[1]-1],lats[0,dem.shape[1]-1],dem[0,dem.shape[1]-1]]))
+            logger.trace("@ ({src}) = ({dst})", src=[float(lons[dem.shape[0]-1,0]),float(lats[dem.shape[0]-1,0]),float(dem[dem.shape[0]-1,0])], 
+                                                dst=coordM2Float([lons[dem.shape[0]-1,0],lats[dem.shape[0]-1,0],dem[dem.shape[0]-1,0]]))
+            logger.trace("@ ({src}) = ({dst})", src=[float(lons[dem.shape[0]-1,dem.shape[1]-1]),float(lats[dem.shape[0]-1,dem.shape[1]-1]),float(dem[dem.shape[0]-1,dem.shape[1]-1])], 
+                                                dst=coordM2Float([lons[dem.shape[0]-1,dem.shape[1]-1],lats[dem.shape[0]-1,dem.shape[1]-1],dem[dem.shape[0]-1,dem.shape[1]-1]]))
 
             # Collect points of surface
             points = vtkPoints()
@@ -73,11 +74,12 @@ def GenerateEarthSurface():
             pntsTextureDEM.append(points)
 
             # Create surface from points
-            polyData = vtkPolyData()
-            polyData.SetPoints(points)
+            polyDataPoints = vtkPolyData()
+            polyDataPoints.SetPoints(points)
             surface = vtk.vtkSurfaceReconstructionFilter()
             surface.SetNeighborhoodSize(7)
-            surface.SetInputData(polyData)
+            if flagSurfaceAsGrid: surface.SetSampleSpacing(1)
+            surface.SetInputData(polyDataPoints)
             srfsfltTextureDEM.append(surface)
             cf = vtk.vtkContourFilter()
             cf.SetInputConnection(surface.GetOutputPort())
@@ -90,11 +92,44 @@ def GenerateEarthSurface():
             reverse.Update()
             rvrsfltTextureDEM.append(reverse)
             polyData = reverse.GetOutput()
-            pldtTextureDEM.append(polyData)
 
             # Shrink surface to preven the formation of a seam between the stitched surfaces
-            print(points)
+            bnds = points.GetBounds()
+            ci = polyData.NewCellIterator()
+            ci.InitTraversal()
+            while not(ci.IsDoneWithTraversal()):
+                pnts = ci.GetPoints()
+                mark = False
+                for i in range(pnts.GetNumberOfPoints()):
+                    pnt = pnts.GetPoint(i)
+                    if (pnt[0]<bnds[0]-SurfaceDelta) or (pnt[0]>bnds[1]+SurfaceDelta): mark = True
+                    if (pnt[1]<bnds[2]-SurfaceDelta) or (pnt[1]>bnds[3]+SurfaceDelta): mark = True
+                    if (pnt[2]<bnds[4]-SurfaceDelta) or (pnt[2]>bnds[5]+SurfaceDelta): mark = True
+                if mark: 
+                    polyData.DeleteCell(ci.GetCellId())
+                ci.GoToNextCell()
+            polyData.RemoveDeletedCells()
 
+            # Generate spheres on origianl earth DEM points
+            if flagShowEarthPoints:
+                sphere = vtk.vtkSphereSource()
+                sphere.SetRadius(1)
+                glyph = vtk.vtkGlyph3D()
+                glyph.SetInputData(polyDataPoints)
+                glyph.SetSourceConnection(sphere.GetOutputPort())
+                glyph.ScalingOff()
+                glyph.Update()
+                pointsMapper = vtkPolyDataMapper()
+                pointsMapper.SetInputConnection(glyph.GetOutputPort())
+                pointsActor = vtkActor()
+                pointsActor.SetMapper(pointsMapper)
+                colors = vtk.vtkNamedColors()
+                pointsActor.GetProperty().SetColor(colors.GetColor3d("goldenrod_light"))
+                actTextureDEM.append(pointsActor)
+            
+
+            # Store generated surface in memory
+            pldtTextureDEM.append(polyData)
             # Prepare surface for view
             mapper = vtkPolyDataMapper()
             mapper.SetInputData(polyData)
