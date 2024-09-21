@@ -34,7 +34,7 @@ def ReadWorldBounds():
         # Open GeoTIFF and conver coordinates to Web-Mercator
         gtf = GeoTiff(file, as_crs=3857)
         
-        logger.debug("{file}: ESPG:{proj}", file=file.name, proj=gtf.crs_code)
+        logger.debug("{file}: ESPG:{proj} {resolution}", file=file.name, proj=gtf.crs_code, resolution=gtf.tif_shape)
         logger.debug("{box} => {projected}", box=gtf.tif_bBox, projected=gtf.tif_bBox_converted)
         
         # Find total bounds of all rasters
@@ -56,7 +56,7 @@ def ReadWorldBounds():
         # Open GeoTIFF and conver coordinates to Web-Mercator
         gtf = GeoTiff(file, as_crs=3857)
         
-        logger.debug("{file}: ESPG:{proj}", file=file.name, proj=gtf.crs_code)
+        logger.debug("{file}: ESPG:{proj} {resolution}", file=file.name, proj=gtf.crs_code, resolution=gtf.tif_shape)
         logger.debug("{box} => {projected}", box=gtf.tif_bBox, projected=gtf.tif_bBox_converted)
 
         # Read intersection DEM and Raster bounds

@@ -31,5 +31,6 @@ Interactor.Initialize()
 Renderer.ResetCamera()
 Window.Render()
 Interactor.SetInteractorStyle(vtk.vtkInteractorStyleTerrain())
+logger.success("Done. Ready for viewing")
 Interactor.Start()
 

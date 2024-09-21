@@ -11,7 +11,7 @@ folderDEM = 'DEM' # Subfolder (in current folder) with DEM tiles (.tif)
 
 # Debug log detail level, from verbose to terse:
 # "TRACE" or "DEBUG" or "INFO" or "SUCCESS" or "WARNING" or "ERROR" or "CRITICAL"
-logLevel = "DEBUG"
+logLevel = "INFO"
 
 
 # Quality of world's detail
