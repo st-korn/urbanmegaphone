@@ -35,7 +35,8 @@ def ReadWorldBounds():
         gtf = GeoTiff(file, as_crs=3857)
         
         logger.debug("{file}: ESPG:{proj} {resolution}", file=file.name, proj=gtf.crs_code, resolution=gtf.tif_shape)
-        logger.debug("{box} => {projected}", box=gtf.tif_bBox, projected=gtf.tif_bBox_converted)
+        logger.debug("   {box} =>", box=gtf.tif_bBox)
+        logger.debug("   => {projected}", projected=gtf.tif_bBox_converted)
         
         # Find total bounds of all rasters
         box = gtf.tif_bBox_converted
@@ -57,7 +58,8 @@ def ReadWorldBounds():
         gtf = GeoTiff(file, as_crs=3857)
         
         logger.debug("{file}: ESPG:{proj} {resolution}", file=file.name, proj=gtf.crs_code, resolution=gtf.tif_shape)
-        logger.debug("{box} => {projected}", box=gtf.tif_bBox, projected=gtf.tif_bBox_converted)
+        logger.debug("   {box} =>", box=gtf.tif_bBox)
+        logger.debug("   => {projected}", projected=gtf.tif_bBox_converted)
 
         # Read intersection DEM and Raster bounds
         boxIntersection = ((boundsMin[0],boundsMax[1]),(boundsMax[0],boundsMin[1]))

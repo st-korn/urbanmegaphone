@@ -98,6 +98,8 @@ Positive integer numbers of voxel cells are links to flat array with Voxel class
 
 If `int32` is not enough to store information about all the important voxels in the world, it can be replaced with `int64`
 
+## 4. 
+
 
 # What i need prepare to my own modeling?
 

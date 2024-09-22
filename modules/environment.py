@@ -11,6 +11,7 @@ import sys # use default outputs
 from loguru import logger # Write log
 from vtkmodules.vtkIOImage import vtkImageReader2Factory # Read raster images from files
 from vtkmodules.vtkRenderingCore import ( vtkRenderer, vtkRenderWindow, vtkRenderWindowInteractor ) # All for render 3D-models
+from vtkmodules.vtkCommonColor import vtkNamedColors # Use colors
 import vtkmodules.vtkRenderingOpenGL2 # Use OpenGL for render
 
 # Own core modules
@@ -30,6 +31,7 @@ bounds = [None, None, None] #x_lon, y_lat, z_height
 
 # Single VTK objects
 readerFactory = vtkImageReader2Factory()
+Colors = vtkNamedColors()
 Renderer = vtkRenderer()
 Window = vtkRenderWindow()
 Interactor = vtkRenderWindowInteractor()
@@ -57,4 +59,5 @@ logger.add(sys.stderr, level=logLevel)
 
 # Prepare VTK rendering window
 Window.AddRenderer(Renderer)
+Renderer.SetBackground(Colors.GetColor3d("ivory_black"))
 Interactor.SetRenderWindow(Window)

@@ -17,6 +17,7 @@ GenerateEarthSurface() # Read .tif files of RASTER and DEM models, generate 3D-s
 
 # Prepare VTK-window for view and interact
 # ============================================
+logger.info("Prepare 3D model in viewer window")
 Window.AddRenderer(Renderer)
 Interactor.SetRenderWindow(Window)
 

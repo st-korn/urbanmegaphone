@@ -11,7 +11,7 @@ folderDEM = 'DEM' # Subfolder (in current folder) with DEM tiles (.tif)
 
 # Debug log detail level, from verbose to terse:
 # "TRACE" or "DEBUG" or "INFO" or "SUCCESS" or "WARNING" or "ERROR" or "CRITICAL"
-logLevel = "INFO"
+logLevel = "DEBUG"
 
 
 # Quality of world's detail
@@ -20,15 +20,14 @@ logLevel = "INFO"
 # Voxel's edge size, meter. Default value is 3 meter - approximately one floor
 sizeVoxel = 3
 
-# Build earth surface like a grid (best view, but 50x more runtime): True or False
-# Not recomended if you have less than 64Gb RAM
-flagSurfaceAsGrid = False
-
-# Permissible error in constructing surfaces by points, voxels. Default value is 3 voxel
-SurfaceDelta = 3
-
 # How many pixeles get out of box border. Increase it to prevent blank lines on raster's seam. Default value is 2 px
-SurfaceOutline = 2
+SurfaceOutline = 1
 
-# Show original DEM earth's point: True or False
-flagShowEarthPoints = True
+# Count of neighboring points, used for aproximate surface. Low values lead to a haotic surface. Default value is 10
+SurfaceNeighbor = 10
+
+# Count of neighboring points, used for aproximate one cell of surface. Low values lead to long calculation times. Default value is 5
+SurfaceCells = 5
+
+# Show original DEM earth's point: True or False. Used for debug surface purposes
+flagShowEarthPoints = False

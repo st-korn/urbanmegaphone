@@ -77,8 +77,8 @@ def GenerateEarthSurface():
             polyDataPoints = vtkPolyData()
             polyDataPoints.SetPoints(points)
             surface = vtk.vtkSurfaceReconstructionFilter()
-            surface.SetNeighborhoodSize(7)
-            if flagSurfaceAsGrid: surface.SetSampleSpacing(1)
+            surface.SetNeighborhoodSize(SurfaceNeighbor)
+            surface.SetSampleSpacing(SurfaceCells)
             surface.SetInputData(polyDataPoints)
             srfsfltTextureDEM.append(surface)
             cf = vtk.vtkContourFilter()
@@ -92,26 +92,10 @@ def GenerateEarthSurface():
             reverse.Update()
             rvrsfltTextureDEM.append(reverse)
             polyData = reverse.GetOutput()
+            logger.trace("Sample spacing = {}",surface.GetSampleSpacing())
 
-            # Shrink surface to preven the formation of a seam between the stitched surfaces
-            bnds = points.GetBounds()
-            ci = polyData.NewCellIterator()
-            ci.InitTraversal()
-            while not(ci.IsDoneWithTraversal()):
-                pnts = ci.GetPoints()
-                mark = False
-                for i in range(pnts.GetNumberOfPoints()):
-                    pnt = pnts.GetPoint(i)
-                    if (pnt[0]<bnds[0]-SurfaceDelta) or (pnt[0]>bnds[1]+SurfaceDelta): mark = True
-                    if (pnt[1]<bnds[2]-SurfaceDelta) or (pnt[1]>bnds[3]+SurfaceDelta): mark = True
-                    if (pnt[2]<bnds[4]-SurfaceDelta) or (pnt[2]>bnds[5]+SurfaceDelta): mark = True
-                if mark: 
-                    polyData.DeleteCell(ci.GetCellId())
-                ci.GoToNextCell()
-            polyData.RemoveDeletedCells()
-
-            # Generate spheres on origianl earth DEM points
             if flagShowEarthPoints:
+                # Generate spheres on original earth DEM points
                 sphere = vtk.vtkSphereSource()
                 sphere.SetRadius(1)
                 glyph = vtk.vtkGlyph3D()
@@ -123,10 +107,23 @@ def GenerateEarthSurface():
                 pointsMapper.SetInputConnection(glyph.GetOutputPort())
                 pointsActor = vtkActor()
                 pointsActor.SetMapper(pointsMapper)
-                colors = vtk.vtkNamedColors()
-                pointsActor.GetProperty().SetColor(colors.GetColor3d("goldenrod_light"))
+                pointsActor.GetProperty().SetColor(Colors.GetColor3d("goldenrod_light"))
                 actTextureDEM.append(pointsActor)
-            
+
+                # Generate spheres on generated earth surfacee vertices
+                glyph = vtk.vtkGlyph3D()
+                glyph.SetInputData(polyData)
+                glyph.SetSourceConnection(sphere.GetOutputPort())
+                glyph.ScalingOff()
+                glyph.Update()
+                pointsMapper = vtkPolyDataMapper()
+                pointsMapper.SetInputConnection(glyph.GetOutputPort())
+                pointsMapper.ScalarVisibilityOff()
+                pointsActor = vtkActor()
+                pointsActor.SetMapper(pointsMapper)
+                pointsActor.GetProperty().SetColor(Colors.GetColor3d("dim_grey"))
+                actTextureDEM.append(pointsActor)
+                
 
             # Store generated surface in memory
             pldtTextureDEM.append(polyData)
