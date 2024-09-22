@@ -5,7 +5,7 @@
     - [Files and folders](#1-files-and-folders)
     - [Coordinate system](#2-coordinate-system)
     - [The arrangement of voxels in computer memory](#3-the-arrangement-of-voxels-in-computer-memory)
-    - [Building the Earth's surface](#4-building-the-earth's-surface)
+    - [Building the Earth's surface](#4-building-the-earths-surface)
 - [What i need prepare to my own modeling?](#what-i-need-prepare-to-my-own-modeling)
     - [Digital elevation model of earth's surface](#1-digital-elevation-model-of-earths-surface)
     - [Raster map for background](#2-raster-map-for-background)
