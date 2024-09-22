@@ -5,6 +5,7 @@
     - [Files and folders](#1-files-and-folders)
     - [Coordinate system](#2-coordinate-system)
     - [The arrangement of voxels in computer memory](#3-the-arrangement-of-voxels-in-computer-memory)
+    - [Building the Earth's surface](#4-building-the-earth's-surface)
 - [What i need prepare to my own modeling?](#what-i-need-prepare-to-my-own-modeling)
     - [Digital elevation model of earth's surface](#1-digital-elevation-model-of-earths-surface)
     - [Raster map for background](#2-raster-map-for-background)
@@ -98,7 +99,20 @@ Positive integer numbers of voxel cells are links to flat array with Voxel class
 
 If `int32` is not enough to store information about all the important voxels in the world, it can be replaced with `int64`
 
-## 4. 
+## 4. Building the Earth's surface
+
+First, we loop through the [raster files](#2-raster-map-for-background) in the `RASTER` directory. We get bounds if `ESPG:3857` of each file, and calculate boundaries `[lon,lat]` of our world. Raster files are the main thing that the program starts from when building the world.
+
+![Earth ground from raster tiles](/images/screen1.png)
+
+Next loop through [Digital elevation model files](#1-digital-elevation-model-of-earths-surface) in `DEM` directory. For each file calculate the intersection between raster and DEM files. We collect all DEM points of intersection to VTK point cloud. Next we use these point to buld surface with the help of PhD work [Hugues Hoppe](https://hhoppe.com/)
+
+![DEM of Caucasus](/images/screen2.png)
+
+Light spheres on the image means source points of DEM raster data. Dark spheres means points of generated aproximated surface. If you want, you can turn on the display of those points using a setting `flagShowEarthPoints` in the module `settings.py`
+
+![DEM of Caucasus](/images/screen3.png)
+
 
 
 # What i need prepare to my own modeling?

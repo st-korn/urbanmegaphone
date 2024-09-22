@@ -30,4 +30,4 @@ SurfaceNeighbor = 10
 SurfaceCells = 5
 
 # Show original DEM earth's point: True or False. Used for debug surface purposes
-flagShowEarthPoints = False
+flagShowEarthPoints = True
