@@ -12,7 +12,7 @@ from geotiff import GeoTiff # GeoTIFF format reader
 import numpy as np # Work with DEM matrix
 from vtkmodules.vtkCommonCore import vtkPoints # Use points cloud in 3D-world
 from vtkmodules.vtkCommonDataModel import vtkPolyData # Use 3D-primitives
-from vtkmodules.vtkRenderingCore import (vtkActor, vtkPolyDataMapper) # Use VTK rendering
+from vtkmodules.vtkRenderingCore import (vtkActor, vtkPolyDataMapper, vtkTexture) # Use VTK rendering
 import vtk # Use other 3D-visualization features
 
 # Own core modules
@@ -58,20 +58,18 @@ def GenerateEarthSurface():
                 continue
             lons, lats = gtfD.get_coord_arrays(boxR, outer_points=SurfaceOutline)
 
+            boundsLeftTop = coordM2Float([lons[0,0],lats[0,0],dem[0,0]])
+            boundsRightBottom = coordM2Float([lons[dem.shape[0]-1,dem.shape[1]-1],lats[dem.shape[0]-1,dem.shape[1]-1],dem[dem.shape[0]-1,dem.shape[1]-1]])
             logger.debug("{file} intersection: {dim}",file=fileD.name, dim=dem.shape)
-            logger.debug("@ ({src}) = ({dst})", src=[float(lons[0,0]),float(lats[0,0]),float(dem[0,0])], dst=coordM2Float([lons[0,0],lats[0,0],dem[0,0]]))
-            logger.trace("@ ({src}) = ({dst})", src=[float(lons[0,dem.shape[1]-1]),float(lats[0,dem.shape[1]-1]),float(dem[0,dem.shape[1]-1])], 
-                                                dst=coordM2Float([lons[0,dem.shape[1]-1],lats[0,dem.shape[1]-1],dem[0,dem.shape[1]-1]]))
-            logger.trace("@ ({src}) = ({dst})", src=[float(lons[dem.shape[0]-1,0]),float(lats[dem.shape[0]-1,0]),float(dem[dem.shape[0]-1,0])], 
-                                                dst=coordM2Float([lons[dem.shape[0]-1,0],lats[dem.shape[0]-1,0],dem[dem.shape[0]-1,0]]))
-            logger.trace("@ ({src}) = ({dst})", src=[float(lons[dem.shape[0]-1,dem.shape[1]-1]),float(lats[dem.shape[0]-1,dem.shape[1]-1]),float(dem[dem.shape[0]-1,dem.shape[1]-1])], 
-                                                dst=coordM2Float([lons[dem.shape[0]-1,dem.shape[1]-1],lats[dem.shape[0]-1,dem.shape[1]-1],dem[dem.shape[0]-1,dem.shape[1]-1]]))
+            logger.debug("@ ({src}) = ({dst})", src=[float(lons[0,0]),float(lats[0,0]),float(dem[0,0])], dst=boundsLeftTop)
+            logger.trace("@ ({src}) = ({dst})", src=[float(lons[dem.shape[0]-1,dem.shape[1]-1]),float(lats[dem.shape[0]-1,dem.shape[1]-1]),float(dem[dem.shape[0]-1,dem.shape[1]-1])], dst=boundsRightBottom)
 
             # Collect points of surface
             points = vtkPoints()
             for lon, lat in np.ndindex(dem.shape):
                 points.InsertNextPoint(coordM2Float([lons[lon,lat],lats[lon,lat],dem[lon,lat]]))
             pntsTextureDEM.append(points)
+            logger.debug("DEM points converted")
 
             # Create surface from points
             polyDataPoints = vtkPolyData()
@@ -92,7 +90,21 @@ def GenerateEarthSurface():
             reverse.Update()
             rvrsfltTextureDEM.append(reverse)
             polyData = reverse.GetOutput()
+            logger.debug("DEM surface created")
             logger.trace("Sample spacing = {}",surface.GetSampleSpacing())
+
+            # Put texture on surface
+            surfacePoints = polyData.GetPoints()
+            texturePoints = vtk.vtkFloatArray()
+            texturePoints.SetNumberOfComponents(2)
+            for i in range(surfacePoints.GetNumberOfPoints()):
+                pnt = surfacePoints.GetPoint(i)
+                texturePoints.InsertNextTuple2( (pnt[0]-boundsLeftTop[0])/(boundsRightBottom[0]-boundsLeftTop[0]), (pnt[2]-boundsLeftTop[2])/(boundsRightBottom[2]-boundsLeftTop[2]))
+            polyData.GetPointData().SetTCoords(texturePoints)
+            logger.debug("DEM texture applied")
+            atext = vtkTexture()
+            atext.SetInputConnection(imageReader.GetOutputPort())
+            atext.InterpolateOn()
 
             if flagShowEarthPoints:
                 # Generate spheres on original earth DEM points
@@ -109,6 +121,7 @@ def GenerateEarthSurface():
                 pointsActor.SetMapper(pointsMapper)
                 pointsActor.GetProperty().SetColor(Colors.GetColor3d("goldenrod_light"))
                 actTextureDEM.append(pointsActor)
+                logger.debug("DEM source points spheres created")
 
                 # Generate spheres on generated earth surfacee vertices
                 glyph = vtk.vtkGlyph3D()
@@ -123,6 +136,7 @@ def GenerateEarthSurface():
                 pointsActor.SetMapper(pointsMapper)
                 pointsActor.GetProperty().SetColor(Colors.GetColor3d("dim_grey"))
                 actTextureDEM.append(pointsActor)
+                logger.debug("DEM generated points spheres created")
                 
 
             # Store generated surface in memory
@@ -134,5 +148,6 @@ def GenerateEarthSurface():
             mapTextureDEM.append(mapper)
             actor = vtkActor()
             actor.SetMapper(mapper)
-            #actor.SetTexture(atext)
+            actor.SetTexture(atext)
             actTextureDEM.append(actor)
+            logger.debug("DEM ready for render")
