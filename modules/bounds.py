@@ -8,7 +8,7 @@
 # Standart modules
 from loguru import logger # Write log
 from pathlib import Path # Crossplatform pathing
-from geotiff import GeoTiff # GeoTIFF format reader
+from modules.geotiff import GeoTiff # GeoTIFF format reader
 import numpy as np # Work with DEM matrix
 
 # Own core modules
@@ -77,7 +77,7 @@ def ReadWorldBounds():
         if boundsMin[2] is None: boundsMin[2] = minZ
         if minZ < boundsMin[2]: boundsMin[2] = minZ
         if boundsMax[2] is None: boundsMax[2] = maxZ
-        if maxZ < boundsMax[2]: boundsMax[2] = maxZ
+        if maxZ > boundsMax[2]: boundsMax[2] = maxZ
         logger.debug("Lowrest point: {}m, highest point {}m", minZ, maxZ)
 
     logger.success("Bounds of our world:  {} - {}", boundsMin, boundsMax)

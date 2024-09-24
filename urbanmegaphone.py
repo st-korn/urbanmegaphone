@@ -23,8 +23,11 @@ Interactor.SetRenderWindow(Window)
 
 # Prepare VTK 3D-objects
 # ============================================
-for actor in actTextureDEM: 
-    Renderer.AddActor(actor)
+for actor in actAxes: Renderer.AddActor(actor)
+for actor in actCube: Renderer.AddActor(actor)
+for actor in actDEM: Renderer.AddActor(actor)
+for actor in actSurface: Renderer.AddActor(actor)
+for actor in actTexture: Renderer.AddActor(actor)
 
 # Run VTK-window
 # ============================================

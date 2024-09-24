@@ -36,19 +36,44 @@ Renderer = vtkRenderer()
 Window = vtkRenderWindow()
 Interactor = vtkRenderWindowInteractor()
 
-# Arrays of VTK objects: original raster texture files
-imgrdrTextures = [] # vtkImageReader2
+# Arrays of VTK objects: axis of coordinate system
+actAxes = [] # vtkAxesActor
 
-# Arrays of VTK objects: intersection raster textures and DEM
-pntsTextureDEM = [] # vtkPoints
-pldtTextureDEM = [] # vtkPolyData
-srfsfltTextureDEM = [] # vtkSurfaceReconstructionFilter
-cntrfltTextureDEM = [] # vtkContourFilter
-rvrsfltTextureDEM = [] # vtkReverseSense
-fltarTextureDEM = [] # vtkFloatArray array of texture coordinates
-txtrTextureDEM = [] # vtkTexture
-mapTextureDEM = [] # vtkPolyDataMapper
-actTextureDEM = [] # vtkActor
+# Arrays of VTK objects: original raster texture files
+cubeRASTER = [] # vtkCudeSource
+mapCube = [] # vtkPolyDataMapper
+actCube = [] # vtkActor
+boxRASTER = [] # vtkBox
+imgrdrRASTER = [] # vtkImageReader2
+
+# Arrays of VTK objects: points of DEM
+pntsDEM = [] # vtkPoints
+pldtDEM = [] # vtkPolyData
+sphrDEM = [] # vtkSphereSource
+glphDEM = [] # vtkGlyph3D
+mapDEM = [] # vtkPolyDataMapper
+actDEM = [] # vtkActor
+
+# Arrays of VTK objects: generated surface of DEM
+srfsfltSurface = [] # vtkSurfaceReconstructionFilter
+cntrfltSurface = [] # vtkContourFilter
+rvrsfltSurface = [] # vtkReverseSense
+pldtSurface = [] # vtkPolyData
+sphrSurface = [] # vtkSphereSource
+glphSurface = [] # vtkGlyph3D
+mapSurface = [] # vtkPolyDataMapper
+actSurface = [] # vtkActor
+
+# Arrays of VTK objects: clipped surface of DEM
+clpprClipped = [] # vtkClipPolyData
+pldtClipped = [] # vtkPolyData
+pntsClipped = [] # vtkPoints
+
+# Arrays of VTK objects: raster texture on DEM's surface
+fltarTexture = [] # vtkFloatArray array of texture coordinates
+txtrTexture = [] # vtkTexture
+mapTexture = [] # vtkPolyDataMapper
+actTexture = [] # vtkActor
 
 # Environment initialization
 # ============================================

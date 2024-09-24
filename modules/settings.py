@@ -20,8 +20,8 @@ logLevel = "DEBUG"
 # Voxel's edge size, meter. Default value is 3 meter - approximately one floor
 sizeVoxel = 3
 
-# How many pixeles get out of box border. Increase it to prevent blank lines on raster's seam. Default value is 2 px
-SurfaceOutline = 1
+# How many pixeles get out of box border. Increase it to prevent blank lines on raster's or DEMs seams. Default value is 2 px
+SurfaceOutline = 2
 
 # Count of neighboring points, used for aproximate surface. Low values lead to a haotic surface. Default value is 10
 SurfaceNeighbor = 10
@@ -31,3 +31,6 @@ SurfaceCells = 5
 
 # Show original DEM earth's point: True or False. Used for debug surface purposes
 flagShowEarthPoints = False
+
+# Show axis of ccordinate system
+flagShowAxis = False

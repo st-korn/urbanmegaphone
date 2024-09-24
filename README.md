@@ -19,10 +19,13 @@
 2. Install `vtk` library for python https://vtk.org/ and several others via:
     ```
     pip install vtk
-    pip install geotiff
+    pip install tifffile
+    pip install pyproj
+    pip install zarr
     pip install loguru
     pip install imagecodecs
     ```
+    We use own copy in `modules` folder of python [`geotiff`](https://github.com/KipCrossing/geotiff.git) library, because our [pull request](https://github.com/KipCrossing/geotiff/pull/74) has not been processed yet. If you already have this library installed, please uninstall it.
 
 3. Clone this repository. In any folder run:
     ```
