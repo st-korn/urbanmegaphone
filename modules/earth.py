@@ -49,7 +49,7 @@ def GenerateEarthSurface():
         boxRLeftTop = coordM2Float([boxR[0][0],boxR[0][1],0])
         boxRRightBottom = coordM2Float([boxR[1][0],boxR[1][1],0])
 
-        # Generate a box cube arround raser
+        # Generate a box cube arround raster
         cube = vtk.vtkCubeSource()
         cube.SetBounds(boxRLeftTop[0],boxRRightBottom[0],-1,bounds[2]+1,boxRLeftTop[2],boxRRightBottom[2])
         cube.Update()

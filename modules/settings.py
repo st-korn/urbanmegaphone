@@ -33,4 +33,4 @@ SurfaceCells = 5
 flagShowEarthPoints = False
 
 # Show axis of ccordinate system
-flagShowAxis = False
+flagShowAxis = True

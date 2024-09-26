@@ -97,5 +97,5 @@ def coordM2Float(meters):
     floats = []
     floats.append( (float(meters[0])-boundsMin[0])/sizeVoxel )
     floats.append( (float(meters[2])-boundsMin[2])/sizeVoxel )
-    floats.append( (float(meters[1])-boundsMin[1])/sizeVoxel*(-1) )
+    floats.append( (float(boundsMax[1]-meters[1]))/sizeVoxel )
     return floats
