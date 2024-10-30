@@ -24,6 +24,7 @@
     pip install zarr
     pip install loguru
     pip install imagecodecs
+    pip install requests
     ```
     We use own copy in `modules` folder of python [`geotiff`](https://github.com/KipCrossing/geotiff.git) library, because our [pull request](https://github.com/KipCrossing/geotiff/pull/74) has not been processed yet. If you already have this library installed, please uninstall it.
 
@@ -114,9 +115,17 @@ Next loop through [Digital elevation model files](#1-digital-elevation-model-of-
 
 Light spheres on the image means source points of DEM raster data. Dark spheres means points of generated aproximated surface. If you want, you can turn on the display of those points using a setting `flagShowEarthPoints` in the module `settings.py`
 
-![DEM of Caucasus](/images/screen3.png)
+![DEM of Caucasus with points of surfaces](/images/screen3.png)
 
+## 5. Stretching the texture onto the earth's surface
 
+Next step, we put raster tiles map on the earth surface. For each point of the generated surface we determine the plane coordinates of the corresponding raster map image. Thus, we stretch the raster to the elevation differences of the terrain.
+
+![Put texture on earth surface](/images/texture2.png)
+
+As result we got an earth surface with raster map above it
+
+![Caucasus relief](/images/screen4.png)
 
 # What i need prepare to my own modeling?
 
