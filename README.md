@@ -6,8 +6,12 @@
     - [Coordinate system](#2-coordinate-system)
     - [The arrangement of voxels in computer memory](#3-the-arrangement-of-voxels-in-computer-memory)
     - [Building the Earth's surface](#4-building-the-earths-surface)
+    - [Stretching the texture onto the earth's surface](#5-stretching-the-texture-onto-the-earths-surface)
 - [What i need prepare to my own modeling?](#what-i-need-prepare-to-my-own-modeling)
     - [Digital elevation model of earth's surface](#1-digital-elevation-model-of-earths-surface)
+        - [ASTER GDEM](#11-aster-gdem)
+        - [SRTM](#12-srtm)
+        - [Comparison of ASTER GDEM and SRTM models](#13-comparison-of-aster-gdem-and-srtm-models)
     - [Raster map for background](#2-raster-map-for-background)
     - [Vector map of buildings](#3-vector-map-of-buildings)
 
@@ -24,7 +28,11 @@
     pip install zarr
     pip install loguru
     pip install imagecodecs
+    ```
+    For getting vector map of buildings you need also:
+    ```
     pip install requests
+    pip install osmium
     ```
     We use own copy in `modules` folder of python [`geotiff`](https://github.com/KipCrossing/geotiff.git) library, because our [pull request](https://github.com/KipCrossing/geotiff/pull/74) has not been processed yet. If you already have this library installed, please uninstall it.
 
@@ -185,6 +193,12 @@ Do these steps to download SRTM DEM for your city:
 
 ![SRTM file](/images/srtm-v3.png)
 
+### 1.3. Comparison of ASTER GDEM and SRTM models
+
+ASTER GDEM is more granular than the SRTM model. SRTM is more smoothed than ASTER GDEM model. However, there are no crucial differences between this models. I like to use in my project SRTM models, because they are a little more beautiful.
+
+![ASTER GDEM vs SRTM](/images/ASTERvsSRTM.png)
+
 ## 2. Raster map for background
 
 You need to have raster tiles of map to put them on background of your city. There are many sources to get these tiles. We recomend you use [OpenStreetMap](osm.org) tiles.
@@ -236,3 +250,7 @@ You need to have raster tiles of map to put them on background of your city. The
 ![Contents of the RESULT folder](/images/sasplanet-result.png)
 
 ## 3. Vector map of buildings
+
+You need a GeoJSON with all buildings of your city. It is based on international OpenStreetMap data.
+
+### 3.1 
