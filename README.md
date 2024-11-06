@@ -21,7 +21,7 @@
 1. Please, install `python 3` from https://www.python.org/
 
 2. Install `vtk` library for python https://vtk.org/ and several others via:
-    ```
+    ```console
     pip install vtk
     pip install tifffile
     pip install pyproj
@@ -30,19 +30,19 @@
     pip install imagecodecs
     ```
     For getting vector map of buildings you need also:
-    ```
+    ```console
     pip install requests
     pip install osmium
     ```
     We use own copy in `modules` folder of python [`geotiff`](https://github.com/KipCrossing/geotiff.git) library, because our [pull request](https://github.com/KipCrossing/geotiff/pull/74) has not been processed yet. If you already have this library installed, please uninstall it.
 
 3. Clone this repository. In any folder run:
-    ```
+    ```console
     git clone https://github.com/st-korn/urbanmegaphone.git
     ```
 
 3. Run our script immediately, because all folders contains sampla data (fake, but it is enough to demonstration):
-    ```
+    ```console
     cd urbanmegaphone
     ./urbanmegaphone.py
     ```
@@ -80,11 +80,11 @@ Note that northern points have a higher `latitude` coordinate value than souther
 \
 ![Raster's pixel coordinate system](/images/coord3.png)
 
-- Internal integer coordinate system of primitive voxel wolrd. We find lowrest `x,y,z` coordinates and put then in `(0,0,0)` of our new world. Then we use an accuracy value (default `3m`) for an voxel edge. The whole world is built from these voxels. All world details smaller than half a voxel edge are considered as an error and are ignored.\
+- Internal integer coordinate system of primitive voxel wolrd. We find lowrest `x,y,z` coordinates and put then in `(0,0,0)` of our new world. Then we use an accuracy value (default `3m`) for an voxel edge. The whole world is built from these voxels. All world details smaller than half a voxel edge are considered as an inaccuracy and are ignored.\
 \
 ![Voxel's world coordinate system](/images/coord4.png)
 
-- Render window of **Visualization ToolKit** library has its own coordinate system. `y`-axis is directed upwards. Horizontal `z`-axis is directed away from us. Therefore, all points of our 3D-world are located in the negative half of `z`-axis. Coordinate values in VTK's coordinate system equals internal integer coordiates. But they don't have to be integers. They can take real values ​​where needed. For example, to more accurately display the relief of the earth's surface.\
+- Render window of **Visualization ToolKit** library has its own coordinate system. `y`-axis is directed upwards. Horizontal `z`-axis is directed right at us. Coordinate values in VTK's coordinate system equals internal integer coordiates. But they don't have to be integers. They can take real values if needed. For example, to more accurately display the relief of the earth's surface.\
 \
 ![VTK's 3D rendering coordinate system](/images/coord5.png)
 <sub><sup>3D-city designed by [Freepik](www.freepik.com)</sup></sub>
@@ -251,6 +251,63 @@ You need to have raster tiles of map to put them on background of your city. The
 
 ## 3. Vector map of buildings
 
-You need a GeoJSON with all buildings of your city. It is based on international OpenStreetMap data.
+You need a GeoJSON with all buildings of your city. It is based on international [OpenStreetMap](https://osm.org/) data. But OpenStreetMap contains insufficient information of building's floors and no information about count of flats. Still 2024 year most buildings in OpenStreetMap have tag `building=yes` without defenition of building's type (residential or commercial).
 
-### 3.1 
+### 3.2 dom.gosuslugi.ru
+
+In Russia Federation you can start at [ГИС ЖКХ](dom.gosuslugi.ru) - public information system about housing and communal services. If there are no such service in your county, you can add this information manual later.
+
+Run `get-buildings\01-get-regions.py` script to collect UUIDs of Russia regions:
+
+![Regions of Russia Federation](/images/get-regions.PNG)
+
+Paste this UUID into first line of `get-buildings\02-get-region-cities.py` script:
+
+```python
+region = '0bb7fa19-736d-49cf-ad0e-9774c4dae09b'
+```
+
+and run it:
+
+![List of cities and villages](/images/get-cities2.PNG)
+
+First you got UUIDs of central cities, next - UUIDs of area's cities, than - UUIDs of area's other settlements. Find line you need.
+
+Next go to `get-buildings\03-get-buildings.py` and change its first lines:
+
+```python
+region = '0bb7fa19-736d-49cf-ad0e-9774c4dae09b'
+area = '47e1fc4c-4ad1-4d03-91f7-981184adcbe7'
+city = None
+settlement = '36022007-8503-4d34-92d9-cc82dfb7a496'
+resultdir = Path.cwd() / 'get-buildings' / 'gunib'
+```
+
+Change here `region` code.
+For central city write `city` code and write `None` to `area` and `settlement`.
+For area's cities write `area` and `city` codes, and put `None` to the `settlement`.
+For other settlements write `area` and `settlement` code and put `None` to the `city`.
+
+| Category | region | area | city | settlement |
+| -------- | ------ | ---- | ---- | ---------- |
+| Central city | [x] | None | [x] | None |
+| Area's city | [x] | [x] | [x] | None |
+| Other settlement | [x] | [x] |  None | [x] |
+
+Be sure to write correct name of folder to download building information in `resultdir` variable.
+
+The script will get territories and streets of the city and than loop throgh them and fetch buildings for each.
+
+![Getting buildings](/images/get-buildings.PNG)
+
+If you are unexpectedly blocked, you got `403 error`. Wait few minutes and just restart script. It will be continued.
+
+![403 blocked](/images/get-buildings2.PNG)
+
+This script create in your forlder these files:
+
+![Files of buildings](/images/get-buildings3.PNG)
+
+- `territories.json` and `streets.json` - list of territories and streets
+- `UUID-1.json` - first 100 (or less) buildings of the territory or street
+- `UUID-2.json`, `UUID-3.json` and more - next 100 (or less) buildings

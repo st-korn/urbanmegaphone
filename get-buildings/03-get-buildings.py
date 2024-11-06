@@ -3,11 +3,11 @@ import json
 import time
 from pathlib import Path
 
-region = '1490490e-49c5-421c-9572-5673ba5d80c8'
-area = None # 'e23ad948-ac70-40e7-bc90-88935d668086'
-city = 'eacb5f15-1a2e-432e-904a-ca56bd635f1b' #'f073b28a-b8f8-4eee-adfd-cfbf769c6771'
-settlement = None #'66453ea6-2a7d-4a39-82c5-aabaa8f7f074'
-resultdir = Path.cwd() / 'get-buildings' / 'lipetsk'
+region = '0bb7fa19-736d-49cf-ad0e-9774c4dae09b'
+area = '47e1fc4c-4ad1-4d03-91f7-981184adcbe7'
+city = None
+settlement = '36022007-8503-4d34-92d9-cc82dfb7a496'
+resultdir = Path.cwd() / 'get-buildings' / 'gunib'
 
 def GetBuildings(request,id):
     reqURL = 'https://dom.gosuslugi.ru/homemanagement/api/rest/services/houses/public/searchByAddress'
