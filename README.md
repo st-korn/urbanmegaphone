@@ -14,6 +14,8 @@
         - [Comparison of ASTER GDEM and SRTM models](#13-comparison-of-aster-gdem-and-srtm-models)
     - [Raster map for background](#2-raster-map-for-background)
     - [Vector map of buildings](#3-vector-map-of-buildings)
+        - [OpenStreetMap (osm.org)](#31-openstreetmap-osmorg)
+        - [dom.gosuslugi.ru](#32-domgosuslugiru)
 
 
 # How to run it?
@@ -253,13 +255,15 @@ You need to have raster tiles of map to put them on background of your city. The
 
 You need a GeoJSON with all buildings of your city. It is based on international [OpenStreetMap](https://osm.org/) data. But OpenStreetMap contains insufficient information of building's floors and no information about count of flats. Still 2024 year most buildings in OpenStreetMap have tag `building=yes` without defenition of building's type (residential or commercial).
 
+### 3.1 OpenStreetMap (osm.org)
+
 ### 3.2 dom.gosuslugi.ru
 
 In Russia Federation you can start at [ГИС ЖКХ](dom.gosuslugi.ru) - public information system about housing and communal services. If there are no such service in your county, you can add this information manual later.
 
 Run `get-buildings\01-get-regions.py` script to collect UUIDs of Russia regions:
 
-![Regions of Russia Federation](/images/get-regions.PNG)
+![Regions of Russia Federation](/images/get-regions.png)
 
 Paste this UUID into first line of `get-buildings\02-get-region-cities.py` script:
 
@@ -269,7 +273,7 @@ region = '0bb7fa19-736d-49cf-ad0e-9774c4dae09b'
 
 and run it:
 
-![List of cities and villages](/images/get-cities2.PNG)
+![List of cities and villages](/images/get-cities2.png)
 
 First you got UUIDs of central cities, next - UUIDs of area's cities, than - UUIDs of area's other settlements. Find line you need.
 
@@ -298,15 +302,15 @@ Be sure to write correct name of folder to download building information in `res
 
 The script will get territories and streets of the city and than loop throgh them and fetch buildings for each.
 
-![Getting buildings](/images/get-buildings.PNG)
+![Getting buildings](/images/get-buildings.png)
 
 If you are unexpectedly blocked, you got `403 error`. Wait few minutes and just restart script. It will be continued.
 
-![403 blocked](/images/get-buildings2.PNG)
+![403 blocked](/images/get-buildings2.png)
 
 This script create in your forlder these files:
 
-![Files of buildings](/images/get-buildings3.PNG)
+![Files of buildings](/images/get-buildings3.png)
 
 - `territories.json` and `streets.json` - list of territories and streets
 - `UUID-1.json` - first 100 (or less) buildings of the territory or street
