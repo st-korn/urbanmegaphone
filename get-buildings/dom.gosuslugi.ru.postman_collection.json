@@ -1,0 +1,355 @@
+{
+	"info": {
+		"_postman_id": "63e52edc-de22-4062-8d29-120fd524de7c",
+		"name": "dom.gosuslugi.ru",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39137568"
+	},
+	"item": [
+		{
+			"name": "searchByAddress",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json; charset=utf-8",
+						"disabled": true
+					},
+					{
+						"key": "Accept-Language",
+						"value": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+						"disabled": true
+					},
+					{
+						"key": "Connection",
+						"value": "keep-alive",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json;charset=UTF-8",
+						"disabled": true
+					},
+					{
+						"key": "Cookie",
+						"value": "JSESSIONID=\"5DdmhdKxzjVnUOCIoPC_dPg2kmAv8oYolGyEkflM.ppak-app-wf-ui-srv02:rest\"; _ym_uid=1726001190739088499; _ym_d=1726001190; _idp_authn_id=phone%3A%252B7(920)5410110; route_pafo-saiku=3eed4a51ebe9ecbd752731228dd302a5; suimSessionGuid=30d32749-e667-4a01-bdc3-8df2809d9f1c; route_rest=08458811535f29823d9f1f6a49c808aa; route_pafo-reports=3eed4a51ebe9ecbd752731228dd302a5; route_suim=e26faf13e9526714dd69596af547110e; route_for-robots=823dddc0a882cc10f558af513d6dfdce; BotMitigationCookie_18395940475938130633=\"6516470017309002700XFFHWr3Hp/yZV6eJ4C8hw40njM=\"",
+						"disabled": true
+					},
+					{
+						"key": "Origin",
+						"value": "https://dom.gosuslugi.ru",
+						"disabled": true
+					},
+					{
+						"key": "Referer",
+						"value": "https://dom.gosuslugi.ru/",
+						"disabled": true
+					},
+					{
+						"key": "Request-GUID",
+						"value": "9b21126e-630e-431c-8008-9df34af6d753"
+					},
+					{
+						"key": "Sec-Fetch-Dest",
+						"value": "empty",
+						"disabled": true
+					},
+					{
+						"key": "Sec-Fetch-Mode",
+						"value": "cors",
+						"disabled": true
+					},
+					{
+						"key": "Sec-Fetch-Site",
+						"value": "same-origin",
+						"disabled": true
+					},
+					{
+						"key": "Session-GUID",
+						"value": "30d32749-e667-4a01-bdc3-8df2809d9f1c"
+					},
+					{
+						"key": "State-GUID",
+						"value": "/houses",
+						"disabled": true
+					},
+					{
+						"key": "User-Agent",
+						"value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+						"disabled": true
+					},
+					{
+						"key": "sec-ch-ua",
+						"value": "\"Chromium\";v=\"130\", \"Google Chrome\";v=\"130\", \"Not?A_Brand\";v=\"99\"",
+						"disabled": true
+					},
+					{
+						"key": "sec-ch-ua-mobile",
+						"value": "?0",
+						"disabled": true
+					},
+					{
+						"key": "sec-ch-ua-platform",
+						"value": "\"Windows\"",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"regionCode\":\"0bb7fa19-736d-49cf-ad0e-9774c4dae09b\",\"areaCode\":\"47e1fc4c-4ad1-4d03-91f7-981184adcbe7\",\"settlementCode\":\"36022007-8503-4d34-92d9-cc82dfb7a496\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://dom.gosuslugi.ru/homemanagement/api/rest/services/houses/public/searchByAddress?pageIndex=1&elementsPerPage=10",
+					"protocol": "https",
+					"host": [
+						"dom",
+						"gosuslugi",
+						"ru"
+					],
+					"path": [
+						"homemanagement",
+						"api",
+						"rest",
+						"services",
+						"houses",
+						"public",
+						"searchByAddress"
+					],
+					"query": [
+						{
+							"key": "pageIndex",
+							"value": "1"
+						},
+						{
+							"key": "elementsPerPage",
+							"value": "10"
+						}
+					]
+				},
+				"description": "Generated from cURL: curl 'https://dom.gosuslugi.ru/homemanagement/api/rest/services/houses/public/searchByAddress?pageIndex=1&elementsPerPage=10' \\\r\n  -H 'Accept: application/json; charset=utf-8' \\\r\n  -H 'Accept-Language: ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7' \\\r\n  -H 'Connection: keep-alive' \\\r\n  -H 'Content-Type: application/json;charset=UTF-8' \\\r\n  -H 'Cookie: JSESSIONID=\"5DdmhdKxzjVnUOCIoPC_dPg2kmAv8oYolGyEkflM.ppak-app-wf-ui-srv02:rest\"; _ym_uid=1726001190739088499; _ym_d=1726001190; _idp_authn_id=phone%3A%252B7(920)5410110; route_pafo-saiku=3eed4a51ebe9ecbd752731228dd302a5; suimSessionGuid=30d32749-e667-4a01-bdc3-8df2809d9f1c; route_rest=08458811535f29823d9f1f6a49c808aa; route_pafo-reports=3eed4a51ebe9ecbd752731228dd302a5; route_suim=e26faf13e9526714dd69596af547110e; route_for-robots=823dddc0a882cc10f558af513d6dfdce; BotMitigationCookie_18395940475938130633=\"6516470017309002700XFFHWr3Hp/yZV6eJ4C8hw40njM=\"' \\\r\n  -H 'Origin: https://dom.gosuslugi.ru' \\\r\n  -H 'Referer: https://dom.gosuslugi.ru/' \\\r\n  -H 'Request-GUID: 9b21126e-630e-431c-8008-9df34af6d752' \\\r\n  -H 'Sec-Fetch-Dest: empty' \\\r\n  -H 'Sec-Fetch-Mode: cors' \\\r\n  -H 'Sec-Fetch-Site: same-origin' \\\r\n  -H 'Session-GUID: 30d32749-e667-4a01-bdc3-8df2809d9f1c' \\\r\n  -H 'State-GUID: /houses' \\\r\n  -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36' \\\r\n  -H 'sec-ch-ua: \"Chromium\";v=\"130\", \"Google Chrome\";v=\"130\", \"Not?A_Brand\";v=\"99\"' \\\r\n  -H 'sec-ch-ua-mobile: ?0' \\\r\n  -H 'sec-ch-ua-platform: \"Windows\"' \\\r\n  --data-raw '{\"regionCode\":\"0bb7fa19-736d-49cf-ad0e-9774c4dae09b\",\"areaCode\":\"47e1fc4c-4ad1-4d03-91f7-981184adcbe7\",\"settlementCode\":\"36022007-8503-4d34-92d9-cc82dfb7a496\",\"fiasHouseCodeList\":null,\"estStatus\":null,\"strStatus\":null,\"calcCount\":true,\"houseConditionRefList\":null,\"houseTypeRefList\":null,\"houseManagementTypeRefList\":null,\"cadastreNumber\":null,\"oktmo\":null,\"statuses\":[\"APPROVED\"],\"regionProperty\":null,\"municipalProperty\":null,\"hostelTypeCodes\":null}'"
+			},
+			"response": []
+		},
+		{
+			"name": "regions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/regions",
+					"protocol": "https",
+					"host": [
+						"dom",
+						"gosuslugi",
+						"ru"
+					],
+					"path": [
+						"nsi",
+						"api",
+						"rest",
+						"services",
+						"nsi",
+						"fias",
+						"v4",
+						"regions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "cities of region",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/cities?actual=true&itemsPerPage=100&page=1&regionCode=0bb7fa19-736d-49cf-ad0e-9774c4dae09b",
+					"protocol": "https",
+					"host": [
+						"dom",
+						"gosuslugi",
+						"ru"
+					],
+					"path": [
+						"nsi",
+						"api",
+						"rest",
+						"services",
+						"nsi",
+						"fias",
+						"v4",
+						"cities"
+					],
+					"query": [
+						{
+							"key": "actual",
+							"value": "true"
+						},
+						{
+							"key": "itemsPerPage",
+							"value": "100"
+						},
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "regionCode",
+							"value": "0bb7fa19-736d-49cf-ad0e-9774c4dae09b"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "areas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/areas?actual=true&itemsPerPage=100&page=1&regionCode=0bb7fa19-736d-49cf-ad0e-9774c4dae09b",
+					"protocol": "https",
+					"host": [
+						"dom",
+						"gosuslugi",
+						"ru"
+					],
+					"path": [
+						"nsi",
+						"api",
+						"rest",
+						"services",
+						"nsi",
+						"fias",
+						"v4",
+						"areas"
+					],
+					"query": [
+						{
+							"key": "actual",
+							"value": "true"
+						},
+						{
+							"key": "itemsPerPage",
+							"value": "100"
+						},
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "regionCode",
+							"value": "0bb7fa19-736d-49cf-ad0e-9774c4dae09b"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "cities of area",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/cities?actual=true&itemsPerPage=100&page=1&regionCode=0bb7fa19-736d-49cf-ad0e-9774c4dae09b&areaCode=47e1fc4c-4ad1-4d03-91f7-981184adcbe7",
+					"protocol": "https",
+					"host": [
+						"dom",
+						"gosuslugi",
+						"ru"
+					],
+					"path": [
+						"nsi",
+						"api",
+						"rest",
+						"services",
+						"nsi",
+						"fias",
+						"v4",
+						"cities"
+					],
+					"query": [
+						{
+							"key": "actual",
+							"value": "true"
+						},
+						{
+							"key": "itemsPerPage",
+							"value": "100"
+						},
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "regionCode",
+							"value": "0bb7fa19-736d-49cf-ad0e-9774c4dae09b"
+						},
+						{
+							"key": "areaCode",
+							"value": "47e1fc4c-4ad1-4d03-91f7-981184adcbe7"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "settlements",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/settlements?actual=true&itemsPerPage=10000&page=1&regionCode=0bb7fa19-736d-49cf-ad0e-9774c4dae09b&areaCode=47e1fc4c-4ad1-4d03-91f7-981184adcbe7",
+					"protocol": "https",
+					"host": [
+						"dom",
+						"gosuslugi",
+						"ru"
+					],
+					"path": [
+						"nsi",
+						"api",
+						"rest",
+						"services",
+						"nsi",
+						"fias",
+						"v4",
+						"settlements"
+					],
+					"query": [
+						{
+							"key": "actual",
+							"value": "true"
+						},
+						{
+							"key": "itemsPerPage",
+							"value": "10000"
+						},
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "regionCode",
+							"value": "0bb7fa19-736d-49cf-ad0e-9774c4dae09b"
+						},
+						{
+							"key": "areaCode",
+							"value": "47e1fc4c-4ad1-4d03-91f7-981184adcbe7"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
