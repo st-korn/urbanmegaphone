@@ -128,6 +128,7 @@ def GenerateEarthSurface():
                 logger.debug("DEM source points spheres created")
 
             # Create surface from points
+            logger.debug("Start DEM surface creation...")
             surface = vtk.vtkSurfaceReconstructionFilter()
             surface.SetNeighborhoodSize(SurfaceNeighbor)
             surface.SetSampleSpacing(SurfaceCells)

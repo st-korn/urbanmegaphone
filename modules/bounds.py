@@ -65,8 +65,8 @@ def ReadWorldBounds():
         boxIntersection = ((boundsMin[0],boundsMax[1]),(boundsMax[0],boundsMin[1]))
         try:
             dem = np.array(gtf.read_box(boxIntersection))
-        except:
-            logger.warning("DEM intersection not found")
+        except Exception as e:
+            logger.warning("DEM intersection not found: {}", e)
             continue
         logger.debug("DEM intersection dimensions: {}", dem.shape)
         logger.trace(dem)
@@ -80,11 +80,15 @@ def ReadWorldBounds():
         if maxZ > boundsMax[2]: boundsMax[2] = maxZ
         logger.debug("Lowrest point: {}m, highest point {}m", minZ, maxZ)
 
+    if boundsMin[2] is None:
+        boundsMin[2] = 0
+    if boundsMax[2] is None:
+        boundsMax[2] = 0
     logger.success("Bounds of our world:  {} - {}", boundsMin, boundsMax)
 
     # Calculate bounds of voxel's world
     for i in [0,1,2]:
-        bounds[i] = int(np.ceil((boundsMax[i] - boundsMin[i]) / sizeVoxel).item())
+        bounds[i] = int(np.ceil((boundsMax[i]  - boundsMin[i]) / sizeVoxel).item())
     
     logger.success("Bounds of voxel's world:  {}", bounds)
 
