@@ -121,11 +121,11 @@ Light spheres on the image means source points of DEM raster data. Dark spheres 
 
 Next step, we put raster tiles map on the earth surface. For each point of the generated surface we determine the plane coordinates of the corresponding raster map image. Thus, we stretch the raster to the elevation differences of the terrain.
 
-![Put texture on earth surface](/images/texture2.png)
+![Put texture on earth surface](/images/texture3.png)
 
 As result we got an earth surface with raster map above it
 
-![Caucasus relief](/images/screen4.png)
+![Caucasus relief](/images/gunib.gif)
 
 # What i need prepare to my own modeling?
 
