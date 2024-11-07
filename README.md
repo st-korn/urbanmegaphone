@@ -322,9 +322,9 @@ For other settlements write `area` and `settlement` code and put `None` to the `
 
 | Category | region | area | city | settlement |
 | -------- | ------ | ---- | ---- | ---------- |
-| Central city | [x] | None | [x] | None |
-| Area's city | [x] | [x] | [x] | None |
-| Other settlement | [x] | [x] |  None | [x] |
+| Central city | &check; | None | &check; | None |
+| Area's city | &check; | &check; | &check; | None |
+| Other settlement | &check; | &check; |  None | &check; |
 
 Be sure to write correct name of folder to download building information in `resultdir` variable.
 
