@@ -255,17 +255,25 @@ You need to have raster tiles of map to put them on background of your city. The
 
 You need a GeoJSON with all buildings of your city. It is based on international [OpenStreetMap](https://osm.org/) data. But OpenStreetMap contains insufficient information of building's floors and no information about count of flats. Still 2024 year most buildings in OpenStreetMap have tag `building=yes` without defenition of building's type (residential or commercial).
 
-### 3.1 OpenStreetMap (osm.org)
+We download OpenStreetMap data, and than complementing it with number of floors and count of flats of each building.
 
-### 3.2 dom.gosuslugi.ru
+### 3.1. OpenStreetMap (osm.org)
+
+Original [OpenStreetMap site](https://osm.org) can export only 50.000 objects at once. You need to go on [download.geofabrik.de](https://download.geofabrik.de/), select your continent, country and region and download `.osm.pbf` file for it.
+
+Create in `get-buildings/` sub-folder with your city name. For example `get-builings/lipetsk/`. Put downloaded `.osm.pbf` file in this created folder.
+
+
+
+### 3.2. dom.gosuslugi.ru
 
 In Russia Federation you can start at [ГИС ЖКХ](dom.gosuslugi.ru) - public information system about housing and communal services. If there are no such service in your county, you can add this information manual later.
 
-Run `get-buildings\01-get-regions.py` script to collect UUIDs of Russia regions:
+Run `get-buildings/11-get-regions.py` script to collect UUIDs of Russia regions:
 
 ![Regions of Russia Federation](/images/get-regions.png)
 
-Paste this UUID into first line of `get-buildings\02-get-region-cities.py` script:
+Paste this UUID into first line of `get-buildings/12-get-region-cities.py` script:
 
 ```python
 region = '0bb7fa19-736d-49cf-ad0e-9774c4dae09b'
@@ -277,7 +285,7 @@ and run it:
 
 First you got UUIDs of central cities, next - UUIDs of area's cities, than - UUIDs of area's other settlements. Find line you need.
 
-Next go to `get-buildings\03-get-buildings.py` and change its first lines:
+Next go to `get-buildings/13-get-buildings.py` and change its first lines:
 
 ```python
 region = '0bb7fa19-736d-49cf-ad0e-9774c4dae09b'
@@ -304,7 +312,7 @@ The script will get territories and streets of the city and than loop throgh the
 
 ![Getting buildings](/images/get-buildings.png)
 
-If you are unexpectedly blocked, you got `403 error`. Wait few minutes and just restart script. It will be continued.
+If you are unexpectedly blocked, you got `403 error`. Than remove last incorrect `.json` files 871 bytes length. Wait few minutes and just restart script. It will be continued.
 
 ![403 blocked](/images/get-buildings2.png)
 
