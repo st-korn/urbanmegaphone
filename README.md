@@ -16,6 +16,7 @@
     - [3. Vector map of buildings](#3-vector-map-of-buildings)
         - [3.1. OpenStreetMap (osm.org)](#31-openstreetmap-osmorg)
         - [3.2. dom.gosuslugi.ru](#32-domgosuslugiru)
+        - [3.3. pkk.rosreestr.ru](#33-pkkrosreestrru)
 
 
 # How to run it?
@@ -137,6 +138,7 @@ Next step, we put raster tiles map on the earth surface. For each point of the g
 As result we got an earth surface with raster map above it
 
 ![Caucasus relief](/images/gunib.gif)
+
 
 # What i need prepare to my own modeling?
 
@@ -384,3 +386,19 @@ Buildings have the following properties:
 - `type` - type of building
 - `floors` - count of floors of building
 - `flats` - count of flats in the building (`null` if all building is one flat)
+
+### 3.3. pkk.rosreestr.ru
+
+Next source, who can get geographic coordinates by unique goverment cadastreID of building in Russia Federation is the online [Public Cadastral Map](https://pkk.rosreestr.ru/).
+
+First open `get-buildings/21-ask-coordinates.py` and edit workfolder path:
+
+```python
+folder = Path.cwd() / 'get-buildings' / 'lipetsk'
+```
+
+Next run the script. It read houses from `dom.gosuslugi.ru.json`, and than make HTTP-reuest to `pkk.rosreestr.ru` for each house with cadastre ID. If `pkk.rosreestr.ru` known geographic coordinates of building - they are stored in `pkk.txt` file. If geographic coordinates are unknown - in `pkk.txt` stored blank line.
+
+![Ask pkk.rosreestr.ru](/images/ask-pkk.png)
+
+The file `pkk.txt`is needed to continue fetch coordinates if `pkk.rosreestr.ru` is banned your requests. It is 1 secopnd pause after each request to to prevent the ban.
