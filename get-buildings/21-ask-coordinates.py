@@ -11,10 +11,13 @@ with open(folder / 'dom.gosuslugi.ru.json', encoding='utf-8') as f:
 
 # Read prevois coordinates
 coords = {}
-with open(folder / 'pkk.txt', encoding='utf-8') as f:
-    for line in f:
-        data = line.rstrip().split(',')
-        coords[data[0]] = (data[1],data[2])
+try:
+    with open(folder / 'pkk.txt', encoding='utf-8') as f:
+        for line in f:
+            data = line.rstrip().split(',')
+            coords[data[0]] = (data[1],data[2])
+except:
+    None
 
 # Loop through houses
 for house in houses:
