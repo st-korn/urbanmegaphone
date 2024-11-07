@@ -343,3 +343,45 @@ This script create in your forlder these files:
 - `territories.json` and `streets.json` - list of territories and streets
 - `UUID-1.json` - first 100 (or less) buildings of the territory or street
 - `UUID-2.json`, `UUID-3.json` and more - next 100 (or less) buildings
+
+After this step, run `get-buildings/14-collect-buildings.py` to collect all buildings from JSON files to one `dom.gosuslugi.ru.json` file.
+
+Edit folder path at the beginning of the script:
+
+```python
+folder = Path.cwd() / 'get-buildings' / 'lipetsk'
+```
+
+Than run it. Script will print names of found JSON files. At the end of work script print total count of buildings, which are collected.
+
+![Collect buildings](/images/collect-buildings.png)
+
+`dom.gosuslugi.ru.json` file contains list of the buildings:
+
+```json
+[
+    {
+        "fias": "0014d723-fc40-4de4-8084-b328af4e1e8d",
+        "address": "398902, обл Липецкая, г Липецк, ул Металлистов, д. 1",
+        "cadastre": "48:20:0011206:64",
+        "type": "Многоквартирный",
+        "floors": "2",
+        "flats": "8"
+    },
+    {
+        "fias": "0014d723-fc40-4de4-8084-b328af4e1e8d",
+        "address": "398902, обл Липецкая, г Липецк, ул Металлистов, д. 2",
+        "cadastre": null,
+        "type": "Жилой",
+        "floors": "1",
+        "flats": null
+    },
+    ...
+```
+Buildings have the following properties:
+- `fias` - unique ID of address
+- `address` - full address of building as string
+- `cadastre` - unique goverment ID of building (if exist)
+- `type` - type of building
+- `floors` - count of floors of building
+- `flats` - count of flats in the building (`null` if all building is one flat)
