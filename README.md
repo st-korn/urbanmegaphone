@@ -35,6 +35,7 @@
     ```console
     pip install requests
     pip install osmium
+    pip install geojson
     ```
     We use own copy in `modules` folder of python [`geotiff`](https://github.com/KipCrossing/geotiff.git) library, because our [pull request](https://github.com/KipCrossing/geotiff/pull/74) has not been processed yet. If you already have this library installed, please uninstall it.
 
@@ -263,7 +264,20 @@ Original [OpenStreetMap site](https://osm.org) can export only 50.000 objects at
 
 Create in `get-buildings/` sub-folder with your city name. For example `get-builings/lipetsk/`. Put downloaded `.osm.pbf` file in this created folder.
 
+Edit `get-buildings/01-pbf-to-geojson.py` script for paths for source `.osm.pbf` file and destination `.osm.geojson` file:
 
+```python
+pbf_file = Path.cwd() / 'get-buildings' / 'gunib' / 'north-caucasus-fed-district-latest.osm.pbf'
+json_file = Path.cwd() / 'get-buildings' / 'gunib' / 'gunib.osm.geojson'
+```
+
+Run `get-buildings/01-pbf-to-geojson.py` script from root folder of a project to generate `.osm.geojson` file with OSM's buildings of your raster area. All other buildings, not included in these areas, will be discarded.
+
+![Convert pbf to GeoJSON](/images/pbf-to-geojson.png)
+
+You can load `.osm.geojson` file in [QGIS](https://qgis.org/) desctop application for see its geometry and properties:
+
+![See .osm.geojson in QGIS](/images/qgis.png)
 
 ### 3.2. dom.gosuslugi.ru
 
