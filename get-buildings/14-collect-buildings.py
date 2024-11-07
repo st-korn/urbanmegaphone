@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 
-folder = Path.cwd() / 'get-buildings' / 'lipetsk'
+folder = Path.cwd() / 'get-buildings' / 'gunib'
 
 houses = []
 
@@ -12,7 +12,7 @@ for file in Path('.',folder).glob("*-*-*-*-*-?.json", case_sensitive=False):
         if data['total']>0:
             for item in data['items']:
                 house = {}
-                house['fias'] = item['address']['house']['aoGuid']
+                house['fias'] = item['address']['house']['houseGuid']
                 house['address'] = item['address']['formattedAddress']
                 house['cadastre'] = item['cadastreNumber']
                 house['type'] = item['houseType']['houseTypeName']
