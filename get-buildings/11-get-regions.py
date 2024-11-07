@@ -1,6 +1,6 @@
-import requests
+import httpx
 
-response = requests.get('https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/regions')
+response = httpx.get('https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/regions')
 regions = response.json()
 
 for region in regions:

@@ -1,4 +1,4 @@
-import requests
+import httpx
 import json
 import time
 from pathlib import Path
@@ -36,7 +36,7 @@ def GetBuildings(request,id):
             index = index+10
             continue
 
-        response = requests.post(url=reqURL,headers=reqHeaders,params=reqParams,json=reqJson)
+        response = httpx.post(url=reqURL,headers=reqHeaders,params=reqParams,json=reqJson)
         print('Response: ',response)           
         with open(resultPath, 'wb') as fb:
             for chunk in response.iter_content(chunk_size=128):
@@ -59,7 +59,7 @@ def GetBuildings(request,id):
 # =======================================================================
 # Get territories
 
-response = requests.get('https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/planning/structure/elements', 
+response = httpx.get('https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/planning/structure/elements', 
                     params={
                         'actual':'true',
                         'itemsPerPage':1000,
@@ -83,7 +83,7 @@ for territory in territories:
 # =======================================================================
 # Get streets
 
-response = requests.get('https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/streets', 
+response = httpx.get('https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/streets', 
                     params={
                         'actual':'true',
                         'itemsPerPage':1000,

@@ -1,8 +1,8 @@
 region = '0bb7fa19-736d-49cf-ad0e-9774c4dae09b'
 
-import requests
+import httpx
 
-response = requests.get('https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/cities', 
+response = httpx.get('https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/cities', 
                         params={
                             'actual':'true',
                             'itemsPerPage':100,
@@ -14,7 +14,7 @@ cities = response.json()
 for city in cities:
     print(city['aoGuid'], city['formalName'], city['shortName'])
 
-response = requests.get('https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/areas', 
+response = httpx.get('https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/areas', 
                         params={
                             'actual':'true',
                             'itemsPerPage':100,
@@ -24,7 +24,7 @@ response = requests.get('https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias
 areas = response.json()
 
 for area in areas:
-    response = requests.get('https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/cities', 
+    response = httpx.get('https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/cities', 
                         params={
                             'actual':'true',
                             'itemsPerPage':100,
@@ -36,7 +36,7 @@ for area in areas:
     for city in cities:
         print('AREA =', area['aoGuid'], area['formalName'], area['shortName'], '  CITY =', city['aoGuid'], city['formalName'], city['shortName'])
 
-    response = requests.get('https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/settlements', 
+    response = httpx.get('https://dom.gosuslugi.ru/nsi/api/rest/services/nsi/fias/v4/settlements', 
                     params={
                         'actual':'true',
                         'itemsPerPage':1000,

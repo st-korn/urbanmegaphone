@@ -33,7 +33,7 @@
     ```
     For getting vector map of buildings you need also:
     ```console
-    pip install requests
+    pip install httpx
     pip install osmium
     pip install geojson
     ```
@@ -376,7 +376,6 @@ Than run it. Script will print names of found JSON files. At the end of work scr
         "floors": "1",
         "flats": null
     },
-    ...
 ```
 Buildings have the following properties:
 - `fias` - unique ID of address
