@@ -279,6 +279,12 @@ You can load `.osm.geojson` file in [QGIS](https://qgis.org/) desctop applicatio
 
 ![See .osm.geojson in QGIS](/images/qgis2.png)
 
+Vector building features of `.osm.geojson` file may have the following properties:
+- `building` (string) - type of building by [OSM building's codification](https://wiki.openstreetmap.org/wiki/Key:building)
+- `osm-street` (string) - street name, if exist
+- `osm-housenumber` (string) - house number name, if exist
+- `osm-levels` (integer) - count of building's levels, if exist
+
 ### 3.2. dom.gosuslugi.ru
 
 In Russia Federation you can start at [ГИС ЖКХ](dom.gosuslugi.ru) - public information system about housing and communal services. If there are no such service in your county, you can add this information manual later.
