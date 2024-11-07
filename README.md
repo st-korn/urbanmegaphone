@@ -273,11 +273,11 @@ json_file = Path.cwd() / 'get-buildings' / 'gunib' / 'gunib.osm.geojson'
 
 Run `get-buildings/01-pbf-to-geojson.py` script from root folder of a project to generate `.osm.geojson` file with OSM's buildings of your raster area. All other buildings, not included in these areas, will be discarded.
 
-![Convert pbf to GeoJSON](/images/pbf-to-geojson.png)
+![Convert pbf to GeoJSON](/images/pbf-to-geojson2.png)
 
 You can load `.osm.geojson` file in [QGIS](https://qgis.org/) desctop application for see its geometry and properties:
 
-![See .osm.geojson in QGIS](/images/qgis.png)
+![See .osm.geojson in QGIS](/images/qgis2.png)
 
 ### 3.2. dom.gosuslugi.ru
 
