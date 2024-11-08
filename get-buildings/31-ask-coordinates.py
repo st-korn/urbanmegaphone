@@ -3,7 +3,7 @@ import json
 import httpx
 import time
 
-folder = Path.cwd() / 'get-buildings' / 'gunib'
+folder = Path.cwd() / 'get-buildings' / 'lipetsk'
 APIkey = '12345678-1234-1234-1234-1234567890ab'
 
 # Load houses
@@ -43,6 +43,6 @@ for house in houses:
     with open(ResultFile, "wb") as f:
         f.write(response.content)
 
-    print(data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos'],
+    print("\t = ",data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos'],
           data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['name'],
           data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['description'])

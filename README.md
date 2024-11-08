@@ -17,6 +17,7 @@
         - [3.1. OpenStreetMap (osm.org)](#31-openstreetmap-osmorg)
         - [3.2. dom.gosuslugi.ru](#32-domgosuslugiru)
         - [3.3. pkk.rosreestr.ru](#33-pkkrosreestrru)
+        - [3.4. geocode-maps.yandex.ru](#34-geocode-mapsyandexru)
 
 
 # How to run it?
@@ -402,3 +403,36 @@ Next run the script. It read houses from `dom.gosuslugi.ru.json`, and than make 
 ![Ask pkk.rosreestr.ru](/images/ask-pkk.png)
 
 The file `pkk.txt`is needed to continue fetch coordinates if `pkk.rosreestr.ru` is banned your requests. It is 1 secopnd pause after each request to to prevent the ban.
+
+### 3.4. geocode-maps.yandex.ru
+
+Next source popular in Russia is Yandex maps service. There are commercial geocoder API of this service. You can read API documentation [here](https://yandex.ru/dev/geocode/doc/ru/)
+
+You need to register at [Yandex developer cabinet](https://developer.tech.yandex.ru/), add service `JavaScript API and HTTP Geocoder`, create your personal API key for it. You can make 1000 free requests. Next you must pay $160 per month (1000 requests/day) and $3 per 1000 additional requests.
+
+Put your API key and your folder path on the head of `get-buildings/31-ask-coordinates.py` script:
+
+```python
+folder = Path.cwd() / 'get-buildings' / 'lipetsk'
+APIkey = '12345678-1234-1234-1234-1234567890ab'
+```
+Then run `get-buildings/31-ask-coordinates.py` script. It will create subfolder `yandex` and put them files like `00b11c4a-0730-4336-97a1-e94a4afd3c08.json` with UUID of building in name and JSON geocoder response in content. Nuildings with coordinates from `pkk.rosreestr.ru` are skiped.
+
+![Ask geocode-maps.yandex.ru](/images/ask-yandex.png)
+
+Example of geocoder response:
+```json
+    "name": "улица Пожарского, 57",
+    "description": "Липецк, Россия",
+    "boundedBy": {
+        "Envelope": {
+            "lowerCorner": "39.655077 52.642789",
+            "upperCorner": "39.663288 52.647783"
+        }
+    },
+    "uri": "ymapsbm1://geo?data=Cgg1NjUxMDU4ORI_0KDQvtGB0YHQuNGPLCDQm9C40L_QtdGG0LosINGD0LvQuNGG0LAg0J_QvtC20LDRgNGB0LrQvtCz0L4sIDU3IgoNAKMeQhXHlFJC",
+    "Point": {
+        "pos": "39.659182 52.645286"
+    }
+
+```
