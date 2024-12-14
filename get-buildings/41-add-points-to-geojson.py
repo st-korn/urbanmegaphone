@@ -14,7 +14,7 @@ dst_file = folder / 'lipetsk.pnts.geojson'
 transformer = Transformer.from_crs(4326, 3857,always_xy=True)
 
 # Load houses
-with open(folder / 'dom.gosuslugi.ru.json', encoding='utf-8') as f:
+with open(folder / 'houses.dom.gosuslugi.ru.json', encoding='utf-8') as f:
     houses = json.load(f)
 print("DOM.GOSUSLUGI.RU houses loaded.")
 

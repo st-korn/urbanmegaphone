@@ -350,7 +350,7 @@ This script create in your forlder these files:
 - `UUID-1.json` - first 100 (or less) buildings of the territory or street
 - `UUID-2.json`, `UUID-3.json` and more - next 100 (or less) buildings
 
-After this step, run `get-buildings/14-collect-buildings.py` to collect all buildings from JSON files to one `dom.gosuslugi.ru.json` file.
+After this step, run `get-buildings/14-collect-buildings.py` to collect all buildings from JSON files to one `houses.dom.gosuslugi.ru.json` file.
 
 Edit folder path at the beginning of the script:
 
@@ -362,7 +362,7 @@ Than run it. Script will print names of found JSON files. At the end of work scr
 
 ![Collect buildings](/images/collect-buildings.png)
 
-`dom.gosuslugi.ru.json` file contains list of the buildings:
+`houses.dom.gosuslugi.ru.json` file contains list of the buildings:
 
 ```json
 [
@@ -371,16 +371,16 @@ Than run it. Script will print names of found JSON files. At the end of work scr
         "address": "398902, обл Липецкая, г Липецк, ул Металлистов, д. 1",
         "cadastre": "48:20:0011206:64",
         "type": "Многоквартирный",
-        "floors": "2",
-        "flats": "8"
+        "floors": 2,
+        "flats": 8
     },
     {
         "fias": "0014d723-fc40-4de4-8084-b328af4e1e8d",
         "address": "398902, обл Липецкая, г Липецк, ул Металлистов, д. 2",
         "cadastre": null,
         "type": "Жилой",
-        "floors": "1",
-        "flats": null
+        "floors": 1,
+        "flats": 1
     },
 ```
 Buildings have the following properties:
@@ -401,7 +401,7 @@ First open `get-buildings/21-ask-coordinates.py` and edit workfolder path:
 folder = Path.cwd() / 'get-buildings' / 'lipetsk'
 ```
 
-Next run the script. It read houses from `dom.gosuslugi.ru.json`, and than make HTTP-reuest to `pkk.rosreestr.ru` for each house with cadastre ID. If `pkk.rosreestr.ru` known geographic coordinates of building - they are stored in `pkk.txt` file. If geographic coordinates are unknown - in `pkk.txt` stored blank line.
+Next run the script. It read houses from `houses.dom.gosuslugi.ru.json`, and than make HTTP-reuest to `pkk.rosreestr.ru` for each house with cadastre ID. If `pkk.rosreestr.ru` known geographic coordinates of building - they are stored in `pkk.txt` file. If geographic coordinates are unknown - in `pkk.txt` stored blank line.
 
 ![Ask pkk.rosreestr.ru](/images/ask-pkk.png)
 

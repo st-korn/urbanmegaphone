@@ -7,7 +7,7 @@ folder = Path.cwd() / 'get-buildings' / 'lipetsk'
 APIkey = '12345678-1234-1234-1234-1234567890ab'
 
 # Load houses
-with open(folder / 'dom.gosuslugi.ru.json', encoding='utf-8') as f:
+with open(folder / 'houses.dom.gosuslugi.ru.json', encoding='utf-8') as f:
     houses = json.load(f)
 
 # Read prevois coordinates

@@ -6,7 +6,7 @@ import time
 folder = Path.cwd() / 'get-buildings' / 'lipetsk'
 
 # Load houses
-with open(folder / 'dom.gosuslugi.ru.json', encoding='utf-8') as f:
+with open(folder / 'houses.dom.gosuslugi.ru.json', encoding='utf-8') as f:
     houses = json.load(f)
 
 # Read prevois coordinates
