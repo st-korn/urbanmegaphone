@@ -37,18 +37,18 @@ for file in Path('.',folder).glob("*-*-*-*-*-?.json", case_sensitive=False):
                 house['flats'] = flats
                 # Search for duplicates
                 found = False
-                for idx2, house2 in enumerate(houses):
+                for house2 in houses:
                     if house['address'] == house2['address']:
                         if house2['flats'] < house['flats']:
-                            houses[idx2]['flats'] = house['flats']
+                            house2['flats'] = house['flats']
                         if house2['floors'] is None:
-                            houses[idx2]['floors'] = house['floors']
+                            house2['floors'] = house['floors']
                         elif house['floors'] is not None:
                             if house2['floors'] < house['floors']:
-                                houses[idx2]['floors'] = house['floors']
+                                house2['floors'] = house['floors']
                         if house2['cadastre'] is None:
-                            houses[idx2]['cadastre'] = house['cadastre']
-                        houses[idx2]['fias'] = house['fias']
+                            house2['cadastre'] = house['cadastre']
+                        house2['fias'] = house['fias']
                         found = True
                 if not(found):
                     houses.append(house)
