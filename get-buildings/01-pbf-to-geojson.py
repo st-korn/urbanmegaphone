@@ -7,8 +7,8 @@ from modules.settings import * # Settings defenition
 from loguru import logger
 import geojson
 
-pbf_file = Path.cwd() / 'get-buildings' / 'gunib' / 'north-caucasus-fed-district-latest.osm.pbf'
-json_file = Path.cwd() / 'get-buildings' / 'gunib' / 'gunib.osm.geojson'
+pbf_file = Path.cwd() / 'get-buildings' / 'lipetsk' / 'central-fed-district-latest.osm.pbf'
+json_file = Path.cwd() / 'get-buildings' / 'lipetsk' / 'lipetsk.osm.geojson'
 
 # ------------------------------------------------------------------------------------------
 # Read raster's bounds

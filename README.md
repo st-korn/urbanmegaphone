@@ -18,7 +18,7 @@
         - [3.2. dom.gosuslugi.ru](#32-domgosuslugiru)
         - [3.3. pkk.rosreestr.ru](#33-pkkrosreestrru)
         - [3.4. geocode-maps.yandex.ru](#34-geocode-mapsyandexru)
-
+        - [3.5. Combine received information](#35-сombine-received-information)
 
 # How to run it?
 
@@ -38,6 +38,9 @@
     pip install httpx
     pip install osmium
     pip install geojson
+    pip install shapely
+    pip install textdistance
+    pip install tqdm
     ```
     We use own copy in `modules` folder of python [`geotiff`](https://github.com/KipCrossing/geotiff.git) library, because our [pull request](https://github.com/KipCrossing/geotiff/pull/74) has not been processed yet. If you already have this library installed, please uninstall it.
 
@@ -416,7 +419,7 @@ Put your API key and your folder path on the head of `get-buildings/31-ask-coord
 folder = Path.cwd() / 'get-buildings' / 'lipetsk'
 APIkey = '12345678-1234-1234-1234-1234567890ab'
 ```
-Then run `get-buildings/31-ask-coordinates.py` script. It will create subfolder `yandex` and put them files like `00b11c4a-0730-4336-97a1-e94a4afd3c08.json` with UUID of building in name and JSON geocoder response in content. Nuildings with coordinates from `pkk.rosreestr.ru` are skiped.
+Then run `get-buildings/31-ask-coordinates.py` script. It will create subfolder `yandex` and put them files like `00b11c4a-0730-4336-97a1-e94a4afd3c08.json` with UUID of building in name and JSON geocoder response in content. Buildings with coordinates from `pkk.rosreestr.ru` are skiped.
 
 ![Ask geocode-maps.yandex.ru](/images/ask-yandex.png)
 
@@ -434,5 +437,9 @@ Example of geocoder response:
     "Point": {
         "pos": "39.659182 52.645286"
     }
-
 ```
+### 3.5. Combine received information
+
+Next step we combine all recieved information into one big GeoJSON file. Run `get-buildings/41-add-points-to-geojson.py` script.
+
+It collect cadastre building dinates
