@@ -40,6 +40,7 @@ for file in Path('.',folder).glob("*-*-*-*-*-?.json", case_sensitive=False):
                 for house2 in houses:
                     if house['address'] == house2['address']:
                         if house2['flats'] < house['flats']:
+                            total_flats = total_flats - house2['flats'] + house['flats']
                             house2['flats'] = house['flats']
                         if house2['floors'] is None:
                             house2['floors'] = house['floors']
