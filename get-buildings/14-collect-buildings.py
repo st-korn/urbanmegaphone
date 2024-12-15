@@ -1,5 +1,6 @@
 from pathlib import Path
 import json
+import re
 
 folder = Path.cwd() / 'get-buildings' / 'lipetsk'
 
@@ -10,7 +11,7 @@ individual_houses = 0
 total_flats = 0
 
 for file in Path('.',folder).glob("*-*-*-*-*-?.json", case_sensitive=False):
-    print(file)
+    #print(file)
     with open(file, encoding='utf-8') as f:
         data = json.load(f)
         if data['total']>0:
@@ -23,9 +24,18 @@ for file in Path('.',folder).glob("*-*-*-*-*-?.json", case_sensitive=False):
                 house['type'] = item['houseType']['houseTypeName']
                 # Covert floors to integer
                 try:
-                    floors = int(item['maxFloorCount'])
+                    if item['maxFloorCount'] is None:
+                        floors = 1
+                    else:
+                        floors = int(item['maxFloorCount'])
                 except:
-                    floors = 1
+                    print(item['maxFloorCount'])
+                    a =re.findall(r"\d+",item['maxFloorCount'])
+                    b = [int(item) for item in a]
+                    if len(b)>1:
+                        floors = max(b)
+                    else:
+                        floors = 1               
                 house['floors'] = floors
                 # Assign one flat to individual houses
                 try:
