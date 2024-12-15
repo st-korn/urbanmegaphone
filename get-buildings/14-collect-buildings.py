@@ -38,6 +38,7 @@ for file in Path('.',folder).glob("*-*-*-*-*-?.json", case_sensitive=False):
                 # Search for duplicates
                 found = False
                 for house2 in houses:
+                    # Find duplicates with one address
                     if house['address'] == house2['address']:
                         if house2['flats'] < house['flats']:
                             total_flats = total_flats - house2['flats'] + house['flats']
@@ -51,6 +52,11 @@ for file in Path('.',folder).glob("*-*-*-*-*-?.json", case_sensitive=False):
                             house2['cadastre'] = house['cadastre']
                         house2['fias'] = house['fias']
                         found = True
+                    # Find duplicates with one cadastre
+                    if house['cadastre'] == house2['cadastre']:
+                        # Clear cadastres of both houses
+                        house['cadastre'] = None
+                        house2['cadastre'] = None
                 if not(found):
                     houses.append(house)
                     if house['flats'] == 1:

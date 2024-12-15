@@ -12,15 +12,18 @@ dst_file = folder / 'lipetsk.pnts.geojson'
 with open(folder / 'houses.dom.gosuslugi.ru.json', encoding='utf-8') as f:
     houses = json.load(f)
 dfHouses = pd.DataFrame.from_dict(houses) 
+print("DOM.GOSUSLUGI.RU houses loaded:")
 print(dfHouses)
-print("DOM.GOSUSLUGI.RU houses loaded.")
+print(dfHouses['flats'].sum()," flats found.")
+h2 = dfHouses.dropna(subset = 'cadastre')
+print(h2[h2.duplicated('cadastre', keep=False) == True])
 
 # Load GeoJSON
 with open(src_file, encoding='utf-8') as f:
     gjOSM = geojson.load(f)
-gdfOSM = gpd.read_file(gjOSM, driver='GeoJSON')
+gdfOSM = gpd.read_file(gjOSM)
+print("OSM.ORG GeoJSON loaded:")
 print(gdfOSM)
-print("OSM.ORG GeoJSON loaded.")
 
 # Load PKK points
 pointsPKK = []
@@ -34,9 +37,11 @@ with open(folder / 'pkk.txt', encoding='utf-8') as f:
             pointsPKK.append(geo)
 gjPKK = geojson.FeatureCollection(pointsPKK)
 gjPKK['crs'] = {"type":"EPSG", "properties":{"code":3857}}
-gdfPKK = gpd.read_file(gjPKK, driver='GeoJSON')
+gdfPKK = gpd.read_file(gjPKK)
 print(gdfPKK)
-print("PKK.ROSREESTR.RU points of cadastre loaded.")
+gdfPKK=gdfPKK.merge(right=dfHouses,how='left',left_on="cadastre",right_on="cadastre")
+print("PKK.ROSREESTR.RU points of cadastre loaded:")
+print(gdfPKK)
 
 # Load Yandex points
 pointsYandex = []
@@ -48,9 +53,12 @@ with open(folder / 'yandex.json', encoding='utf-8') as f:
         pointsYandex.append(geo)
 gjYandex = geojson.FeatureCollection(pointsYandex)
 gjYandex['crs'] = {"type":"EPSG", "properties":{"code":3857}}
-gdfYandex = gpd.read_file(gjYandex, driver='GeoJSON')
+gdfYandex = gpd.read_file(gjYandex)
 print(gdfYandex)
-print("MAP.YANDEX.RU points of FIAS loaded.")
+gdfYandex=gdfYandex.merge(right=dfHouses,how='left',left_on="fias",right_on="fias")
+print("MAP.YANDEX.RU points of FIAS loaded:")
+print(gdfYandex)
+
 
 '''
 # Loop throught all OSM shapes
