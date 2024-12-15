@@ -76,7 +76,7 @@ for o in osmium.FileProcessor(pbf_file).with_areas().with_filter(osmium.filter.K
                 geo = geojson.Feature( geometry=geojson.MultiPolygon(polygons) )
             else:
                 geo = geojson.Feature( geometry=geojson.Polygon(polygons[0]) )
-            geo.properties['building'] = o.tags['building']
+            geo.properties['osm-building'] = o.tags['building']
             if 'addr:street' in o.tags:
                 geo.properties['osm-street'] = o.tags['addr:street']
             if 'addr:housenumber' in o.tags:

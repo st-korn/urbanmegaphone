@@ -12,9 +12,12 @@ dst_file = folder / 'lipetsk.pnts.geojson'
 with open(folder / 'houses.dom.gosuslugi.ru.json', encoding='utf-8') as f:
     houses = json.load(f)
 dfHouses = pd.DataFrame.from_dict(houses) 
+houses_total = len(dfHouses.index)
+flats_total = dfHouses['flats'].sum()
 print("\nDOM.GOSUSLUGI.RU houses loaded:")
 print(dfHouses)
-print(dfHouses['flats'].sum()," flats found.")
+print(houses_total," houses found.")
+print(flats_total," flats found.")
 
 # Load GeoJSON
 with open(src_file, encoding='utf-8') as f:
@@ -54,100 +57,39 @@ print("\nMAP.YANDEX.RU points of FIAS loaded:")
 print(gdfYandex)
 
 # Merge houses with PKK.ROSREESTR.RU and MAP.YANDEX.RU points
-dfHouses=dfHouses.merge(right=gdfPKK,how='left',left_on="cadastre",right_on="cadastre")
-dfHouses=dfHouses.merge(right=gdfYandex,how='left',left_on="fias",right_on="fias")
-dfHouses['geometry'] = dfHouses['geometry_x'].fillna(dfHouses['geometry_y'])
-dfHouses = dfHouses.drop('geometry_x', axis='columns')
-dfHouses = dfHouses.drop('geometry_y', axis='columns')
+gdfHouses=dfHouses.merge(right=gdfPKK, how='left', left_on="cadastre", right_on="cadastre")
+gdfHouses=gdfHouses.merge(right=gdfYandex, how='left', left_on="fias", right_on="fias")
+gdfHouses['geometry'] = gdfHouses['geometry_x'].fillna(gdfHouses['geometry_y'])
+gdfHouses = gdfHouses.drop('geometry_x', axis='columns')
+gdfHouses = gdfHouses.drop('geometry_y', axis='columns')
+gdfHouses = gpd.GeoDataFrame(gdfHouses)
 print("\nDOM.GOSUSLUGI.RU houses are merged with PKK.ROSREESTR.RU and MAP.YANDEX.RU map points:")
-print(dfHouses)
+print(gdfHouses)
 
-HousesNotFoundOnMap = dfHouses[dfHouses['geometry'].isnull()]
+HousesNotFoundOnMap = gdfHouses[gdfHouses['geometry'].isnull()]
 if len(HousesNotFoundOnMap.index) == 0:
     print("Congratulations! All houses hava points on map!")
 else:
     print("Warning: some houses form DOM.GOSUSLUGI.RU can not be found on map PKK.ROSREESTR.RU or MAP.YANDEX.RU:")
     print(HousesNotFoundOnMap)
 
-'''
-# Loop throught all OSM shapes
-print("--- Starting to analyze polygons\n")
-pbar = tqdm.tqdm(total = len(gj['features']))
-for feature in gj['features']:
-    # Get polygon
-    polygon = shape(feature['geometry'])
-    description = "Polygon:"
-    if 'osm-street' in feature['properties']:
-        description = description + " " + feature['properties']['osm-street']
-    if 'osm-housenumber' in feature['properties']:
-        description = description + " " + feature['properties']['osm-housenumber']
-    pbar.write("\n"+description)
-    # Loop throught pointsYandex
-    found = ''
-    for geo_point in pointsYandex:
-        point = Point(geo_point['geometry']['coordinates'])
-        if polygon.contains(point):
-            found = geo_point.properties['fias']
-            pbar.write("Point found contains: "+found)
-            break
-        elif distance(polygon,point) < 5:
-            found = geo_point.properties['fias']
-            pbar.write("Point found near in "+str(distance(polygon,point))+": "+found)
-            break
-    if found:
-        house = None
-        for h in houses:
-            if h['fias'] == found:
-                house = h
-                pbar.write("House found: "+house['address'])
-                break
-        if house:
-            # Add properties to shape
-            feature['properties']['cadastre']=house['cadastre']
-            feature['properties']['address']=house['address']
-            feature['properties']['fias']=house['fias']
-            feature['properties']['type']=house['type']
-            feature['properties']['floors']=house['floors']
-            feature['properties']['flats']=house['flats']
-            pbar.update(1)
-            continue
-    # Loop throught pointsPKK
-    found = ''
-    for geo_point in pointsPKK:
-        point = Point(geo_point['geometry']['coordinates'])
-        if polygon.contains(point):
-            found = geo_point.properties['cadastr']
-            pbar.write("Point found contains: "+found)
-            break
-        elif distance(polygon,point) < 5:
-            found = geo_point.properties['cadastr']
-            pbar.write("Point found near in "+str(distance(polygon,point))+": "+found)
-            break
-    if found:
-        house = None
-        for h in houses:
-            if h['cadastre'] == found:
-                house = h
-                pbar.write("House found: "+house['address'])
-                break
-        if house:
-            # Add properties to shape
-            feature['properties']['cadastre']=house['cadastre']
-            feature['properties']['address']=house['address']
-            feature['properties']['fias']=house['fias']
-            feature['properties']['type']=house['type']
-            feature['properties']['floors']=house['floors']
-            feature['properties']['flats']=house['flats']
-            pbar.update(1)
-            continue
+gdfPKK = gpd.GeoDataFrame(gdfPKK.merge(right=dfHouses, how='left', left_on="cadastre", right_on='cadastre'))
+gdfYandex = gpd.GeoDataFrame(gdfYandex.merge(right=dfHouses, how='left', left_on="fias", right_on='fias'))
 
-    pbar.update(1)
+# For each OSM building find largest house 
+gdfOSM2 = gdfOSM.sjoin(gdfHouses, how="left", predicate='contains')
+gdfOSM2 = gdfOSM2.sort_values('flats')
+gdfOSM2 = gdfOSM2.drop_duplicates(subset='geometry', keep="last")
+houses_assigned = len(gdfOSM2['fias'].dropna().unique())
+flats_assigned = gdfOSM2['flats'].sum()
+print("\nAssign points of the houses to OSM buildings, that are contained in them")
+print(gdfOSM2)
+print(houses_assigned," houses assigned (",round(houses_assigned/houses_total*100,1),"%)")
+print(flats_assigned," flats assigned (",round(flats_assigned/flats_total*100,1),"%)")
 
-print("--- Polygons analysis completed.\n")
-'''
+
 
 # Save GeoJSON to file
-gjOSM['features'] = gjOSM['features'] + gjPKK['features'] + gjYandex['features']
-with open(dst_file, 'w', encoding='utf8') as f:
-    geojson.dump(gjOSM, f, ensure_ascii=False, indent=4)
+gdfAll = gpd.GeoDataFrame(pd.concat([gdfOSM2, gdfPKK, gdfYandex], ignore_index=True, sort=False))
+gdfAll.to_file(dst_file, driver="GeoJSON")  
 print("GeoJSON saved.")
