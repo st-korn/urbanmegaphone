@@ -39,6 +39,7 @@
     pip install osmium
     pip install geojson
     pip install textdistance
+    pip install pandas
     pip install geopandas
     pip install tqdm
     ```
