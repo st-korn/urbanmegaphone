@@ -6,9 +6,11 @@ from modules.geotiff import GeoTiff # GeoTIFF format reader
 from modules.settings import * # Settings defenition
 from loguru import logger
 import geojson
+from pyproj import Transformer
 
 pbf_file = Path.cwd() / 'get-buildings' / 'lipetsk' / 'central-fed-district-latest.osm.pbf'
 json_file = Path.cwd() / 'get-buildings' / 'lipetsk' / 'lipetsk.osm.geojson'
+transformer = Transformer.from_crs(4326, 3857,always_xy=True)
 
 # ------------------------------------------------------------------------------------------
 # Read raster's bounds
@@ -54,7 +56,8 @@ for o in osmium.FileProcessor(pbf_file).with_areas().with_filter(osmium.filter.K
             ring = []
             for n in outer:
                 if n.location.valid():
-                    ring.append((n.lon, n.lat))
+                    (a,b) = transformer.transform(n.lon, n.lat)
+                    ring.append((a,b))
                     if (n.lon>=boundsMin[0]) and (n.lon<=boundsMax[0]) and (n.lat>=boundsMin[1]) and (n.lat<=boundsMax[1]):
                         inside=True
             rings.append(ring)
@@ -63,7 +66,8 @@ for o in osmium.FileProcessor(pbf_file).with_areas().with_filter(osmium.filter.K
                 ring = []
                 for n in inner:
                     if n.location.valid():
-                        ring.append((n.lon, n.lat))
+                        (a,b) = transformer.transform(n.lon, n.lat)
+                        ring.append((a,b))
                 rings.append(ring)
             # Save polygon
             polygons.append(rings)
@@ -84,8 +88,8 @@ for o in osmium.FileProcessor(pbf_file).with_areas().with_filter(osmium.filter.K
             #if len(Buildings) > 100:
             #    break
 
-feature_collection = geojson.FeatureCollection(Buildings)
-
+gj = geojson.FeatureCollection(Buildings)
+gj['crs'] = {"type":"EPSG", "properties":{"code":3857}}
 with open(json_file, 'w', encoding='utf8') as f:
-    geojson.dump(feature_collection, f, ensure_ascii=False, indent=4)
+    geojson.dump(gj, f, ensure_ascii=False, indent=4)
 

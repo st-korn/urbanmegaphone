@@ -1,12 +1,6 @@
 from pathlib import Path
 import json
 import geojson
-from pyproj import Transformer
-from shapely.geometry import shape, Point
-from shapely.ops import transform
-from shapely import distance
-import textdistance
-import tqdm
 
 folder = Path.cwd() / 'get-buildings' / 'lipetsk'
 src_file = folder / 'lipetsk.osm.geojson'

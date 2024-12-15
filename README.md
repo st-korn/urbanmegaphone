@@ -38,8 +38,8 @@
     pip install httpx
     pip install osmium
     pip install geojson
-    pip install shapely
     pip install textdistance
+    pip install geopandas
     pip install tqdm
     ```
     We use own copy in `modules` folder of python [`geotiff`](https://github.com/KipCrossing/geotiff.git) library, because our [pull request](https://github.com/KipCrossing/geotiff/pull/74) has not been processed yet. If you already have this library installed, please uninstall it.
