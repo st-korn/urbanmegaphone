@@ -21,7 +21,7 @@ print("DOM.GOSUSLUGI.RU houses loaded.")
 # Load GeoJSON
 with open(src_file, encoding='utf-8') as f:
     gj = geojson.load(f)
-# Loop throught all OSM shapes
+# Loop throught all OSM shapes and tranform WGS84 coordinates to Web-Mercator projection
 for feature in gj['features']:
     polygon = shape(feature['geometry'])
     polygon = transform(transformer.transform,polygon)
@@ -42,28 +42,10 @@ print("PKK.ROSREESTR.RU points of cadastre loaded.")
 
 # Load Yandex points
 pointsYandex = []
-for file in Path('.',folder/'yandex').glob("*.json", case_sensitive=False):
-    with open(file, encoding='utf-8') as f:
-        yandex = json.load(f)
-        fias = Path(file).stem
-        # Fix yandex bug: find the result, who is most similar to original request of yandex geocoder
-        # This is not always the first result
-        request = yandex['response']['GeoObjectCollection']['metaDataProperty']['GeocoderResponseMetaData']['request']
-        addresses = []
-        for fm in yandex['response']['GeoObjectCollection']['featureMember']:
-            addresses.append(fm['GeoObject']['metaDataProperty']['GeocoderMetaData']['Address']['formatted'])
-        similarity = []
-        for address in addresses:
-            similarity.append(textdistance.cosine.normalized_similarity(request,address))
-        max_similarity = max(similarity)
-        max_index = similarity.index(max_similarity)
-        if max_index>0:
-            print("Fix: "+request+" | was: "+addresses[0]+" | become: "+addresses[max_index])
-        # Get coordinates of best result
-        coords = yandex['response']['GeoObjectCollection']['featureMember'][max_index]['GeoObject']['Point']['pos'].split()
-        (a,b) = transformer.transform(float(coords[0]),float(coords[1]))
-        # Add point to collection
-        geo = geojson.Feature( geometry=geojson.Point((a, b)) )
+with open(folder / 'yandex.json', encoding='utf-8') as f:
+    yandex = json.load(f)
+    for fias in yandex:
+        geo = geojson.Feature( geometry=geojson.Point((yandex[fias][0], yandex[fias][1])) )
         geo.properties['fias'] = fias
         pointsYandex.append(geo)
 print("MAP.YANDEX.RU points of FIAS loaded.")
