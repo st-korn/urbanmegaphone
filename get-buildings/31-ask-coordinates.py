@@ -33,6 +33,7 @@ for house in houses:
         continue
 
     print(house['address'],'Asking...')
+    #time.sleep(3)
     response = httpx.get('https://geocode-maps.yandex.ru/1.x',
                         params={
                             'apikey':APIkey,

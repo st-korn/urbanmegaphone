@@ -12,17 +12,15 @@ dst_file = folder / 'lipetsk.pnts.geojson'
 with open(folder / 'houses.dom.gosuslugi.ru.json', encoding='utf-8') as f:
     houses = json.load(f)
 dfHouses = pd.DataFrame.from_dict(houses) 
-print("DOM.GOSUSLUGI.RU houses loaded:")
+print("\nDOM.GOSUSLUGI.RU houses loaded:")
 print(dfHouses)
 print(dfHouses['flats'].sum()," flats found.")
-h2 = dfHouses.dropna(subset = 'cadastre')
-print(h2[h2.duplicated('cadastre', keep=False) == True])
 
 # Load GeoJSON
 with open(src_file, encoding='utf-8') as f:
     gjOSM = geojson.load(f)
 gdfOSM = gpd.read_file(gjOSM)
-print("OSM.ORG GeoJSON loaded:")
+print("\nOSM.ORG GeoJSON loaded:")
 print(gdfOSM)
 
 # Load PKK points
@@ -38,9 +36,7 @@ with open(folder / 'pkk.txt', encoding='utf-8') as f:
 gjPKK = geojson.FeatureCollection(pointsPKK)
 gjPKK['crs'] = {"type":"EPSG", "properties":{"code":3857}}
 gdfPKK = gpd.read_file(gjPKK)
-print(gdfPKK)
-gdfPKK=gdfPKK.merge(right=dfHouses,how='left',left_on="cadastre",right_on="cadastre")
-print("PKK.ROSREESTR.RU points of cadastre loaded:")
+print("\nPKK.ROSREESTR.RU points of cadastre loaded:")
 print(gdfPKK)
 
 # Load Yandex points
@@ -54,11 +50,24 @@ with open(folder / 'yandex.json', encoding='utf-8') as f:
 gjYandex = geojson.FeatureCollection(pointsYandex)
 gjYandex['crs'] = {"type":"EPSG", "properties":{"code":3857}}
 gdfYandex = gpd.read_file(gjYandex)
-print(gdfYandex)
-gdfYandex=gdfYandex.merge(right=dfHouses,how='left',left_on="fias",right_on="fias")
-print("MAP.YANDEX.RU points of FIAS loaded:")
+print("\nMAP.YANDEX.RU points of FIAS loaded:")
 print(gdfYandex)
 
+# Merge houses with PKK.ROSREESTR.RU and MAP.YANDEX.RU points
+dfHouses=dfHouses.merge(right=gdfPKK,how='left',left_on="cadastre",right_on="cadastre")
+dfHouses=dfHouses.merge(right=gdfYandex,how='left',left_on="fias",right_on="fias")
+dfHouses['geometry'] = dfHouses['geometry_x'].fillna(dfHouses['geometry_y'])
+dfHouses = dfHouses.drop('geometry_x', axis='columns')
+dfHouses = dfHouses.drop('geometry_y', axis='columns')
+print("\nDOM.GOSUSLUGI.RU houses are merged with PKK.ROSREESTR.RU and MAP.YANDEX.RU map points:")
+print(dfHouses)
+
+HousesNotFoundOnMap = dfHouses[dfHouses['geometry'].isnull()]
+if len(HousesNotFoundOnMap.index) == 0:
+    print("Congratulations! All houses hava points on map!")
+else:
+    print("Warning: some houses form DOM.GOSUSLUGI.RU can not be found on map PKK.ROSREESTR.RU or MAP.YANDEX.RU:")
+    print(HousesNotFoundOnMap)
 
 '''
 # Loop throught all OSM shapes
