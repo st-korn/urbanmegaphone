@@ -6,7 +6,8 @@ import geopandas as gpd
 
 folder = Path.cwd() / 'get-buildings' / 'lipetsk'
 src_file = folder / 'lipetsk.osm.geojson'
-dst_file = folder / 'lipetsk.pnts.geojson'
+buildings_file = folder / 'lipetsk.buildings.geojson'
+points_file = folder / 'lipetsk.points.geojson'
 max_distance = 50 # Max distance to assign House point to a OSM building, meter, integer value. Recomended value: 30-50 m 
 individual_home_dimentions = 9.0 # Dimentions of created individaul home squared polygons, meter. Recomended value: 9.0 m 
 
@@ -179,6 +180,8 @@ gdfOSM_unassigned["floors"] = gdfOSM_unassigned["floors"].fillna(total_median_le
 print("Assign them median value of all cities buildings: ",total_median_levels)
 
 # Save GeoJSON to file
-gdfAll = gpd.GeoDataFrame(pd.concat([gdfOSM_assigned, gdfOSM_unassigned, gdfPKK, gdfYandex], ignore_index=True, sort=False))
-gdfAll.to_file(dst_file, driver="GeoJSON")  
-print("GeoJSON saved.")
+gdfBuildings = gpd.GeoDataFrame(pd.concat([gdfOSM_assigned, gdfOSM_unassigned], ignore_index=True, sort=False))
+gdfBuildings.to_file(buildings_file, driver="GeoJSON")  
+gdfPoints = gpd.GeoDataFrame(pd.concat([gdfPKK, gdfYandex], ignore_index=True, sort=False))
+gdfPoints.to_file(points_file, driver="GeoJSON")  
+print("GeoJSONs saved.")
