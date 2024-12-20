@@ -271,22 +271,22 @@ Original [OpenStreetMap site](https://osm.org) can export only 50.000 objects at
 
 Create in `get-buildings/` sub-folder with your city name. For example `get-builings/lipetsk/`. Put downloaded `.osm.pbf` file in this created folder.
 
-Edit `get-buildings/01-pbf-to-geojson.py` script for paths for source `.osm.pbf` file and destination `.osm.geojson` file:
+Edit `get-buildings/01-pbf-to-geojson.py` script for paths for workspace folder and source `.osm.pbf` file path:
 
 ```python
-pbf_file = Path.cwd() / 'get-buildings' / 'gunib' / 'north-caucasus-fed-district-latest.osm.pbf'
-json_file = Path.cwd() / 'get-buildings' / 'gunib' / 'gunib.osm.geojson'
+folder = Path.cwd() / 'get-buildings' / 'lipetsk'
+pbf_file = folder / 'central-fed-district-latest.osm.pbf'
 ```
 
-Run `get-buildings/01-pbf-to-geojson.py` script from root folder of a project to generate `.osm.geojson` file with OSM's buildings of your raster area. All other buildings, not included in these areas, will be discarded. Also this script converts all coordinates from native for OpenStreetMap degrees `WGS-84` to meters `Web-Mercator projection`.
+Run `get-buildings/01-pbf-to-geojson.py` script from root folder of a project to generate `osm.geojson` file with OSM's buildings of your raster area. All other buildings, not included in these areas, will be discarded. Also this script converts all coordinates from native for OpenStreetMap degrees `WGS-84` to meters `Web-Mercator projection`.
 
 ![Convert pbf to GeoJSON](/images/pbf-to-geojson2.png)
 
-You can load `.osm.geojson` file in [QGIS](https://qgis.org/) desctop application for see its geometry and properties:
+You can load `osm.geojson` file in [QGIS](https://qgis.org/) desctop application for see its geometry and properties:
 
-![See .osm.geojson in QGIS](/images/qgis2.png)
+![See osm.geojson in QGIS](/images/qgis2.png)
 
-Vector building features of `.osm.geojson` file may have the following properties:
+Vector building features of `osm.geojson` file may have the following properties:
 - `osm-building` (string) - type of building by [OSM building's codification](https://wiki.openstreetmap.org/wiki/Key:building)
 - `osm-street` (string) - street name, if exist
 - `osm-housenumber` (string) - house number name, if exist
@@ -513,9 +513,6 @@ Open `get-buildings/41-add-points-to-geojson.py` script file and eidt settings:
 
 ```python
 folder = Path.cwd() / 'get-buildings' / 'lipetsk' # Folder of workspace
-src_file = folder / 'lipetsk.osm.geojson'
-dst_buildings_file = folder / 'lipetsk.buildings.geojson'
-dst_points_file = folder / 'lipetsk.points.geojson'
 max_distance = 50 # Max distance to assign House point to a OSM building, meter, integer value. Recomended value: 30-50 m 
 individual_home_dimentions = 9.0 # Dimentions of created individaul home squared polygons, meter. Recomended value: 9.0 m 
 ```

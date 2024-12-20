@@ -4,10 +4,7 @@ import geojson
 import pandas as pd
 import geopandas as gpd
 
-folder = Path.cwd() / 'get-buildings' / 'lipetsk'
-src_file = folder / 'lipetsk.osm.geojson'
-dst_buildings_file = folder / 'lipetsk.buildings.geojson'
-dst_points_file = folder / 'lipetsk.points.geojson'
+folder = Path.cwd() / 'get-buildings' / 'gunib' # Folder of workspace
 max_distance = 50 # Max distance to assign House point to a OSM building, meter, integer value. Recomended value: 30-50 m 
 individual_home_dimentions = 9.0 # Dimentions of created individaul home squared polygons, meter. Recomended value: 9.0 m 
 
@@ -23,7 +20,7 @@ print(houses_total," houses found.")
 print(flats_total," flats found.")
 
 # Load GeoJSON
-with open(src_file, encoding='utf-8') as f:
+with open(folder / 'osm.geojson', encoding='utf-8') as f:
     gjOSM = geojson.load(f)
 gdfOSM = gpd.read_file(gjOSM)
 print("\nOSM.ORG GeoJSON loaded:")
@@ -37,11 +34,12 @@ with open(folder / 'pkk.txt', encoding='utf-8') as f:
         if data[1]:
             # Add point to collection
             geo = geojson.Feature( geometry=geojson.Point((float(data[1]),float(data[2]))) )
-            geo.properties['cadastre'] = data[0]
+            geo.properties['cadastre'] = 'CDR'+data[0]
             pointsPKK.append(geo)
 gjPKK = geojson.FeatureCollection(pointsPKK)
 gjPKK['crs'] = {"type":"EPSG", "properties":{"code":3857}}
 gdfPKK = gpd.read_file(gjPKK)
+gdfPKK['cadastre'] = gdfPKK['cadastre'].str[3:]
 print("\nPKK.ROSREESTR.RU points of cadastre loaded:")
 print(gdfPKK)
 
@@ -181,7 +179,7 @@ print("Assign them median value of all cities buildings: ",total_median_levels)
 
 # Save GeoJSON to file
 gdfBuildings = gpd.GeoDataFrame(pd.concat([gdfOSM_assigned, gdfOSM_unassigned], ignore_index=True, sort=False))
-gdfBuildings.to_file(dst_buildings_file, driver="GeoJSON")  
+gdfBuildings.to_file(folder / 'buildings.geojson', driver="GeoJSON")  
 gdfPoints = gpd.GeoDataFrame(pd.concat([gdfPKK, gdfYandex], ignore_index=True, sort=False))
-gdfPoints.to_file(dst_points_file, driver="GeoJSON")  
+gdfPoints.to_file(folder / 'points.geojson', driver="GeoJSON")  
 print("GeoJSONs saved.")

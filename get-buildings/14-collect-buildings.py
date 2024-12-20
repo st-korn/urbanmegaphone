@@ -2,7 +2,7 @@ from pathlib import Path
 import json
 import re
 
-folder = Path.cwd() / 'get-buildings' / 'lipetsk'
+folder = Path.cwd() / 'get-buildings' / 'gunib'
 
 houses = []
 counter = 0

@@ -8,8 +8,9 @@ from loguru import logger
 import geojson
 from pyproj import Transformer
 
-pbf_file = Path.cwd() / 'get-buildings' / 'lipetsk' / 'central-fed-district-latest.osm.pbf'
-json_file = Path.cwd() / 'get-buildings' / 'lipetsk' / 'lipetsk.osm.geojson'
+folder = Path.cwd() / 'get-buildings' / 'gunib'
+#pbf_file = folder / 'central-fed-district-latest.osm.pbf'
+pbf_file = folder / 'north-caucasus-fed-district-latest.osm.pbf'
 transformer = Transformer.from_crs(4326, 3857,always_xy=True)
 
 # ------------------------------------------------------------------------------------------
@@ -90,6 +91,6 @@ for o in osmium.FileProcessor(pbf_file).with_areas().with_filter(osmium.filter.K
 
 gj = geojson.FeatureCollection(Buildings)
 gj['crs'] = {"type":"EPSG", "properties":{"code":3857}}
-with open(json_file, 'w', encoding='utf8') as f:
+with open(folder / 'osm.geojson', 'w', encoding='utf8') as f:
     geojson.dump(gj, f, ensure_ascii=False, indent=4)
 
