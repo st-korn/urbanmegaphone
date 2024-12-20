@@ -284,7 +284,7 @@ Run `get-buildings/01-pbf-to-geojson.py` script from root folder of a project to
 
 You can load `osm.geojson` file in [QGIS](https://qgis.org/) desctop application for see its geometry and properties:
 
-![See osm.geojson in QGIS](/images/qgis2.png)
+![See osm.geojson in QGIS](/images/qgis3.png)
 
 Vector building features of `osm.geojson` file may have the following properties:
 - `osm-building` (string) - type of building by [OSM building's codification](https://wiki.openstreetmap.org/wiki/Key:building)
@@ -509,7 +509,7 @@ Next step we combine all recieved information into two big GeoJSON files:
 - one for vector polygons of buildings with semantic
 - one for points, fetched early from pkk.rosreestr.ru and maps.yandex.ru.
 
-Open `get-buildings/41-add-points-to-geojson.py` script file and eidt settings:
+Open `get-buildings/41-add-points-to-geojson.py` script file and edit settings:
 
 ```python
 folder = Path.cwd() / 'get-buildings' / 'lipetsk' # Folder of workspace
@@ -517,6 +517,32 @@ max_distance = 50 # Max distance to assign House point to a OSM building, meter,
 individual_home_dimentions = 9.0 # Dimentions of created individaul home squared polygons, meter. Recomended value: 9.0 m 
 ```
 
+Script load:
+- list of living houses of `dom.gosuslugi.ru` with address, flats and floors count, possible cadastre number and necessarily FIAS keys from `houses.dom.gosuslugi.ru.json` file.
+- points of `pkk.rosreestr.ru` from `pkk.txt` file with coordinates and cadastre numbers
+- points of `map.yandex.ru` from `yandex.json` file with coordinates and FIAS numbers.
+- building polygons of `osm.org` from `osm.geojson` file with some user-added semantic, such as address or floors count. 
+
+The script then performs the following steps.
+
+1. Assign points coordinates of `pkk.rosreestr.ru` and `map.yandex.ru` to houses `dom.gosuslugi.ru`.
+2. Check, if there are remaining houses without coordinates.
+3. Reverse assign to points of `pkk.rosreestr.ru` and `map.yandex.ru` advanced houses information from `dom.gosuslugi.ru`.
+4. Loop throught `osm.org` buildings and find `pkk.rosreestr.ru` and `map.yandex.ru` points, which are placed directly on it. If there are several points on one building - choose a point with the largest number of flats. Write to OSM building house parameters from selected point, such as floor and flats count, cadastre or FIAS numbers. Mark this building and this point as assigned.
+5. Look arround unassigned building to find unassigned point near them сloser than a `1 meter` away. Assign points data to the building and mark them both as assigned. If where are two unassigned points on this ditance - take the one closest to the building.
+6. Do the same thing for `2 meters` distance. Than for `3 meters`. ... And more, until we reach `max_distance` meters distance (`50 meters` by default settings).
+7. Search all unassigned points of individual houses (only one flat). Create new buildings as squared plygon `individual_home_dimentions x individual_home_dimentions` dimentions. This is necessary because many individual houses does not have polygons on OpenStreetMap maps.
+
+After each step, script print statistic abount total count and percentages of assigned houses and flats in them:
+
+![Statistic of assigned houses and flats](/images/houses-statistic.png)
+
+Step-to-step these values should increase. Good result is assignment 98% of flats or more:
+
+![The final statistic of assigned houses and flats](/images/houses-statistic2.png)
+
+8. After all these steps, script put on the console top 20 houses without assigned OSM buildings published by decreasing number of flats. You can search points of this houses manualy
+
+![Top unassigned houses](/images/houses-unassigned.png)
 
 
-It collect cadastre building dinates

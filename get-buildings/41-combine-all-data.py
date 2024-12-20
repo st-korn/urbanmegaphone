@@ -4,9 +4,9 @@ import geojson
 import pandas as pd
 import geopandas as gpd
 
-folder = Path.cwd() / 'get-buildings' / 'gunib' # Folder of workspace
+folder = Path.cwd() / 'get-buildings' / 'lipetsk' # Folder of workspace
 max_distance = 50 # Max distance to assign House point to a OSM building, meter, integer value. Recomended value: 30-50 m 
-individual_home_dimentions = 9.0 # Dimentions of created individaul home squared polygons, meter. Recomended value: 9.0 m 
+individual_home_dimentions = 9.0 # Dimentions of created individual home squared polygons, meter. Recomended value: 9.0 m 
 
 # Load DOM.GOSUSLUGI.RU houses data
 with open(folder / 'houses.dom.gosuslugi.ru.json', encoding='utf-8') as f:
@@ -34,12 +34,12 @@ with open(folder / 'pkk.txt', encoding='utf-8') as f:
         if data[1]:
             # Add point to collection
             geo = geojson.Feature( geometry=geojson.Point((float(data[1]),float(data[2]))) )
-            geo.properties['cadastre'] = 'CDR'+data[0]
+            geo.properties['cadastre'] = 'CDR'+data[0] # Add some letters to cadastre number. So that it doesn't look like time
             pointsPKK.append(geo)
 gjPKK = geojson.FeatureCollection(pointsPKK)
 gjPKK['crs'] = {"type":"EPSG", "properties":{"code":3857}}
 gdfPKK = gpd.read_file(gjPKK)
-gdfPKK['cadastre'] = gdfPKK['cadastre'].str[3:]
+gdfPKK['cadastre'] = gdfPKK['cadastre'].str[3:] # Remove unnecessary letters
 print("\nPKK.ROSREESTR.RU points of cadastre loaded:")
 print(gdfPKK)
 
@@ -147,12 +147,12 @@ gdfHousesIndividual = gdfHousesIndividual.merge(right=fiasToRemove, how='outer',
 gdfHousesIndividual = gdfHousesIndividual[ gdfHousesIndividual['_merge']=='left_only' ]
 gdfHousesIndividual = gdfHousesIndividual.drop(['_merge'], axis='columns')
 print("Unassigned individual houses not located on another building: ",len(gdfHousesIndividual.index))
-print("\nBuild typical building for unassigned individaul houses...")
+print("\nBuild typical building for unassigned individual houses...")
 gdfHousesIndividual['geometry'] = gdfHousesIndividual['geometry'].buffer(distance=individual_home_dimentions, cap_style='square')
 gdfHousesIndividual = gpd.GeoDataFrame(pd.concat([gdfHousesIndividual, gdfOSM_unassigned], ignore_index=True, sort=False))
 combine(gdfHousesIndividual)
 
-print("\nExamples of unassigned houses:")
+print("\nTOP-20 of unassigned houses:")
 print(gdfHouses_unassigned.head(20))
 
 # Calculate median levels of different building types
