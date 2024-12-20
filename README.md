@@ -278,7 +278,7 @@ pbf_file = Path.cwd() / 'get-buildings' / 'gunib' / 'north-caucasus-fed-district
 json_file = Path.cwd() / 'get-buildings' / 'gunib' / 'gunib.osm.geojson'
 ```
 
-Run `get-buildings/01-pbf-to-geojson.py` script from root folder of a project to generate `.osm.geojson` file with OSM's buildings of your raster area. All other buildings, not included in these areas, will be discarded.
+Run `get-buildings/01-pbf-to-geojson.py` script from root folder of a project to generate `.osm.geojson` file with OSM's buildings of your raster area. All other buildings, not included in these areas, will be discarded. Also this script converts all coordinates from native for OpenStreetMap degrees `WGS-84` to meters `Web-Mercator projection`.
 
 ![Convert pbf to GeoJSON](/images/pbf-to-geojson2.png)
 
@@ -287,7 +287,7 @@ You can load `.osm.geojson` file in [QGIS](https://qgis.org/) desctop applicatio
 ![See .osm.geojson in QGIS](/images/qgis2.png)
 
 Vector building features of `.osm.geojson` file may have the following properties:
-- `building` (string) - type of building by [OSM building's codification](https://wiki.openstreetmap.org/wiki/Key:building)
+- `osm-building` (string) - type of building by [OSM building's codification](https://wiki.openstreetmap.org/wiki/Key:building)
 - `osm-street` (string) - street name, if exist
 - `osm-housenumber` (string) - house number name, if exist
 - `osm-levels` (integer) - count of building's levels, if exist
@@ -359,9 +359,20 @@ Edit folder path at the beginning of the script:
 folder = Path.cwd() / 'get-buildings' / 'lipetsk'
 ```
 
-Than run it. Script will print names of found JSON files. At the end of work script print total count of buildings, which are collected.
+Than run it. 
+
+Script loops throught found JSON files and make several steps. First it convert `floors` and `flats` count from strings to integer values. If these fields are blank, it assign `1` to they. If `floors` is not number it try to parse it and assign it to the largest found number and write at the console output about this. If this is not possible, `1` is assigned:
+
+![Fix floors count](/images/fix-floors.png)
+
+If where are two houses with same addresses, script will write only one house to result. It combine all houses with same address and assign to the result the largest count of flats and floors.
+
+If where are two houses with different addresses and same cadastre number, script will clear cadastre numbers of all these houses. Because it can not know, which cadastre number is right.
+
+At the end of work script print total count of **living houses**, which are collected. You can see also count of **unique living houses** - without duplicated addresses. The script splits houses to **individual houses** and **apartment buildings**, and counts all their numbers. Also it summarizes total count of **flats** (including each individual houses as one flat).
 
 ![Collect buildings](/images/collect-buildings.png)
+
 
 `houses.dom.gosuslugi.ru.json` file contains list of the buildings:
 

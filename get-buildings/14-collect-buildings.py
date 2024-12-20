@@ -29,13 +29,13 @@ for file in Path('.',folder).glob("*-*-*-*-*-?.json", case_sensitive=False):
                     else:
                         floors = int(item['maxFloorCount'])
                 except:
-                    print(item['maxFloorCount'])
                     a =re.findall(r"\d+",item['maxFloorCount'])
                     b = [int(item) for item in a]
                     if len(b)>1:
                         floors = max(b)
                     else:
                         floors = 1               
+                    print(item['maxFloorCount']," = ",floors)
                 house['floors'] = floors
                 # Assign one flat to individual houses
                 try:
