@@ -535,7 +535,7 @@ The script then performs the following steps.
 
 After each step, script print statistic abount total count and percentages of assigned houses and flats in them:
 
-![Statistic of assigned houses and flats](/images/houses-statistic.png)
+![Statistic of assigned houses and flats](/images/houses-statistic3.png)
 
 Step-to-step these values should increase. Good result is assignment 98% of flats or more:
 
