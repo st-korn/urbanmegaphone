@@ -30,7 +30,7 @@ def GetBuildings(request,id):
     while index<total:
         reqParams['pageIndex'] = reqParams['pageIndex']+1
 
-        resultPath = resultdir / (id+'-'+str(reqParams['pageIndex'])+'.json')
+        resultPath = resultdir / 'gosuslugi' / (id+'-'+str(reqParams['pageIndex'])+'.json')
         if resultPath.is_file():
             print("File ",resultPath," exists. Skipping")
             index = index+10

@@ -10,7 +10,7 @@ apartment_buildings = 0
 individual_houses = 0
 total_flats = 0
 
-for file in Path('.',folder).glob("*-*-*-*-*-?.json", case_sensitive=False):
+for file in Path('.',folder/'gosuslugi').glob("*-*-*-*-*-?.json", case_sensitive=False):
     #print(file)
     with open(file, encoding='utf-8') as f:
         data = json.load(f)
