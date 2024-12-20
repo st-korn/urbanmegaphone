@@ -363,7 +363,7 @@ Than run it.
 
 Script loops throught found JSON files and make several steps. First it convert `floors` and `flats` count from strings to integer values. If these fields are blank, it assign `1` to they. If `floors` is not number it try to parse it and assign it to the largest found number and write at the console output about this. If this is not possible, `1` is assigned:
 
-![Fix floors count](/images/fix-floors.png)
+![Fix floors count](/images/fix-floors2.png)
 
 If where are two houses with same addresses, script will write only one house to result. It combine all houses with same address and assign to the result the largest count of flats and floors.
 
@@ -371,7 +371,7 @@ If where are two houses with different addresses and same cadastre number, scrip
 
 At the end of work script print total count of **living houses**, which are collected. You can see also count of **unique living houses** - without duplicated addresses. The script splits houses to **individual houses** and **apartment buildings**, and counts all their numbers. Also it summarizes total count of **flats** (including each individual houses as one flat).
 
-![Collect buildings](/images/collect-buildings.png)
+![Collect buildings](/images/collect-buildings2.png)
 
 
 `houses.dom.gosuslugi.ru.json` file contains list of the buildings:
