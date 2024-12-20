@@ -18,7 +18,7 @@
         - [3.2. dom.gosuslugi.ru](#32-domgosuslugiru)
         - [3.3. pkk.rosreestr.ru](#33-pkkrosreestrru)
         - [3.4. geocode-maps.yandex.ru](#34-geocode-mapsyandexru)
-        - [3.5. Combine received information](#35-сombine-received-information)
+        - [3.5. Combine received information](#35-combine-received-information)
 
 # How to run it?
 
@@ -505,6 +505,21 @@ Second thing, this script does is transformation coordinated from degrees `WGS-8
 
 ### 3.5. Combine received information
 
-Next step we combine all recieved information into one big GeoJSON file. Run `get-buildings/41-add-points-to-geojson.py` script.
+Next step we combine all recieved information into two big GeoJSON files: 
+- one for vector polygons of buildings with semantic
+- one for points, fetched early from pkk.rosreestr.ru and maps.yandex.ru.
+
+Open `get-buildings/41-add-points-to-geojson.py` script file and eidt settings:
+
+```python
+folder = Path.cwd() / 'get-buildings' / 'lipetsk' # Folder of workspace
+src_file = folder / 'lipetsk.osm.geojson'
+dst_buildings_file = folder / 'lipetsk.buildings.geojson'
+dst_points_file = folder / 'lipetsk.points.geojson'
+max_distance = 50 # Max distance to assign House point to a OSM building, meter, integer value. Recomended value: 30-50 m 
+individual_home_dimentions = 9.0 # Dimentions of created individaul home squared polygons, meter. Recomended value: 9.0 m 
+```
+
+
 
 It collect cadastre building dinates
