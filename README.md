@@ -471,7 +471,13 @@ We test all distance functions of the python [`textdistance` library](https://py
 | `Россия, Липецк, микрорайон Ссёлки, улица Ленина, 9` | `0.6286185570937122` |
 | `Россия, Липецк` | `0.4073065399812784` |
 
+Here all is right: address `Россия, Липецк, микрорайон Жёлтые Пески, улица Ленина, 9` is the most relevanted to `398916, обл Липецкая, г Липецк, ул Ленина (Желтые Пески), д. 9`.
+
 Resume: Cosine similarity works better for evaluation address similarity, than Levenshtein distance.
+
+You can see substitutions at the console output of runned script:
+
+![Log of yandex's address fixing](/images/fix-yandex.png)
 
 Second thing, this script does is transformation coordinated from degrees `WGS-84` to meters `Web-Mercator projection` and collecting coordinates in file `yandex.json` as one big dictionary. Keys are FIAS-codes of houses and values are arrays of two coordinates:
 
