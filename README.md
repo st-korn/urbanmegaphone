@@ -439,6 +439,53 @@ Example of geocoder response:
         "pos": "39.659182 52.645286"
     }
 ```
+
+Then open `32-fix-and-collect.py` and edit your folder path on its head:
+
+```python
+folder = Path.cwd() / 'get-buildings' / 'lipetsk'
+```
+
+Run it to make two things. First this script loop throught yandex's json responses and select from each the most relevated address point. We can not use the first address point as the most relevanted, because yandex has now a bug in an algorithm estimation of similarity of text phrases. For example:
+
+We ask yandex to geocode string:
+`398916, обл Липецкая, г Липецк, ул Ленина (Желтые Пески), д. 9`
+
+Probably yandex use an edit-based [Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance) algorithm to find point on map, whose address has minimum edit steps to to be transformed to request's address:
+
+| Suggested address | Levenshtein distance |
+| ------------------| -------------------- |
+| `Россия, Липецк, улица Ленина, 9` | `0.3548387096774194` |
+| `Россия, Липецк, микрорайон Жёлтые Пески, улица Ленина, 9` | `0.29032258064516125` |
+| `Россия, Липецк, микрорайон Ссёлки, улица Ленина, 9` | `0.29032258064516125` |
+| `Россия, Липецк` | `0.17741935483870963` |
+
+By the Levenshtein distance, the most relevated address to `398916, обл Липецкая, г Липецк, ул Ленина (Желтые Пески), д. 9` is `Россия, Липецк, улица Ленина, 9`. And the address `Россия, Липецк, микрорайон Жёлтые Пески, улица Ленина, 9` is less relevant than that one.
+
+We test all distance functions of the python [`textdistance` library](https://pypi.org/project/textdistance/). An token-based [Cosine similarity](https://en.wikipedia.org/wiki/Cosine_similarity) get the best result for the task of finding the most relevated address:
+
+| Suggested address | Levenshtein distance |
+| ------------------| -------------------- |
+| `Россия, Липецк, улица Ленина` | `0.6614869888519316` |
+| `Россия, Липецк, микрорайон Жёлтые Пески, улица Ленина, 9` | `0.7127864449672372` |
+| `Россия, Липецк, микрорайон Ссёлки, улица Ленина, 9` | `0.6286185570937122` |
+| `Россия, Липецк` | `0.4073065399812784` |
+
+Resume: Cosine similarity works better for evaluation address similarity, than Levenshtein distance.
+
+Second thing, this script does is transformation coordinated from degrees `WGS-84` to meters `Web-Mercator projection` and collecting coordinates in file `yandex.json` as one big dictionary. Keys are FIAS-codes of houses and values are arrays of two coordinates:
+
+```json
+    "0002c3ad-a714-4a81-a4a1-915ca8e124fe": [
+        4404403.965894873,
+        6905315.453945883
+    ],
+    "000e9f09-5403-46a4-85c5-1da806a1fbbc": [
+        4414974.976060093,
+        6918007.910298051
+    ],
+```
+
 ### 3.5. Combine received information
 
 Next step we combine all recieved information into one big GeoJSON file. Run `get-buildings/41-add-points-to-geojson.py` script.
