@@ -67,6 +67,7 @@ Project folder contains these files and folders:
 - `images/` - images of this documentation
 - `DEM/` - digital elevation models
 - `RASTER/` - raster background of the map
+- `get-buildings/` - scripts to collect vector buildings map with semantic
 - `BUILDINGS/` - vector layers of urban buildings
 - `MEGAPHONES/` - points locations of loudspeakers
 !!! Screen of run every command
@@ -529,11 +530,11 @@ The script then performs the following steps.
 2. Check, if there are remaining houses without coordinates.
 3. Reverse assign to points of `pkk.rosreestr.ru` and `map.yandex.ru` advanced houses information from `dom.gosuslugi.ru`.
 4. Loop throught `osm.org` buildings and find `pkk.rosreestr.ru` and `map.yandex.ru` points, which are placed directly on it. If there are several points on one building - choose a point with the largest number of flats. Write to OSM building house parameters from selected point, such as floor and flats count, cadastre or FIAS numbers. Mark this building and this point as assigned.
-5. Look arround unassigned building to find unassigned point near them сloser than a `1 meter` away. Assign points data to the building and mark them both as assigned. If where are two unassigned points on this ditance - take the one closest to the building.
+5. Look arround unassigned building to find unassigned point near them сloser than a `1 meter` away. Assign points data to the building and mark them both as assigned. If where are two unassigned points on this ditance - take the one closest to the building. Also create building's field `distance` and put in it the distance between the building and found point.
 6. Do the same thing for `2 meters` distance. Than for `3 meters`. ... And more, until we reach `max_distance` meters distance (`50 meters` by default settings).
 7. Search all unassigned points of individual houses (only one flat). Create new buildings as squared plygon `individual_home_dimentions x individual_home_dimentions` dimentions. This is necessary because many individual houses does not have polygons on OpenStreetMap maps.
 
-After each step, script print statistic abount total count and percentages of assigned houses and flats in them:
+After each step, script print statistic about total count and percentages of assigned houses and flats in them:
 
 ![Statistic of assigned houses and flats](/images/houses-statistic3.png)
 
@@ -541,28 +542,78 @@ Step-to-step these values should increase. Good result is assignment 98% of flat
 
 ![The final statistic of assigned houses and flats](/images/houses-statistic2.png)
 
-8. After all these steps, script put on the console top 20 houses without assigned OSM buildings published by decreasing number of flats. You can search points of this houses manualy
+8. After all these steps, script put on the console top 20 houses without assigned OSM buildings ordered by decreasing number of flats. You can search points of this houses manualy
 
 ![Top unassigned houses](/images/houses-unassigned2.png)
 
-Then prepare and fill floors info:
+Next steps script prepare and fill floors info:
 
 9. Select different OSM types of building and get the median value of floors on the entire map:
 
 ![Median floors valuse form different `OSM`](/images/median-levels.png)
 
-10. For all unassigned buidings on map. First look if they have OpenStreetMap levels info in `osm-levels` field. If it is - put this value also in `floor` field:
+10. For all unassigned buidings on map, first, look if they have OpenStreetMap levels info in `osm-levels` field. If they have - script put this value also in `floor` field. For other unassigned buidings without values in `osm-levels` field, script put in `floor` median value, selected by prevois step:
 
 ![Count of bouldings without floors](/images/houses-without-floors.png)
 
-11. Count buildings without floor again. Usually there are buildings with uncommon types, which do not have an information about the number of  the map:
+11. Count buildings without `floor` values again. Usually there are buildings with uncommon types. Where are on map no building such types with filled `osm-levels` field:
 
 ![Buildings with uncommon types without floors](/images/houses-types.png)
 
-12. Assign to these buildings default (the medium) floors count (of all map):
+12. Assign to these buildings default the medium floors count, selected from all buildings on the entire map:
 
-![Buildings with median floor count](/images/houses-types.png)
+![Buildings with median floor count](/images/houses-median2.png)
 
 13. Save all buildings polygons to the `buildings.geojson` file and points with `pkk.rosreestr.ru` and `map.yandex.ru` coordinates to the `points.geojson` file.
 
-![Assign medium level to forgotten houses](/images/houses-types.png)
+Example head of `buildings.geojson` file. Only `floors` and `flats` properties are important for further 3D-modeling. All buildings must have `floors` field with float values. Non-residential buildings (retail, indastrial) must have `null` value in `flats` field for correct future calculation number of notified people.
+
+```json
+{
+    "type": "FeatureCollection",
+    "name": "buildings",
+    "crs": {
+        "type": "name",
+        "properties": {
+            "name": "urn:ogc:def:crs:EPSG::3857"
+        }
+    },
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "osm-building": "yes",
+                "osm-housenumber": null,
+                "osm-levels": null,
+                "osm-street": null,
+                "fias": "ea646900-5e67-400e-a43e-174b1f6c2b79",
+                "address": "398005, обл Липецкая, г Липецк, ул Черняховского, д. 22",
+                "cadastre": "48:20:0035102:9492",
+                "type": "Жилой",
+                "floors": 1.0,
+                "flats": 1.0,
+                "distance": null
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            4411905.997886000201106,
+                            6904752.172499
+                        ],
+                        [
+                            4411930.799869,
+                            6904742.830602999776602
+                        ],
+```
+
+You can open freeware [QGis desktop application](https://www.qgis.org/), add on your blank map `XYZ Tiles \ OpenStreetMap` layer. And then add two vector layers from `buildings.geojson` and `points.geojson` files. You can see original OpenStreetMap's buildings polygons with added `FIAS`, `cadastre`, `floors`, `flats` fields. You can see `pkk.rosreestr.ru` and `map.yandex.ru`points, which hit or didn't hit to buildings polygons:
+
+![QGis with OpenStreetMap's buildings polygons](/images/qgis4.png)
+
+You can hit on the point and see it's fields. You can move map and see standart swuared buildings polygons, generated on individual houses points:
+
+![QGis with squared generated individual houses polygons](/images/qgis5.png)
+
+14. Copy `buildings.geojson` file to `BUILDINGS/` folder to use it in main modeling and visualization script `urbanmegaphone.py`.
