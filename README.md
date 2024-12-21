@@ -565,4 +565,4 @@ Then prepare and fill floors info:
 
 13. Save all buildings polygons to the `buildings.geojson` file and points with `pkk.rosreestr.ru` and `map.yandex.ru` coordinates to the `points.geojson` file.
 
-![Assign medium levles to forgotten houses](/images/houses-types.png)
+![Assign medium level to forgotten houses](/images/houses-types.png)
