@@ -543,6 +543,26 @@ Step-to-step these values should increase. Good result is assignment 98% of flat
 
 8. After all these steps, script put on the console top 20 houses without assigned OSM buildings published by decreasing number of flats. You can search points of this houses manualy
 
-![Top unassigned houses](/images/houses-unassigned.png)
+![Top unassigned houses](/images/houses-unassigned2.png)
 
+Then prepare and fill floors info:
 
+9. Select different OSM types of building and get the median value of floors on the entire map:
+
+![Median floors valuse form different `OSM`](/images/median-levels.png)
+
+10. For all unassigned buidings on map. First look if they have OpenStreetMap levels info in `osm-levels` field. If it is - put this value also in `floor` field:
+
+![Count of bouldings without floors](/images/houses-without-floors.png)
+
+11. Count buildings without floor again. Usually there are buildings with uncommon types, which do not have an information about the number of  the map:
+
+![Buildings with uncommon types without floors](/images/houses-types.png)
+
+12. Assign to these buildings default (the medium) floors count (of all map):
+
+![Buildings with median floor count](/images/houses-types.png)
+
+13. Save all buildings polygons to the `buildings.geojson` file and points with `pkk.rosreestr.ru` and `map.yandex.ru` coordinates to the `points.geojson` file.
+
+![Assign medium levles to forgotten houses](/images/houses-types.png)
