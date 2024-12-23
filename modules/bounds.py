@@ -10,6 +10,7 @@ from loguru import logger # Write log
 from pathlib import Path # Crossplatform pathing
 from modules.geotiff import GeoTiff # GeoTIFF format reader
 import numpy as np # Work with DEM matrix
+import geopandas as gpd
 
 # Own core modules
 from modules.settings import * # Settings defenition
@@ -26,6 +27,9 @@ def ReadWorldBounds():
     global boundsMin, boundsMax, bounds
 
     logger.info("Find the dimensions of the world being explored")
+
+    # -------------------------------------------------------------------
+    # Read bounds of raster files
 
     logger.info("Loop through raster files")
 
@@ -49,6 +53,9 @@ def ReadWorldBounds():
             if box[1][i] > boundsMax[i]: boundsMax[i] = box[1][i]
     
     logger.success("Bounds of rasters: {} - {}", boundsMin, boundsMax)
+
+    # -------------------------------------------------------------------
+    # Read bounds of DEM files in the intersecting part of rasters
 
     logger.info("Loop through DEM files")
 
@@ -80,10 +87,25 @@ def ReadWorldBounds():
         if maxZ > boundsMax[2]: boundsMax[2] = maxZ
         logger.debug("Lowrest point: {}m, highest point {}m", minZ, maxZ)
 
+    # -------------------------------------------------------------------
+    # Read max floors of vector buildings
+
+    logger.info("Loop through vector buildings files")
+
+    for file in Path('.',folderBUILDINGS).glob("*.geojson", case_sensitive=False):
+        logger.debug("Load vector buildings: {file}", file=file)
+        gdfBuildings = gpd.read_file(file)
+        maxFloors = gdfBuildings['floors'].max()
+        logger.success("Max floor count: {}", maxFloors)
+
+    # -------------------------------------------------------------------
+    # Calculate global world's bounds
+
     if boundsMin[2] is None:
         boundsMin[2] = 0
     if boundsMax[2] is None:
         boundsMax[2] = 0
+    boundsMax[2] = boundsMax[2] + (float(maxFloors)*sizeFloor)
     logger.success("Bounds of our world:  {} - {}", boundsMin, boundsMax)
 
     # Calculate bounds of voxel's world
