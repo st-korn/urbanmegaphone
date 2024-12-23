@@ -566,7 +566,7 @@ Next steps script prepare and fill floors info:
 
 13. Save all buildings polygons to the `buildings.geojson` file and points with `pkk.rosreestr.ru` and `map.yandex.ru` coordinates to the `points.geojson` file.
 
-Example head of `buildings.geojson` file. Only `floors` and `flats` properties are important for further 3D-modeling. All buildings must have `floors` field with float values. Non-residential buildings (retail, indastrial) must have `null` value in `flats` field for correct future calculation number of notified people.
+Example head of `buildings.geojson` file. Only `floors` and `flats` properties are important for further 3D-modeling. All buildings must have `floors` field with float values. Residential buildings (apartment buildings and individual houses) must have float value in `flats`. Non-residential buildings (retail, indastrial) must have `null` value in `flats` field for correct future calculation number of notified people.
 
 ```json
 {

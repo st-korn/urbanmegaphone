@@ -179,6 +179,7 @@ print("Assign them median value of all cities buildings: ",total_median_levels)
 
 # Save GeoJSON to file
 gdfBuildings = gpd.GeoDataFrame(pd.concat([gdfOSM_assigned, gdfOSM_unassigned], ignore_index=True, sort=False))
+gdfBuildings[['floors','flats']] = gdfBuildings[['floors','flats']].astype(float)
 gdfBuildings.to_file(folder / 'buildings.geojson', driver="GeoJSON")  
 gdfPoints = gpd.GeoDataFrame(pd.concat([gdfPKK, gdfYandex], ignore_index=True, sort=False))
 gdfPoints.to_file(folder / 'points.geojson', driver="GeoJSON")  
