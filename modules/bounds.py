@@ -10,6 +10,7 @@ from loguru import logger # Write log
 from pathlib import Path # Crossplatform pathing
 from modules.geotiff import GeoTiff # GeoTIFF format reader
 import numpy as np # Work with DEM matrix
+import pandas as pd
 import geopandas as gpd
 
 # Own core modules
@@ -92,11 +93,13 @@ def ReadWorldBounds():
 
     logger.info("Loop through vector buildings files")
 
+    gdfVectors = []
     for file in Path('.',folderBUILDINGS).glob("*.geojson", case_sensitive=False):
         logger.debug("Load vector buildings: {file}", file=file)
-        gdfBuildings = gpd.read_file(file)
-        maxFloors = gdfBuildings['floors'].max()
-        logger.success("Max floor count: {}", maxFloors)
+        gdfVectors.append(gpd.read_file(file))
+    gdfBuildings = gpd.GeoDataFrame(pd.concat(gdfVectors, ignore_index=True, sort=False))
+    maxFloors = gdfBuildings['floors'].max()
+    logger.debug("Max floor count: {}", maxFloors)
 
     # -------------------------------------------------------------------
     # Calculate global world's bounds

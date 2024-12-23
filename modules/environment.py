@@ -13,6 +13,7 @@ from vtkmodules.vtkIOImage import vtkImageReader2Factory # Read raster images fr
 from vtkmodules.vtkRenderingCore import ( vtkRenderer, vtkRenderWindow, vtkRenderWindowInteractor ) # All for render 3D-models
 from vtkmodules.vtkCommonColor import vtkNamedColors # Use colors
 import vtkmodules.vtkRenderingOpenGL2 # Use OpenGL for render
+import geopandas as gpd
 
 # Own core modules
 from modules.settings import * # Settings defenition
@@ -28,6 +29,9 @@ boundsMax = [None, None, None] #lon, lat, height
 # Voxel's world dimensions (integer)
 bounds = [None, None, None] #x_lon, y_lat, z_height
 
+# GeoPandas objects
+gdfBuildings = gpd.GeoDataFrame()
+gdfMegaphones = gpd.GeoDataFrame()
 
 # Single VTK objects
 readerFactory = vtkImageReader2Factory()
