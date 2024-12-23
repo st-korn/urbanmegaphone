@@ -51,7 +51,7 @@ def GenerateEarthSurface():
 
         # Generate a box cube arround raster
         cube = vtk.vtkCubeSource()
-        cube.SetBounds(boxRLeftTop[0],boxRRightBottom[0],-1,bounds[2]+1,boxRLeftTop[2],boxRRightBottom[2])
+        cube.SetBounds(boxRLeftTop[0],boxRRightBottom[0],-1,boundsMax[2]+1,boxRLeftTop[2],boxRRightBottom[2])
         cube.Update()
         cubeRASTER.append(cube)
         if flagShowEarthPoints:

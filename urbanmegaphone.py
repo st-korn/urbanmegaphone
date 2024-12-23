@@ -9,11 +9,13 @@
 # Own core modules
 from modules.bounds import * # Read raster and DEM data and calculate wolrd bounds
 from modules.earth import * # Read raster and DEM data and generate earth surface
+from modules.buildings import * # Generate voxels for earth ground vector buildings
 
 # Real work
 # ============================================
 ReadWorldBounds() # Read .tif files of RASTER and DEM models, find the dimensions of the world being explored
 GenerateEarthSurface() # Read .tif files of RASTER and DEM models, generate 3D-surface with textures
+GenerateBuildings() # Process vector buildings and generate voxel's world
 
 # Prepare VTK-window for view and interact
 # ============================================

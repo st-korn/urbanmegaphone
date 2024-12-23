@@ -124,7 +124,19 @@ def ReadWorldBounds():
 # ============================================
 def coordM2Float(meters):
     floats = []
+    floats.append( (float(meters[0])-boundsMin[0]) )
+    floats.append( (float(meters[2])-boundsMin[2]) )
+    floats.append( (float(boundsMax[1]-meters[1])) )
+    return floats
+'''
+# ============================================
+# Accept three int coordinates in meters [lon, lat, height]
+# and return three float coordinates of VTK space without rounding [x_vtk, y_vtk, z_vtk]
+# ============================================
+def coordM2Float(meters):
+    floats = []
     floats.append( (float(meters[0])-boundsMin[0])/sizeVoxel )
     floats.append( (float(meters[2])-boundsMin[2])/sizeVoxel )
     floats.append( (float(boundsMax[1]-meters[1]))/sizeVoxel )
     return floats
+'''

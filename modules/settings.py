@@ -25,13 +25,13 @@ sizeVoxel = 3
 sizeFloor = 3
 
 # How many pixeles get out of box border. Increase it to prevent blank lines on raster's or DEMs seams. Default value is 2 px
-SurfaceOutline = 2
+SurfaceOutline = 3
 
 # Count of neighboring points, used for aproximate surface. Low values lead to a haotic surface. Default value is 10
-SurfaceNeighbor = 10
+SurfaceNeighbor = 20
 
 # Count of neighboring points, used for aproximate one cell of surface. Low values lead to long calculation times. Default value is 5
-SurfaceCells = 5
+SurfaceCells = 6*6
 
 # Show original DEM earth's point: True or False. Used for debug surface purposes
 flagShowEarthPoints = False
