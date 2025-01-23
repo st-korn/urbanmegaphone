@@ -38,7 +38,9 @@ voxels = None
 squares = None
 
 # GeoPandas GeoDataFrames
-gdfBuildings = None
+gdfBuildings = None # Geometric 2D vector objects of buildings loaded from vector files
+gdfSquares = None # 2D grid of points - centers of voxels on the plane
+gdfCells = None # Intersect of buildings and voxels center
 gdfMegaphones = None
 
 # Buildings statistic:
@@ -98,6 +100,14 @@ plnSquares = [] # vtkSphereSource
 glphSquares = [] # vtkGlyph3D
 mapSquares = [] # vtkPolyDataMapper
 actSquares = [] # vtkActor
+
+# Arrays of VTK objects: cubes of buildings
+pntsVoxels = [] # vtkPoints
+pldtVoxels = [] # vtkPolyData
+plnVoxels = [] # vtkSphereSource
+glphVoxels = [] # vtkGlyph3D
+mapVoxels = [] # vtkPolyDataMapper
+actVoxels = [] # vtkActor
 
 
 # Environment initialization

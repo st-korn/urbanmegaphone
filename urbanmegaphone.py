@@ -34,6 +34,7 @@ for actor in env.actDEM: env.Renderer.AddActor(actor)
 for actor in env.actSurface: env.Renderer.AddActor(actor)
 for actor in env.actTexture: env.Renderer.AddActor(actor)
 for actor in env.actSquares: env.Renderer.AddActor(actor)
+for actor in env.actVoxels: env.Renderer.AddActor(actor)
 
 # Run VTK-window
 # ============================================

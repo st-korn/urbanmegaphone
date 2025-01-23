@@ -116,6 +116,6 @@ def ReadWorldBounds():
 
     # Allocate memory for voxel's world
     env.voxels = np.empty(env.bounds, dtype=np.int32)
-    env.squares = np.empty(env.bounds, dtype=np.int32)
+    env.squares = np.empty([env.bounds[0],env.bounds[1]], dtype=np.int32)
     env.logger.success("Memory allocated")
 

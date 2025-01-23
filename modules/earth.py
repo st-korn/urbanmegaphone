@@ -219,6 +219,7 @@ def GenerateEarthSurface():
                 locator = vtk.vtkCellLocator()
                 locator.SetDataSet(polyDataClipped)
                 locator.BuildLocator()
+                pnts = vtkPoints()
                 # Loop throght voxels
                 for x in env.tqdm(range(x_min,x_max+1)):
                     for y in range (y_min,y_max+1):
@@ -238,12 +239,10 @@ def GenerateEarthSurface():
                             if z<0:
                                 z = 0
                             env.squares[x,y] = z
-                env.logger.success("Earth surface height calculation done")
-
-                '''
-                pnts = vtkPoints()
                             # Add point to collection
                             pnts.InsertNextPoint(x_center,z*cfg.sizeVoxel,y_center)
+                env.logger.success("Earth surface height calculation done")
+
                 # Put squares on intersection points
                 polyDataSquares = vtkPolyData()
                 polyDataSquares.SetPoints(pnts)
@@ -268,4 +267,3 @@ def GenerateEarthSurface():
                 pointsActorSquares.GetProperty().SetColor(env.Colors.GetColor3d("Tomato"))
                 pointsActorSquares.GetProperty().SetOpacity(0.5)
                 env.actSquares.append(pointsActorSquares)
-'''
