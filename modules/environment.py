@@ -7,8 +7,8 @@
 # ============================================
 
 # Standart modules
-import sys # use default outputs
 from loguru import logger # Write log
+from tqdm import tqdm # Write log
 from vtkmodules.vtkIOImage import vtkImageReader2Factory # Read raster images from files
 from vtkmodules.vtkRenderingCore import ( vtkRenderer, vtkRenderWindow, vtkRenderWindowInteractor ) # All for render 3D-models
 from vtkmodules.vtkCommonColor import vtkNamedColors # Use colors
@@ -16,7 +16,7 @@ import vtkmodules.vtkRenderingOpenGL2 # Use OpenGL for render
 import geopandas as gpd
 
 # Own core modules
-from modules.settings import * # Settings defenition
+import modules.settings as cfg # Settings defenition
 
 
 # Global variables defenition
@@ -32,12 +32,14 @@ bounds = [None, None, None] #x_lon, y_lat, z_height
 # Voxel's world matrix: NumPy 3D-array of int32
 voxels = None
 
-# Squares matrix: NumPy 2D-array of int32 with index of 
+# Squares matrix: NumPy 2D-array of int32 with 
+# integer z-coordinate of heighest voxel earth's surface in current point.
+# At first initialized by -1 values.
 squares = None
 
-# GeoPandas objects
-gdfBuildings = gpd.GeoDataFrame()
-gdfMegaphones = gpd.GeoDataFrame()
+# GeoPandas GeoDataFrames
+gdfBuildings = None
+gdfMegaphones = None
 
 # Single VTK objects
 readerFactory = vtkImageReader2Factory()
@@ -86,10 +88,12 @@ mapTexture = [] # vtkPolyDataMapper
 actTexture = [] # vtkActor
 
 # Arrays of VTK objects: polygonal squares of DEM's surface
-clpprSquare = [] # vtkClipPolyData
-pldtSquare = [] # vtkPolyData
-mapSquare = [] # vtkPolyDataMapper
-actSquare = [] # vtkActor
+pntsSquares = [] # vtkPoints
+pldtSquares = [] # vtkPolyData
+plnSquares = [] # vtkSphereSource
+glphSquares = [] # vtkGlyph3D
+mapSquares = [] # vtkPolyDataMapper
+actSquares = [] # vtkActor
 
 
 # Environment initialization
@@ -97,9 +101,21 @@ actSquare = [] # vtkActor
 
 # Apply selected logging level
 logger.remove()
-logger.add(sys.stderr, level=logLevel)
+#logger.add(sys.stderr, level=logLevel)
+logger.add(lambda msg: tqdm.write(msg, end=""), level=cfg.logLevel, colorize=True)
 
 # Prepare VTK rendering window
 Window.AddRenderer(Renderer)
 Renderer.SetBackground(Colors.GetColor3d("ivory_black"))
 Interactor.SetRenderWindow(Window)
+
+# ============================================
+# Accept three coordinates in meters [lon, lat, height]
+# and return three float coordinates of VTK space without rounding [x_vtk, y_vtk, z_vtk]
+# ============================================
+def coordM2Float(meters):
+    floats = []
+    floats.append( (float(meters[0])-boundsMin[0]) )
+    floats.append( (float(meters[2])-boundsMin[2]) )
+    floats.append( (float(boundsMax[1]-meters[1])) )
+    return floats

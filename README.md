@@ -32,6 +32,7 @@
     pip install zarr
     pip install loguru
     pip install imagecodecs
+    pip install tqdm
     ```
     For getting vector map of buildings you need also:
     ```console
@@ -41,7 +42,6 @@
     pip install textdistance
     pip install pandas
     pip install geopandas
-    pip install tqdm
     ```
     We use own copy in `modules` folder of python [`geotiff`](https://github.com/KipCrossing/geotiff.git) library, because our [pull request](https://github.com/KipCrossing/geotiff/pull/74) has not been processed yet. If you already have this library installed, please uninstall it.
 

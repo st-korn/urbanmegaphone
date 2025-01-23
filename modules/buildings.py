@@ -6,11 +6,10 @@
 # ============================================
 
 # Standart modules
-from loguru import logger # Write log
 
 # Own core modules
-from modules.settings import * # Settings defenition
-from modules.environment import * # Environment defenition
+import modules.settings as cfg # Settings defenition
+import modules.environment as env # Environment defenition
 
 
 # ============================================
@@ -18,9 +17,10 @@ from modules.environment import * # Environment defenition
 # ============================================
 def GenerateBuildings():
 
-    logger.info("Generate buildings")
+    env.logger.info("Create buildings")
+    for house in env.gdfBuildings.itertuples():
+        env.logger.debug(house)
 
-
-    for x in range(bounds[0]):
-        for y in range(bounds[1]):
+    for x in range(env.bounds[0]):
+        for y in range(env.bounds[1]):
             continue

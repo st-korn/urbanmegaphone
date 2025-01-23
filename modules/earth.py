@@ -6,7 +6,6 @@
 # ============================================
 
 # Standart modules
-from loguru import logger # Write log
 from pathlib import Path # Crossplatform pathing
 from modules.geotiff import GeoTiff # GeoTIFF format reader
 import numpy as np # Work with DEM matrix
@@ -14,12 +13,10 @@ from vtkmodules.vtkCommonCore import vtkPoints # Use points cloud in 3D-world
 from vtkmodules.vtkCommonDataModel import vtkPolyData # Use 3D-primitives
 from vtkmodules.vtkRenderingCore import (vtkActor, vtkPolyDataMapper, vtkTexture) # Use VTK rendering
 import vtk # Use other 3D-visualization features
-import random
 
 # Own core modules
-from modules.settings import * # Settings defenition
-from modules.environment import * # Environment defenition
-from modules.bounds import * # Read raster and DEM data and calculate wolrd bounds
+import modules.settings as cfg # Settings defenition
+import modules.environment as env # Environment defenition
 
 
 # ============================================
@@ -28,158 +25,148 @@ from modules.bounds import * # Read raster and DEM data and calculate wolrd boun
 # ============================================
 def GenerateEarthSurface():
 
-    # Use global variables
-    global voxels, squares
-    global actAxes
-    global cubeRASTER, mapCube, actCube, boxRASTER, imgrdrRASTER
-    global pntsDEM, pldtDEM, sphrDEM, glphDEM, mapDEM, actDEM
-    global srfsfltSurface, cntrfltSurface, rvrsfltSurface, pldtSurface, sphrSurface, glphSurface, mapSurface, actSurface
-    global clpprClipped, pldtClipped, pntsClipped
-    global fltarTexture, txtrTexture, mapTexture, actTexture
-    global clpprSquare, pldtSquare, mapSquare, actSquare
-
-    logger.info("Generate earth surface")
+    env.logger.info("Generate earth surface")
 
     # Draw the coordinate axes, if necessary
-    if flagShowAxis:
+    if cfg.flagShowAxis:
         axes = vtk.vtkAxesActor()
         axes.SetTotalLength(100,100,100)
         axes.GetXAxisCaptionActor2D().GetTextActor().SetTextScaleModeToNone()
         axes.GetYAxisCaptionActor2D().GetTextActor().SetTextScaleModeToNone()
         axes.GetZAxisCaptionActor2D().GetTextActor().SetTextScaleModeToNone()
-        actAxes.append(axes)
-        logger.debug("Axes created")
+        env.actAxes.append(axes)
+        env.logger.debug("Axes created")
 
-    logger.info("Loop through raster files")
+    env.logger.info("Loop through raster files")
 
-    for fileR in Path('.',folderRaster).glob("*.tif", case_sensitive=False):
+    for fileR in Path('.',cfg.folderRaster).glob("*.tif", case_sensitive=False):
 
         # Open GeoTIFF and convert coordinates to Web-Mercator
         gtfR = GeoTiff(fileR, as_crs=3857)
         boxR = gtfR.tif_bBox_converted
-        boxRLeftTop = coordM2Float([boxR[0][0],boxR[0][1],0])
-        boxRRightBottom = coordM2Float([boxR[1][0],boxR[1][1],0])
+        boxRLeftTop = env.coordM2Float([boxR[0][0],boxR[0][1],0])
+        boxRRightBottom = env.coordM2Float([boxR[1][0],boxR[1][1],0])
 
         # Generate a box cube arround raster
         cube = vtk.vtkCubeSource()
-        cube.SetBounds(boxRLeftTop[0],boxRRightBottom[0],-1,boundsMax[2]+1,boxRLeftTop[2],boxRRightBottom[2])
+        cube.SetBounds(boxRLeftTop[0],boxRRightBottom[0],-1,env.boundsMax[2]+1,boxRLeftTop[2],boxRRightBottom[2])
         cube.Update()
-        cubeRASTER.append(cube)
-        if flagShowEarthPoints:
+        env.cubeRASTER.append(cube)
+        if cfg.flagShowEarthPoints:
             # Put raster's box in our world
             cubeMapper = vtkPolyDataMapper()
             cubeMapper.SetInputConnection(cube.GetOutputPort())
-            mapCube.append(cubeMapper)
+            env.mapCube.append(cubeMapper)
             cubeActor = vtkActor()
             cubeActor.SetMapper(cubeMapper)
             cubeActor.GetProperty().SetRepresentationToWireframe()
             cubeActor.GetProperty().SetOpacity(0.2)
-            cubeActor.GetProperty().SetColor(Colors.GetColor3d("red"))
-            actCube.append(cubeActor)
-            logger.debug("Box of raster created")
+            cubeActor.GetProperty().SetColor(env.Colors.GetColor3d("red"))
+            env.actCube.append(cubeActor)
+            env.logger.debug("Box of raster created")
         box = vtk.vtkBox()
         box.SetBounds(cube.GetOutput().GetBounds())
-        boxRASTER.append(box)
+        env.boxRASTER.append(box)
 
         # Load raster image from file to vtkImageReader2 object
-        imageReader = readerFactory.CreateImageReader2(str(fileR))
+        imageReader = env.readerFactory.CreateImageReader2(str(fileR))
         imageReader.SetFileName(fileR)
         imageReader.Update()
-        imgrdrRASTER.append(imageReader)
+        env.imgrdrRASTER.append(imageReader)
 
-        logger.success("Raster {} loaded", fileR.name)
-        logger.trace("Raster box: {}",boxR)
+        env.logger.success("Raster {} loaded", fileR.name)
+        env.logger.trace("Raster box: {}",boxR)
         
-        for fileD in Path('.',folderDEM).glob("*.tif", case_sensitive=False):
+        for fileD in Path('.',cfg.folderDEM).glob("*.tif", case_sensitive=False):
 
             # Open GeoTIFF and conver coordinates to Web-Mercator
             gtfD = GeoTiff(fileD, as_crs=3857)
         
             # Read intersection DEM and Raster bounds
             try:
-                dem = np.array(gtfD.read_box(boxR, outer_points=SurfaceOutline))
+                dem = np.array(gtfD.read_box(boxR, outer_points=cfg.SurfaceOutline))
             except:
-                logger.warning("{}: DEM intersection not found", fileD.name)
+                env.logger.warning("{}: DEM intersection not found", fileD.name)
                 continue
-            lons, lats = gtfD.get_coord_arrays(boxR, outer_points=SurfaceOutline)
+            lons, lats = gtfD.get_coord_arrays(boxR, outer_points=cfg.SurfaceOutline)
 
-            logger.debug("{file} intersection: {dim}",file=fileD.name, dim=dem.shape)
-            logger.debug("@ ({src}) = ({dst})", src=[float(lons[0,0]),float(lats[0,0]),float(dem[0,0])], dst=coordM2Float([float(lons[0,0]),float(lats[0,0]),float(dem[0,0])]))
-            logger.trace("@ ({src}) = ({dst})", src=[float(lons[dem.shape[0]-1,dem.shape[1]-1]),float(lats[dem.shape[0]-1,dem.shape[1]-1]),float(dem[dem.shape[0]-1,dem.shape[1]-1])], 
-                                                dst=coordM2Float([float(lons[dem.shape[0]-1,dem.shape[1]-1]),float(lats[dem.shape[0]-1,dem.shape[1]-1]),float(dem[dem.shape[0]-1,dem.shape[1]-1])]))
+            env.logger.debug("{file} intersection: {dim}",file=fileD.name, dim=dem.shape)
+            env.logger.debug("@ ({src}) = ({dst})", src=[float(lons[0,0]),float(lats[0,0]),float(dem[0,0])], dst=env.coordM2Float([float(lons[0,0]),float(lats[0,0]),float(dem[0,0])]))
+            env.logger.trace("@ ({src}) = ({dst})", src=[float(lons[dem.shape[0]-1,dem.shape[1]-1]),float(lats[dem.shape[0]-1,dem.shape[1]-1]),float(dem[dem.shape[0]-1,dem.shape[1]-1])], 
+                                                dst=env.coordM2Float([float(lons[dem.shape[0]-1,dem.shape[1]-1]),float(lats[dem.shape[0]-1,dem.shape[1]-1]),float(dem[dem.shape[0]-1,dem.shape[1]-1])]))
 
             # Collect points of surface
             points = vtkPoints()
             for lon, lat in np.ndindex(dem.shape):
-                points.InsertNextPoint(coordM2Float([lons[lon,lat],lats[lon,lat],dem[lon,lat]]))
-            pntsDEM.append(points)
+                points.InsertNextPoint(env.coordM2Float([lons[lon,lat],lats[lon,lat],dem[lon,lat]]))
+            env.pntsDEM.append(points)
             polyDataPoints = vtkPolyData()
             polyDataPoints.SetPoints(points)
-            pldtDEM.append(polyDataPoints)
-            logger.debug("DEM points converted")
+            env.pldtDEM.append(polyDataPoints)
+            env.logger.debug("DEM points converted")
 
-            if flagShowEarthPoints:
+            if cfg.flagShowEarthPoints:
                 # Generate spheres on original earth DEM points
                 sphereDEM = vtk.vtkSphereSource()
                 sphereDEM.SetRadius(1)
-                sphrDEM.append(sphereDEM)
+                env.sphrDEM.append(sphereDEM)
                 glyphDEM = vtk.vtkGlyph3D()
                 glyphDEM.SetInputData(polyDataPoints)
                 glyphDEM.SetSourceConnection(sphereDEM.GetOutputPort())
                 glyphDEM.ScalingOff()
                 glyphDEM.Update()
-                glphDEM.append(glyphDEM)
+                env.glphDEM.append(glyphDEM)
                 pointsMapperDEM = vtkPolyDataMapper()
                 pointsMapperDEM.SetInputConnection(glyphDEM.GetOutputPort())
-                mapDEM.append(pointsMapperDEM)
+                env.mapDEM.append(pointsMapperDEM)
                 pointsActorDEM = vtkActor()
                 pointsActorDEM.SetMapper(pointsMapperDEM)
-                pointsActorDEM.GetProperty().SetColor(Colors.GetColor3d("goldenrod_light"))
-                actDEM.append(pointsActorDEM)
-                logger.debug("DEM source points spheres created")
+                pointsActorDEM.GetProperty().SetColor(env.Colors.GetColor3d("goldenrod_light"))
+                env.actDEM.append(pointsActorDEM)
+                env.logger.debug("DEM source points spheres created")
 
             # Create surface from points
-            logger.debug("Start DEM surface creation...")
+            env.logger.debug("Start DEM surface creation...")
             surface = vtk.vtkSurfaceReconstructionFilter()
-            surface.SetNeighborhoodSize(SurfaceNeighbor)
-            surface.SetSampleSpacing(SurfaceCells)
+            surface.SetNeighborhoodSize(cfg.SurfaceNeighbor)
+            surface.SetSampleSpacing(cfg.SurfaceCells)
             surface.SetInputData(polyDataPoints)
-            srfsfltSurface.append(surface)
+            env.srfsfltSurface.append(surface)
             cf = vtk.vtkContourFilter()
             cf.SetInputConnection(surface.GetOutputPort())
             cf.SetValue(0, 0.0)
-            srfsfltSurface.append(cf)
+            env.srfsfltSurface.append(cf)
             reverse = vtk.vtkReverseSense()
             reverse.SetInputConnection(cf.GetOutputPort())
             reverse.ReverseCellsOn()
             reverse.ReverseNormalsOn()
             reverse.Update()
-            rvrsfltSurface.append(reverse)
+            env.rvrsfltSurface.append(reverse)
             polyDataSurface = reverse.GetOutput()
-            pldtSurface.append(polyDataSurface)
-            logger.debug("DEM surface created")
-            logger.trace("Sample spacing = {}",surface.GetSampleSpacing())
+            env.pldtSurface.append(polyDataSurface)
+            env.logger.debug("DEM surface created")
+            env.logger.trace("Sample spacing = {}",surface.GetSampleSpacing())
 
-            if flagShowEarthPoints:
+            if cfg.flagShowEarthPoints:
                 # Generate spheres on generated earth surfacee vertices
                 sphereSurface = vtk.vtkSphereSource()
                 sphereSurface.SetRadius(1)
-                sphrSurface.append(sphereSurface)
+                env.sphrSurface.append(sphereSurface)
                 glyphSurface = vtk.vtkGlyph3D()
                 glyphSurface.SetInputData(polyDataSurface)
                 glyphSurface.SetSourceConnection(sphereSurface.GetOutputPort())
                 glyphSurface.ScalingOff()
                 glyphSurface.Update()
-                glphSurface.append(glyphSurface)
+                env.glphSurface.append(glyphSurface)
                 pointsMapperSurface = vtkPolyDataMapper()
                 pointsMapperSurface.SetInputConnection(glyphSurface.GetOutputPort())
                 pointsMapperSurface.ScalarVisibilityOff()
-                mapSurface.append(pointsMapperSurface)
+                env.mapSurface.append(pointsMapperSurface)
                 pointsActorSurface = vtkActor()
                 pointsActorSurface.SetMapper(pointsMapperSurface)
-                pointsActorSurface.GetProperty().SetColor(Colors.GetColor3d("dim_grey"))
-                actSurface.append(pointsActorSurface)
-                logger.debug("DEM generated surface's points spheres created")
+                pointsActorSurface.GetProperty().SetColor(env.Colors.GetColor3d("dim_grey"))
+                env.actSurface.append(pointsActorSurface)
+                env.logger.debug("DEM generated surface's points spheres created")
 
             # Shrink surface to raster bounds to prevent the formation of a seam between the stitched surfaces
             clipper = vtk.vtkClipPolyData()
@@ -187,14 +174,14 @@ def GenerateEarthSurface():
             clipper.SetClipFunction(box)
             clipper.InsideOutOn()
             clipper.Update()
-            clpprClipped.append(clipper)
+            env.clpprClipped.append(clipper)
             polyDataClipped = clipper.GetOutput()
-            pldtClipped.append(polyDataClipped)
-            logger.debug("DEM shrinked to RASTER")
+            env.pldtClipped.append(polyDataClipped)
+            env.logger.debug("DEM shrinked to RASTER")
             
             # Put texture on surface
             surfacePoints = polyDataClipped.GetPoints()
-            pntsClipped.append(surfacePoints)
+            env.pntsClipped.append(surfacePoints)
             texturePoints = vtk.vtkFloatArray()
             texturePoints.SetNumberOfComponents(2)
             for i in range(surfacePoints.GetNumberOfPoints()):
@@ -203,69 +190,88 @@ def GenerateEarthSurface():
                 b = (pnt[2]-boxRLeftTop[2])/(boxRRightBottom[2]-boxRLeftTop[2])
                 texturePoints.InsertNextTuple2(a, b)
             polyDataClipped.GetPointData().SetTCoords(texturePoints)
-            fltarTexture.append(texturePoints)
+            env.fltarTexture.append(texturePoints)
             texture = vtkTexture()
             texture.SetInputConnection(imageReader.GetOutputPort())
             texture.InterpolateOn()
-            txtrTexture.append(texture)
-            logger.debug("DEM texture applied")
+            env.txtrTexture.append(texture)
+            env.logger.debug("DEM texture applied")
 
             # Prepare surface for view
             mapper = vtkPolyDataMapper()
             mapper.SetInputData(polyDataClipped)
             mapper.ScalarVisibilityOff()
-            mapTexture.append(mapper)
+            env.mapTexture.append(mapper)
             actor = vtkActor()
             actor.SetMapper(mapper)
             actor.SetTexture(texture)
-            actor.GetProperty().SetOpacity(0.8)
-            actTexture.append(actor)
-            logger.success("{}: DEM ready for render",fileD.name)
+            actor.GetProperty().SetOpacity(0.5)
+            env.actTexture.append(actor)
+            env.logger.success("{}: DEM ready for render",fileD.name)
 
-            # Find voxels of this surface
-            flBounds = polyDataClipped.GetBounds()
-            x_min = int(np.floor(flBounds[0]/sizeVoxel))
-            if x_min<0:
-                x_min = 0
-            x_max = int(np.floor(flBounds[1]/sizeVoxel))
-            if x_max>bounds[0]:
-                x_max = bounds[0]
-            y_min =int(np.floor(flBounds[4]/sizeVoxel))
-            if y_min<0:
-                y_min = 0
-            y_max = int(np.floor(flBounds[5]/sizeVoxel))
-            if y_max>bounds[1]:
-                y_max = bounds[1]
-            logger.debug("Surface bounds: {} = [{}..{}],[{}..{}]",flBounds,x_min,x_max,y_min,y_max)
-            # Create cell locator
-            locator = vtk.vtkCellLocator()
-            locator.SetDataSet(polyDataClipped)
-            locator.BuildLocator()
-            # Loop throght voxels
-            once = True
-            for x in range(x_min,x_max+1):
-                for y in range (y_min,y_max+1):
-                    t = vtk.mutable(0)
-                    pos = [0.0, 0.0, 0.0]
-                    pcoords = [0.0, 0.0, 0.0]
-                    subId = vtk.mutable(0)
-                    intersected = locator.IntersectWithLine([(x+0.5)*sizeVoxel, flBounds[2], (y+0.5)*sizeVoxel], 
-                                                              [(x+0.5)*sizeVoxel, flBounds[3], (y+0.5)*sizeVoxel], 
-                                                              0.5, t, pos, pcoords, subId)
-                    if intersected:
-                        plane = vtk.vtkPlaneSource()
-                        plane.SetOrigin(x*sizeVoxel,pos[1],y*sizeVoxel)
-                        plane.SetPoint1((x+1)*sizeVoxel,pos[1],y*sizeVoxel)
-                        plane.SetPoint2(x*sizeVoxel,pos[1],(y+1)*sizeVoxel)
-                        mapper = vtkPolyDataMapper()
-                        mapper.SetInputConnection(plane.GetOutputPort())
-                        mapper.ScalarVisibilityOff()
-                        mapSquare.append(mapper)
-                        actor = vtkActor()
-                        actor.SetMapper(mapper)
-                        actor.GetProperty().SetColor([random.random(), random.random(), random.random()])
-                        #actor.GetProperty().SetColor(vtkNamedColors().GetColor3d("Tomato"))
-                        actor.GetProperty().SetOpacity(0.3)
-                        actSquare.append(actor)
-                        once = False
-                    
+            if cfg.flagSquares:
+                env.logger.info("Calculate earth surface height of each voxel...")
+                # Find voxels of this surface
+                flBounds = polyDataClipped.GetBounds()
+                x_min = int(np.floor(flBounds[0]/cfg.sizeVoxel))
+                if x_min<0:
+                    x_min = 0
+                x_max = int(np.floor(flBounds[1]/cfg.sizeVoxel))
+                if x_max>env.bounds[0]:
+                    x_max = env.bounds[0]
+                y_min =int(np.floor(flBounds[4]/cfg.sizeVoxel))
+                if y_min<0:
+                    y_min = 0
+                y_max = int(np.floor(flBounds[5]/cfg.sizeVoxel))
+                if y_max>env.bounds[1]:
+                    y_max = env.bounds[1]
+                env.logger.debug("Surface bounds: {} = [{}..{}],[{}..{}]",flBounds,x_min,x_max,y_min,y_max)
+                # Create cell locator
+                locator = vtk.vtkCellLocator()
+                locator.SetDataSet(polyDataClipped)
+                locator.BuildLocator()
+                env.logger.info
+                # Loop throght voxels
+                for x in env.tqdm(range(x_min,x_max+1)):
+                    for y in range (y_min,y_max+1):
+                        # Find intersection point of vertical ray from the center of voxel and the surface
+                        t = vtk.mutable(0)
+                        pos = [0.0, 0.0, 0.0]
+                        pcoords = [0.0, 0.0, 0.0]
+                        subId = vtk.mutable(0)
+                        x_center = (x+0.5)*cfg.sizeVoxel
+                        y_center = (y+0.5)*cfg.sizeVoxel
+                        intersected = locator.IntersectWithLine([x_center, flBounds[2], y_center], [x_center, flBounds[3], y_center], 
+                                                                0.5, t, pos, pcoords, subId)
+                        if intersected:
+                            # Find vertical coordinate of voxel of earth surface
+                            env.squares[x,y] = np.round(pos[1]/cfg.sizeVoxel)
+                env.logger.success("Earth surface height calculation done")
+'''
+                # Put squares on intersection points
+                            # Add point to collection
+                            pntsSquares.InsertNextPoint(x_center,z*sizeVoxel,y_center)
+                polyDataSquares = vtkPolyData()
+                polyDataSquares.SetPoints(pntsSquares)
+                pldtSquares.append(polyDataSquares)
+                planeSquare = vtk.vtkPlaneSource()
+                planeSquare.SetOrigin(0, 0, 0)
+                planeSquare.SetPoint1(sizeVoxel, 0, 0)
+                planeSquare.SetPoint2(0, 0, sizeVoxel)
+                plnSquares.append(planeSquare)
+                glyphSquares = vtk.vtkGlyph3D()
+                glyphSquares.SetInputData(polyDataSquares)
+                glyphSquares.SetSourceConnection(planeSquare.GetOutputPort())
+                glyphSquares.ScalingOff()
+                glyphSquares.Update()
+                glphSquares.append(glyphSquares)
+                pointsMapperSquares = vtkPolyDataMapper()
+                pointsMapperSquares.SetInputConnection(glyphSquares.GetOutputPort())
+                pointsMapperSquares.ScalarVisibilityOff()
+                mapSquares.append(pointsMapperSquares)
+                pointsActorSquares = vtkActor()
+                pointsActorSquares.SetMapper(pointsMapperSquares)
+                pointsActorSquares.GetProperty().SetColor(Colors.GetColor3d("Tomato"))
+                pointsActorSquares.GetProperty().SetOpacity(0.5)
+                actSquares.append(pointsActorSquares)
+'''

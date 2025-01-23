@@ -38,3 +38,6 @@ flagShowEarthPoints = False
 
 # Show axis of ccordinate system
 flagShowAxis = True
+
+# Show squares and calculate audibility on earth surface
+flagSquares = True
