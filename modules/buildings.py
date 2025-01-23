@@ -19,7 +19,13 @@ def GenerateBuildings():
 
     env.logger.info("Create buildings")
     for house in env.gdfBuildings.itertuples():
-        env.logger.debug(house)
+        #env.logger.debug(house.geometry.bounds)
+
+
+
+
+        #env.logger.debug(house)
+        continue
 
     for x in range(env.bounds[0]):
         for y in range(env.bounds[1]):

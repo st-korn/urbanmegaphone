@@ -13,7 +13,8 @@ from vtkmodules.vtkIOImage import vtkImageReader2Factory # Read raster images fr
 from vtkmodules.vtkRenderingCore import ( vtkRenderer, vtkRenderWindow, vtkRenderWindowInteractor ) # All for render 3D-models
 from vtkmodules.vtkCommonColor import vtkNamedColors # Use colors
 import vtkmodules.vtkRenderingOpenGL2 # Use OpenGL for render
-import geopandas as gpd
+import geopandas as gpd # For vector objects
+import math
 
 # Own core modules
 import modules.settings as cfg # Settings defenition
@@ -22,7 +23,7 @@ import modules.settings as cfg # Settings defenition
 # Global variables defenition
 # ============================================
 
-# World dimensions (meters, Web-Mercator ESPG:3857)
+# World dimensions (float, meters, Web-Mercator ESPG:3857)
 boundsMin = [None, None, None] #lon, lat, height
 boundsMax = [None, None, None] #lon, lat, height
 
@@ -33,13 +34,17 @@ bounds = [None, None, None] #x_lon, y_lat, z_height
 voxels = None
 
 # Squares matrix: NumPy 2D-array of int32 with 
-# integer z-coordinate of heighest voxel earth's surface in current point.
-# At first initialized by -1 values.
+# integer vertical z-coordinate of first voxel over earth's surface in current point.
+# At first initialized by Nan values
 squares = None
 
 # GeoPandas GeoDataFrames
 gdfBuildings = None
 gdfMegaphones = None
+
+# Buildings statistic:
+maxFloors = None 
+sumFlats = None
 
 # Single VTK objects
 readerFactory = vtkImageReader2Factory()
@@ -119,3 +124,24 @@ def coordM2Float(meters):
     floats.append( (float(meters[2])-boundsMin[2]) )
     floats.append( (float(boundsMax[1]-meters[1])) )
     return floats
+
+# ============================================
+# Accept two pairs of two coordinates in meters (bounding box): lon_min, lon_max, lat_min, lat_max]
+# and return two pairs int coordinates of woxel world (bounding box) [x_min, x_max, y_min. y_max]
+# ============================================
+def boxM2Int(lon_min, lon_max, lat_min, lat_max):
+    x_min = math.floor(lon_min/cfg.sizeVoxel)
+    if x_min<0:
+        x_min = 0
+    x_max = math.ceil(lon_max/cfg.sizeVoxel)
+    if x_max>bounds[0]:
+        x_max = bounds[0]
+    y_min =math.floor(lat_min/cfg.sizeVoxel)
+    if y_min<0:
+        y_min = 0
+    y_max = math.ceil(lat_max/cfg.sizeVoxel)
+    if y_max>bounds[1]:
+        y_max = bounds[1]
+    return [x_min, x_max, y_min, y_max]
+
+

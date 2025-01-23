@@ -213,24 +213,12 @@ def GenerateEarthSurface():
                 env.logger.info("Calculate earth surface height of each voxel...")
                 # Find voxels of this surface
                 flBounds = polyDataClipped.GetBounds()
-                x_min = int(np.floor(flBounds[0]/cfg.sizeVoxel))
-                if x_min<0:
-                    x_min = 0
-                x_max = int(np.floor(flBounds[1]/cfg.sizeVoxel))
-                if x_max>env.bounds[0]:
-                    x_max = env.bounds[0]
-                y_min =int(np.floor(flBounds[4]/cfg.sizeVoxel))
-                if y_min<0:
-                    y_min = 0
-                y_max = int(np.floor(flBounds[5]/cfg.sizeVoxel))
-                if y_max>env.bounds[1]:
-                    y_max = env.bounds[1]
+                [x_min, x_max, y_min, y_max] = env.boxM2Int(flBounds[0],flBounds[1],flBounds[4],flBounds[5])
                 env.logger.debug("Surface bounds: {} = [{}..{}],[{}..{}]",flBounds,x_min,x_max,y_min,y_max)
                 # Create cell locator
                 locator = vtk.vtkCellLocator()
                 locator.SetDataSet(polyDataClipped)
                 locator.BuildLocator()
-                env.logger.info
                 # Loop throght voxels
                 for x in env.tqdm(range(x_min,x_max+1)):
                     for y in range (y_min,y_max+1):
@@ -242,36 +230,42 @@ def GenerateEarthSurface():
                         x_center = (x+0.5)*cfg.sizeVoxel
                         y_center = (y+0.5)*cfg.sizeVoxel
                         intersected = locator.IntersectWithLine([x_center, flBounds[2], y_center], [x_center, flBounds[3], y_center], 
-                                                                0.5, t, pos, pcoords, subId)
+                                                                0.01, t, pos, pcoords, subId)
                         if intersected:
-                            # Find vertical coordinate of voxel of earth surface
-                            env.squares[x,y] = np.round(pos[1]/cfg.sizeVoxel)
+                            # Find vertical z-coordinate of first voxel over earth's surface
+                            #z = np.round(pos[1]/cfg.sizeVoxel-0.4999)
+                            z = np.ceil(pos[1]/cfg.sizeVoxel)
+                            if z<0:
+                                z = 0
+                            env.squares[x,y] = z
                 env.logger.success("Earth surface height calculation done")
-'''
-                # Put squares on intersection points
+
+                '''
+                pnts = vtkPoints()
                             # Add point to collection
-                            pntsSquares.InsertNextPoint(x_center,z*sizeVoxel,y_center)
+                            pnts.InsertNextPoint(x_center,z*cfg.sizeVoxel,y_center)
+                # Put squares on intersection points
                 polyDataSquares = vtkPolyData()
-                polyDataSquares.SetPoints(pntsSquares)
-                pldtSquares.append(polyDataSquares)
+                polyDataSquares.SetPoints(pnts)
+                env.pldtSquares.append(polyDataSquares)
                 planeSquare = vtk.vtkPlaneSource()
                 planeSquare.SetOrigin(0, 0, 0)
-                planeSquare.SetPoint1(sizeVoxel, 0, 0)
-                planeSquare.SetPoint2(0, 0, sizeVoxel)
-                plnSquares.append(planeSquare)
+                planeSquare.SetPoint1(cfg.sizeVoxel, 0, 0)
+                planeSquare.SetPoint2(0, 0, cfg.sizeVoxel)
+                env.plnSquares.append(planeSquare)
                 glyphSquares = vtk.vtkGlyph3D()
                 glyphSquares.SetInputData(polyDataSquares)
                 glyphSquares.SetSourceConnection(planeSquare.GetOutputPort())
                 glyphSquares.ScalingOff()
                 glyphSquares.Update()
-                glphSquares.append(glyphSquares)
+                env.glphSquares.append(glyphSquares)
                 pointsMapperSquares = vtkPolyDataMapper()
                 pointsMapperSquares.SetInputConnection(glyphSquares.GetOutputPort())
                 pointsMapperSquares.ScalarVisibilityOff()
-                mapSquares.append(pointsMapperSquares)
+                env.mapSquares.append(pointsMapperSquares)
                 pointsActorSquares = vtkActor()
                 pointsActorSquares.SetMapper(pointsMapperSquares)
-                pointsActorSquares.GetProperty().SetColor(Colors.GetColor3d("Tomato"))
+                pointsActorSquares.GetProperty().SetColor(env.Colors.GetColor3d("Tomato"))
                 pointsActorSquares.GetProperty().SetOpacity(0.5)
-                actSquares.append(pointsActorSquares)
+                env.actSquares.append(pointsActorSquares)
 '''

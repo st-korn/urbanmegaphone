@@ -94,8 +94,9 @@ def ReadWorldBounds():
         env.logger.debug("Load vector buildings: {file}", file=file)
         gdfVectors.append(gpd.read_file(file))
     env.gdfBuildings = gpd.GeoDataFrame(pd.concat(gdfVectors, ignore_index=True, sort=False))
-    maxFloors = env.gdfBuildings['floors'].max()
-    env.logger.success("Vector buildings loaded. Max floor count: {}", maxFloors)
+    env.maxFloors = env.gdfBuildings['floors'].max()
+    env.sumFlats = env.gdfBuildings['flats'].sum()
+    env.logger.success("{} vector buildings loaded. Max floor: {}, Total flats: {}", len(env.gdfBuildings.index), env.maxFloors, env.sumFlats)
 
     # -------------------------------------------------------------------
     # Calculate global world's bounds
@@ -104,7 +105,7 @@ def ReadWorldBounds():
         env.boundsMin[2] = 0
     if env.boundsMax[2] is None:
         env.boundsMax[2] = 0
-    env.boundsMax[2] = env.boundsMax[2] + (float(maxFloors)*cfg.sizeFloor)
+    env.boundsMax[2] = env.boundsMax[2] + (float(env.maxFloors)*cfg.sizeFloor)
     env.logger.success("Bounds of our world:  {} - {}", env.boundsMin, env.boundsMax)
 
     # Calculate bounds of voxel's world
@@ -114,7 +115,7 @@ def ReadWorldBounds():
     env.logger.success("Bounds of voxel's world:  {}", env.bounds)
 
     # Allocate memory for voxel's world
-    env.voxels = np.zeros(env.bounds, dtype=np.int32)
-    env.squares = np.full([env.bounds[0],env.bounds[1]], -1, dtype=np.int32)
+    env.voxels = np.empty(env.bounds, dtype=np.int32)
+    env.squares = np.empty(env.bounds, dtype=np.int32)
     env.logger.success("Memory allocated")
 
