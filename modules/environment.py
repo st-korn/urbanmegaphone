@@ -13,7 +13,6 @@ from vtkmodules.vtkIOImage import vtkImageReader2Factory # Read raster images fr
 from vtkmodules.vtkRenderingCore import ( vtkRenderer, vtkRenderWindow, vtkRenderWindowInteractor ) # All for render 3D-models
 from vtkmodules.vtkCommonColor import vtkNamedColors # Use colors
 import vtkmodules.vtkRenderingOpenGL2 # Use OpenGL for render
-import geopandas as gpd # For vector objects
 import math
 
 # Own core modules
@@ -131,15 +130,20 @@ def coordM2Float(meters):
 # ============================================
 def boxM2Int(lon_min, lon_max, lat_min, lat_max):
     x_min = math.floor(lon_min/cfg.sizeVoxel)
+    x_max = math.ceil(lon_max/cfg.sizeVoxel)
+    y_min =math.floor(lat_min/cfg.sizeVoxel)
+    y_max = math.ceil(lat_max/cfg.sizeVoxel)
+    if ( ( (x_min<0) and (x_max<0) ) or
+         ( (x_min>bounds[0]) and (x_max>bounds[0]) ) or
+         ( (y_min<0) and (y_max<0) ) or
+         ( (y_min>bounds[1]) and (y_max>bounds[1]) ) ):
+        return [None, None, None, None]
     if x_min<0:
         x_min = 0
-    x_max = math.ceil(lon_max/cfg.sizeVoxel)
     if x_max>bounds[0]:
         x_max = bounds[0]
-    y_min =math.floor(lat_min/cfg.sizeVoxel)
     if y_min<0:
         y_min = 0
-    y_max = math.ceil(lat_max/cfg.sizeVoxel)
     if y_max>bounds[1]:
         y_max = bounds[1]
     return [x_min, x_max, y_min, y_max]

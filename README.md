@@ -33,15 +33,16 @@
     pip install loguru
     pip install imagecodecs
     pip install tqdm
+    pip install shapely
+    pip install pandas
+    pip install geopandas
     ```
     For getting vector map of buildings you need also:
     ```console
     pip install httpx
-    pip install osmium
     pip install geojson
+    pip install osmium
     pip install textdistance
-    pip install pandas
-    pip install geopandas
     ```
     We use own copy in `modules` folder of python [`geotiff`](https://github.com/KipCrossing/geotiff.git) library, because our [pull request](https://github.com/KipCrossing/geotiff/pull/74) has not been processed yet. If you already have this library installed, please uninstall it.
 

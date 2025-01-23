@@ -92,7 +92,7 @@ def GenerateEarthSurface():
 
             env.logger.debug("{file} intersection: {dim}",file=fileD.name, dim=dem.shape)
             env.logger.debug("@ ({src}) = ({dst})", src=[float(lons[0,0]),float(lats[0,0]),float(dem[0,0])], dst=env.coordM2Float([float(lons[0,0]),float(lats[0,0]),float(dem[0,0])]))
-            env.logger.trace("@ ({src}) = ({dst})", src=[float(lons[dem.shape[0]-1,dem.shape[1]-1]),float(lats[dem.shape[0]-1,dem.shape[1]-1]),float(dem[dem.shape[0]-1,dem.shape[1]-1])], 
+            env.logger.debug("@ ({src}) = ({dst})", src=[float(lons[dem.shape[0]-1,dem.shape[1]-1]),float(lats[dem.shape[0]-1,dem.shape[1]-1]),float(dem[dem.shape[0]-1,dem.shape[1]-1])], 
                                                 dst=env.coordM2Float([float(lons[dem.shape[0]-1,dem.shape[1]-1]),float(lats[dem.shape[0]-1,dem.shape[1]-1]),float(dem[dem.shape[0]-1,dem.shape[1]-1])]))
 
             # Collect points of surface
