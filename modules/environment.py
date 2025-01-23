@@ -29,6 +29,12 @@ boundsMax = [None, None, None] #lon, lat, height
 # Voxel's world dimensions (integer)
 bounds = [None, None, None] #x_lon, y_lat, z_height
 
+# Voxel's world matrix: NumPy 3D-array of int32
+voxels = None
+
+# Squares matrix: NumPy 2D-array of int32 with index of 
+squares = None
+
 # GeoPandas objects
 gdfBuildings = gpd.GeoDataFrame()
 gdfMegaphones = gpd.GeoDataFrame()
@@ -78,6 +84,13 @@ fltarTexture = [] # vtkFloatArray array of texture coordinates
 txtrTexture = [] # vtkTexture
 mapTexture = [] # vtkPolyDataMapper
 actTexture = [] # vtkActor
+
+# Arrays of VTK objects: polygonal squares of DEM's surface
+clpprSquare = [] # vtkClipPolyData
+pldtSquare = [] # vtkPolyData
+mapSquare = [] # vtkPolyDataMapper
+actSquare = [] # vtkActor
+
 
 # Environment initialization
 # ============================================

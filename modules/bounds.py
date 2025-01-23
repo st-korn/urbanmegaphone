@@ -25,7 +25,7 @@ from modules.environment import * # Environment defenition
 def ReadWorldBounds():
 
     # Use global variables
-    global boundsMin, boundsMax, bounds
+    global boundsMin, boundsMax, bounds, voxels, squares
 
     logger.info("Find the dimensions of the world being explored")
 
@@ -117,6 +117,10 @@ def ReadWorldBounds():
     
     logger.success("Bounds of voxel's world:  {}", bounds)
 
+    # Allocate memory for voxel's world
+    voxels = np.zeros(bounds, dtype=np.int32)
+    squares = np.zeros([bounds[0],bounds[1]], dtype=np.int32)
+    logger.success("Memory allocated")
 
 # ============================================
 # Accept three coordinates in meters [lon, lat, height]

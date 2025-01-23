@@ -20,6 +20,7 @@ def GenerateBuildings():
 
     logger.info("Generate buildings")
 
+
     for x in range(bounds[0]):
         for y in range(bounds[1]):
             continue

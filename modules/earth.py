@@ -14,6 +14,7 @@ from vtkmodules.vtkCommonCore import vtkPoints # Use points cloud in 3D-world
 from vtkmodules.vtkCommonDataModel import vtkPolyData # Use 3D-primitives
 from vtkmodules.vtkRenderingCore import (vtkActor, vtkPolyDataMapper, vtkTexture) # Use VTK rendering
 import vtk # Use other 3D-visualization features
+import random
 
 # Own core modules
 from modules.settings import * # Settings defenition
@@ -26,6 +27,16 @@ from modules.bounds import * # Read raster and DEM data and calculate wolrd boun
 # Generate 3D-surface with textures
 # ============================================
 def GenerateEarthSurface():
+
+    # Use global variables
+    global voxels, squares
+    global actAxes
+    global cubeRASTER, mapCube, actCube, boxRASTER, imgrdrRASTER
+    global pntsDEM, pldtDEM, sphrDEM, glphDEM, mapDEM, actDEM
+    global srfsfltSurface, cntrfltSurface, rvrsfltSurface, pldtSurface, sphrSurface, glphSurface, mapSurface, actSurface
+    global clpprClipped, pldtClipped, pntsClipped
+    global fltarTexture, txtrTexture, mapTexture, actTexture
+    global clpprSquare, pldtSquare, mapSquare, actSquare
 
     logger.info("Generate earth surface")
 
@@ -43,7 +54,7 @@ def GenerateEarthSurface():
 
     for fileR in Path('.',folderRaster).glob("*.tif", case_sensitive=False):
 
-        # Open GeoTIFF and conver coordinates to Web-Mercator
+        # Open GeoTIFF and convert coordinates to Web-Mercator
         gtfR = GeoTiff(fileR, as_crs=3857)
         boxR = gtfR.tif_bBox_converted
         boxRLeftTop = coordM2Float([boxR[0][0],boxR[0][1],0])
@@ -170,7 +181,7 @@ def GenerateEarthSurface():
                 actSurface.append(pointsActorSurface)
                 logger.debug("DEM generated surface's points spheres created")
 
-            # Shrink surface to raster bounds to preven the formation of a seam between the stitched surfaces
+            # Shrink surface to raster bounds to prevent the formation of a seam between the stitched surfaces
             clipper = vtk.vtkClipPolyData()
             clipper.SetInputData(polyDataSurface)
             clipper.SetClipFunction(box)
@@ -207,5 +218,54 @@ def GenerateEarthSurface():
             actor = vtkActor()
             actor.SetMapper(mapper)
             actor.SetTexture(texture)
+            actor.GetProperty().SetOpacity(0.8)
             actTexture.append(actor)
             logger.success("{}: DEM ready for render",fileD.name)
+
+            # Find voxels of this surface
+            flBounds = polyDataClipped.GetBounds()
+            x_min = int(np.floor(flBounds[0]/sizeVoxel))
+            if x_min<0:
+                x_min = 0
+            x_max = int(np.floor(flBounds[1]/sizeVoxel))
+            if x_max>bounds[0]:
+                x_max = bounds[0]
+            y_min =int(np.floor(flBounds[4]/sizeVoxel))
+            if y_min<0:
+                y_min = 0
+            y_max = int(np.floor(flBounds[5]/sizeVoxel))
+            if y_max>bounds[1]:
+                y_max = bounds[1]
+            logger.debug("Surface bounds: {} = [{}..{}],[{}..{}]",flBounds,x_min,x_max,y_min,y_max)
+            # Create cell locator
+            locator = vtk.vtkCellLocator()
+            locator.SetDataSet(polyDataClipped)
+            locator.BuildLocator()
+            # Loop throght voxels
+            once = True
+            for x in range(x_min,x_max+1):
+                for y in range (y_min,y_max+1):
+                    t = vtk.mutable(0)
+                    pos = [0.0, 0.0, 0.0]
+                    pcoords = [0.0, 0.0, 0.0]
+                    subId = vtk.mutable(0)
+                    intersected = locator.IntersectWithLine([(x+0.5)*sizeVoxel, flBounds[2], (y+0.5)*sizeVoxel], 
+                                                              [(x+0.5)*sizeVoxel, flBounds[3], (y+0.5)*sizeVoxel], 
+                                                              0.5, t, pos, pcoords, subId)
+                    if intersected:
+                        plane = vtk.vtkPlaneSource()
+                        plane.SetOrigin(x*sizeVoxel,pos[1],y*sizeVoxel)
+                        plane.SetPoint1((x+1)*sizeVoxel,pos[1],y*sizeVoxel)
+                        plane.SetPoint2(x*sizeVoxel,pos[1],(y+1)*sizeVoxel)
+                        mapper = vtkPolyDataMapper()
+                        mapper.SetInputConnection(plane.GetOutputPort())
+                        mapper.ScalarVisibilityOff()
+                        mapSquare.append(mapper)
+                        actor = vtkActor()
+                        actor.SetMapper(mapper)
+                        actor.GetProperty().SetColor([random.random(), random.random(), random.random()])
+                        #actor.GetProperty().SetColor(vtkNamedColors().GetColor3d("Tomato"))
+                        actor.GetProperty().SetOpacity(0.3)
+                        actSquare.append(actor)
+                        once = False
+                    

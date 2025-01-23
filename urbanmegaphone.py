@@ -30,6 +30,7 @@ for actor in actCube: Renderer.AddActor(actor)
 for actor in actDEM: Renderer.AddActor(actor)
 for actor in actSurface: Renderer.AddActor(actor)
 for actor in actTexture: Renderer.AddActor(actor)
+for actor in actSquare: Renderer.AddActor(actor)
 
 # Run VTK-window
 # ============================================
