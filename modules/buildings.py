@@ -82,11 +82,13 @@ def GenerateBuildings():
             if z is not None:
                 pnts2.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
 
+        # Clean memory
+        del gsBuffer
+        del gdfBuffer
+        del gdfBufferCells
+
     # Clean memory
     del gdfSquares
-    del gsBuffer
-    del gdfBuffer
-    del gdfBufferCells
     gc.collect()
 
     # Find ground points for each cell
@@ -139,26 +141,27 @@ def GenerateBuildings():
     env.actVoxels.append(pointsActorVoxels)
 
     # Put squares on intersection points
-    polyDataSquares = vtkPolyData()
-    polyDataSquares.SetPoints(pnts2)
-    env.pldtSquares.append(polyDataSquares)
-    planeSquare = vtk.vtkPlaneSource()
-    planeSquare.SetOrigin(0, 0, 0)
-    planeSquare.SetPoint1(cfg.sizeVoxel, 0, 0)
-    planeSquare.SetPoint2(0, 0, cfg.sizeVoxel)
-    env.plnSquares.append(planeSquare)
-    glyphSquares = vtk.vtkGlyph3D()
-    glyphSquares.SetInputData(polyDataSquares)
-    glyphSquares.SetSourceConnection(planeSquare.GetOutputPort())
-    glyphSquares.ScalingOff()
-    glyphSquares.Update()
-    env.glphSquares.append(glyphSquares)
-    pointsMapperSquares = vtkPolyDataMapper()
-    pointsMapperSquares.SetInputConnection(glyphSquares.GetOutputPort())
-    pointsMapperSquares.ScalarVisibilityOff()
-    env.mapSquares.append(pointsMapperSquares)
-    pointsActorSquares = vtkActor()
-    pointsActorSquares.SetMapper(pointsMapperSquares)
-    pointsActorSquares.GetProperty().SetColor(env.Colors.GetColor3d("Tomato"))
-    pointsActorSquares.GetProperty().SetOpacity(0.5)
-    env.actSquares.append(pointsActorSquares)
+    if cfg.ShowSquares == 'buffer':
+        polyDataSquares = vtkPolyData()
+        polyDataSquares.SetPoints(pnts2)
+        env.pldtSquares.append(polyDataSquares)
+        planeSquare = vtk.vtkPlaneSource()
+        planeSquare.SetOrigin(0, 0, 0)
+        planeSquare.SetPoint1(cfg.sizeVoxel, 0, 0)
+        planeSquare.SetPoint2(0, 0, cfg.sizeVoxel)
+        env.plnSquares.append(planeSquare)
+        glyphSquares = vtk.vtkGlyph3D()
+        glyphSquares.SetInputData(polyDataSquares)
+        glyphSquares.SetSourceConnection(planeSquare.GetOutputPort())
+        glyphSquares.ScalingOff()
+        glyphSquares.Update()
+        env.glphSquares.append(glyphSquares)
+        pointsMapperSquares = vtkPolyDataMapper()
+        pointsMapperSquares.SetInputConnection(glyphSquares.GetOutputPort())
+        pointsMapperSquares.ScalarVisibilityOff()
+        env.mapSquares.append(pointsMapperSquares)
+        pointsActorSquares = vtkActor()
+        pointsActorSquares.SetMapper(pointsMapperSquares)
+        pointsActorSquares.GetProperty().SetColor(env.Colors.GetColor3d("Tomato"))
+        pointsActorSquares.GetProperty().SetOpacity(0.5)
+        env.actSquares.append(pointsActorSquares)

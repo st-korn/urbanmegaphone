@@ -47,7 +47,7 @@ flagShowAxis = True
 # 'buffer' - for surface around buildings and megaphones
 # 'none' - do not calculate and show
 # Default value is 'buffer'
-ShowSquares = 'buffer'
+ShowSquares = 'none'
 
 # Radius of buffer zones around buildings. Used with ShowSquares = 'buffer. Meters, default value = 300
 BufferRadius = 300
