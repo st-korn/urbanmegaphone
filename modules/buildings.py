@@ -14,6 +14,7 @@ from vtkmodules.vtkCommonDataModel import vtkPolyData # Use 3D-primitives
 from vtkmodules.vtkRenderingCore import (vtkActor, vtkPolyDataMapper, vtkTexture) # Use VTK rendering
 import vtk # Use other 3D-visualization features
 import gc # For garbage collectors
+from shapely.ops import unary_union
 
 # Own core modules
 import modules.settings as cfg # Settings defenition
@@ -34,7 +35,7 @@ def GenerateBuildings():
     arr_y = np.ravel(arr[1])
     gdfSquares = gpd.GeoDataFrame({'x' : arr_x, 'y' : arr_y,
             'geometry' : gpd.points_from_xy((arr_x+0.5)*cfg.sizeVoxel, (arr_y+0.5)*cfg.sizeVoxel)})
-    env.logger.debug(gdfSquares)
+    env.logger.trace(gdfSquares)
     env.logger.success("World grid created")
 
     env.logger.info("Convert vector buildings to our world dimensions")
@@ -49,7 +50,7 @@ def GenerateBuildings():
 
     # Add unique identificator of building (UIB)
     env.gdfBuildings['UIB'] = np.arange(len(env.gdfBuildings))
-    env.logger.debug(env.gdfBuildings)
+    env.logger.trace(env.gdfBuildings)
 
     env.logger.info("Split buildings to voxel's grid cells")
 
@@ -57,36 +58,39 @@ def GenerateBuildings():
     env.gdfCells = env.gdfBuildings.sjoin(gdfSquares, how='inner', predicate='contains')
     env.logger.trace(env.gdfCells)
 
+    # Prepare squares of the earth surface on buffer zones around buildings
     if cfg.ShowSquares == 'buffer':
         # Make buffer zones around buildings
         env.logger.info("Draw buffer zones arounf buildings")
-        env.gdfBuildings['Buffer'] = env.gdfBuildings.geometry.buffer(cfg.BufferRadius)
-        gdfBuffers = env.gdfBuildings.set_geometry('Buffer')
-        env.logger.debug(gdfBuffers)
+        gsBuffer = env.gdfBuildings.geometry.buffer(cfg.BufferRadius)
+        env.logger.trace(gsBuffer)
 
         # Join buildings and centers of voxel's squares GeoDataFrames
         env.logger.info("Find cells in buffer zones")
-        gdfBufferCells = gdfBuffers.sjoin(gdfSquares, how='inner', predicate='contains')
-        env.logger.debug(gdfBufferCells)
-        gdfBufferCells = gdfBufferCells.drop_duplicates(subset=['x','y'], keep="first")
-        env.logger.debug(gdfBufferCells)
+        boundary = gpd.GeoSeries(unary_union(gsBuffer))
+        gdfBuffer = gpd.GeoDataFrame(geometry=boundary)
+        env.logger.trace(boundary)
+        env.logger.trace(gdfBuffer)
+        gdfBufferCells = gdfSquares.sjoin(gdfBuffer, how='inner',predicate='within')
+        env.logger.trace(gdfBufferCells)
 
         # Generate squares of buffer zones
         env.logger.info("Generate squares of buffer zones")
         pnts2 = vtkPoints()
-        for cell in gdfBufferCells.itertuples():
+        for cell in env.tqdm(gdfBufferCells.itertuples(), total=len(gdfBufferCells.index)):
             z = modules.earth.getGroundHeight(cell.x,cell.y,None)
             if z is not None:
                 pnts2.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
 
     # Clean memory
     del gdfSquares
-    del gdfBuffers
+    del gsBuffer
+    del gdfBuffer
     del gdfBufferCells
     gc.collect()
 
     # Find ground points for each cell
-    env.logger.info("Find ground points for each cell")
+    env.logger.info("Find ground points for each building's cell")
     env.gdfCells['GP'] = env.gdfCells.apply(lambda x : modules.earth.getGroundHeight(x['x'],x['y'],None), axis='columns')
     env.logger.trace(env.gdfCells)
 
@@ -100,7 +104,7 @@ def GenerateBuildings():
     # Generate voxels of buildings
     env.logger.info("Generate voxel's of buildings")
     pnts = vtkPoints()
-    for cell in env.gdfCells.itertuples():
+    for cell in env.tqdm(env.gdfCells.itertuples(), total=len(env.gdfCells.index)):
         if cfg.BuildingGroundMode != 'levels':
             z = cell.GP_agg
         else:

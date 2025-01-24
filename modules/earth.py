@@ -215,7 +215,7 @@ def GenerateEarthSurface():
             locator.BuildLocator()
             env.lctrClipped.append(locator)
 
-            # Prepare squares of the earth surface
+            # Prepare squares of the whole earth surface
             if cfg.ShowSquares == 'full':
                 env.logger.info("Calculate earth surface height of each voxel...")
                 # Find voxels of this surface
