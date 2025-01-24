@@ -7,12 +7,13 @@
 
 # Standart modules
 import numpy as np # For arrays of numbers
+import pandas as pd # For tables of data
 import geopandas as gpd # For vector objects
 from vtkmodules.vtkCommonCore import vtkPoints # Use points cloud in 3D-world
 from vtkmodules.vtkCommonDataModel import vtkPolyData # Use 3D-primitives
 from vtkmodules.vtkRenderingCore import (vtkActor, vtkPolyDataMapper, vtkTexture) # Use VTK rendering
 import vtk # Use other 3D-visualization features
-import gc
+import gc # For garbage collectors
 
 # Own core modules
 import modules.settings as cfg # Settings defenition
@@ -46,6 +47,10 @@ def GenerateBuildings():
     env.gdfBuildings.geometry = env.gdfBuildings.geometry.translate(xoff=-env.boundsMin[0], yoff=env.boundsMax[1], zoff=0.0)
     env.logger.trace(env.gdfBuildings)
 
+    # Add unique identificator of building (UIB)
+    env.gdfBuildings['UIB'] = np.arange(len(env.gdfBuildings))
+    env.logger.trace(env.gdfBuildings)
+
     env.logger.info("Split buildings to voxel's grid cells")
 
     # Join buildings and centers of voxel's squares GeoDataFrames
@@ -54,10 +59,25 @@ def GenerateBuildings():
     del gdfSquares
     gc.collect()
 
+    # Find ground points for each cell
+    env.logger.info("Find ground points for each cell")
+    env.gdfCells['GP'] = env.gdfCells.apply(lambda x : modules.earth.getGroundHeight(x['x'],x['y'],None), axis='columns')
+    env.logger.trace(env.gdfCells)
+
+    # Find nearest ground point for each buildnig
+    if cfg.BuildingGroundMode != 'levels':
+        pdMinGroundPoints = pd.pivot_table(data = env.gdfCells, index=['UIB'], values=['GP'], aggfunc={'GP':cfg.BuildingGroundMode})
+        env.logger.trace(pdMinGroundPoints)
+        env.gdfCells = env.gdfCells.merge(right=pdMinGroundPoints, how='left', left_on='UIB', right_on='UIB', suffixes=[None, '_agg'])
+        env.logger.trace(env.gdfCells)
+
     env.logger.info("Generate voxel's of buildings")
     pnts = vtkPoints()
     for cell in env.gdfCells.itertuples():
-        z = modules.earth.getGroundHeight(cell.x,cell.y,None)
+        if cfg.BuildingGroundMode != 'levels':
+            z = cell.GP_agg
+        else:
+            z = cell.GP
         if z is not None:
             for floor in range(int(float(cell.floors))):
                 pnts.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
@@ -67,9 +87,9 @@ def GenerateBuildings():
     polyDataVoxels.SetPoints(pnts)
     env.pldtVoxels.append(polyDataVoxels)
     planeVoxel = vtk.vtkCubeSource()
-    planeVoxel.SetXLength(cfg.sizeVoxel-0.1)
-    planeVoxel.SetYLength(cfg.sizeVoxel-0.1)
-    planeVoxel.SetZLength(cfg.sizeVoxel-0.1)
+    planeVoxel.SetXLength(cfg.sizeVoxel-0.5)
+    planeVoxel.SetYLength(cfg.sizeVoxel-0.5)
+    planeVoxel.SetZLength(cfg.sizeVoxel-0.5)
     env.plnVoxels.append(planeVoxel)
     glyphVoxels = vtk.vtkGlyph3D()
     glyphVoxels.SetInputData(polyDataVoxels)

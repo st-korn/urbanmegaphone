@@ -9,8 +9,8 @@
 from pathlib import Path # Crossplatform pathing
 from modules.geotiff import GeoTiff # GeoTIFF format reader
 import numpy as np # Work with DEM matrix
-import pandas as pd
-import geopandas as gpd
+import pandas as pd # For tables of data
+import geopandas as gpd # For vector objects
 
 # Own core modules
 import modules.settings as cfg # Settings defenition

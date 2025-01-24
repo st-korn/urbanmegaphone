@@ -39,5 +39,17 @@ flagShowEarthPoints = False
 # Show axis of ccordinate system
 flagShowAxis = True
 
-# Show squares and calculate audibility on earth surface
-flagSquares = True
+# Show squares and calculate audibility on earth surface:
+# 'full' - for all surface
+# 'buffer' - for surface around buildings and megaphones
+# 'none' - do not calculate and show
+ShowSquares = 'buffer'
+
+# Select mode for ground point of buildings:
+# 'min' - building positioned at the lowerest point on his ground. All voxels of building have same ground level.
+# 'max' - building positioned at the highest point on his ground. All voxels of building have same ground level.
+# 'mean' - building positioned at the mean point on his ground. All voxels of building have same ground level.
+# 'median' - building positioned at the median point on his ground. All voxels of building have same ground level.
+# 'levels' - Each voxel of building positioned at its own ground level.
+# Default value is 'median'
+BuildingGroundMode = 'median'
