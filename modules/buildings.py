@@ -9,7 +9,7 @@
 import numpy as np # For arrays of numbers
 import pandas as pd # For tables of data
 import geopandas as gpd # For vector objects
-from vtkmodules.vtkCommonCore import vtkPoints # Use points cloud in 3D-world
+from vtkmodules.vtkCommonCore import vtkPoints # Use points clouds in 3D-world
 from vtkmodules.vtkCommonDataModel import vtkPolyData # Use 3D-primitives
 from vtkmodules.vtkRenderingCore import (vtkActor, vtkPolyDataMapper, vtkTexture) # Use VTK rendering
 import vtk # Use other 3D-visualization features
@@ -36,9 +36,9 @@ def GenerateBuildings():
     gdfSquares = gpd.GeoDataFrame({'x' : arr_x, 'y' : arr_y,
             'geometry' : gpd.points_from_xy((arr_x+0.5)*cfg.sizeVoxel, (arr_y+0.5)*cfg.sizeVoxel)})
     env.logger.trace(gdfSquares)
-    env.logger.success("World grid created")
+    env.logger.success("World grid created: {} cells", f'{len(gdfSquares.index):_}')
 
-    env.logger.info("Convert vector buildings to our world dimensions")
+    env.logger.info("Convert vector buildings to our world dimensions...")
 
     # Convert 2D-coordinates of buildings GeoDataFrame from meters (Web-Mercator ESPG:3857) to vtk's float
     env.logger.trace(env.gdfBuildings)
@@ -51,17 +51,19 @@ def GenerateBuildings():
     # Add unique identificator of building (UIB)
     env.gdfBuildings['UIB'] = np.arange(len(env.gdfBuildings))
     env.logger.trace(env.gdfBuildings)
+    env.logger.success("{} vector buildings found", f'{len(env.gdfBuildings.index):_}')
 
-    env.logger.info("Split buildings to voxel's grid cells")
+    env.logger.info("Split buildings to voxel's grid cells...")
 
     # Join buildings and centers of voxel's squares GeoDataFrames
     env.gdfCells = env.gdfBuildings.sjoin(gdfSquares, how='inner', predicate='contains')
     env.logger.trace(env.gdfCells)
+    env.logger.success("{} from {} cells are under buildings", f'{len(env.gdfCells.index):_}', f'{len(gdfSquares.index):_}')
 
     # Prepare squares of the earth surface on buffer zones around buildings
     if cfg.ShowSquares == 'buffer':
         # Make buffer zones around buildings
-        env.logger.info("Draw buffer zones arounf buildings")
+        env.logger.info("Draw buffer zones around buildings")
         gsBuffer = env.gdfBuildings[ env.gdfBuildings['flats']>0 ].geometry.buffer(cfg.BufferRadius)
         env.logger.trace(gsBuffer)
 
@@ -73,9 +75,10 @@ def GenerateBuildings():
         env.logger.trace(gdfBuffer)
         gdfBufferCells = gdfSquares.sjoin(gdfBuffer, how='inner',predicate='within')
         env.logger.trace(gdfBufferCells)
+        env.logger.success("{} from {} cells are in buffer zones", f'{len(gdfBufferCells.index):_}', f'{len(gdfSquares.index):_}')
 
         # Generate squares of buffer zones
-        env.logger.info("Generate squares of buffer zones")
+        env.logger.info("Generate squares of buffer zones...")
         pnts2 = vtkPoints()
         for cell in env.tqdm(gdfBufferCells.itertuples(), total=len(gdfBufferCells.index)):
             z = modules.earth.getGroundHeight(cell.x,cell.y,None)
@@ -92,7 +95,7 @@ def GenerateBuildings():
     gc.collect()
 
     # Find ground points for each cell
-    env.logger.info("Find ground points for each building's cell")
+    env.logger.info("Looking for ground points of each building")
     env.gdfCells['GP'] = env.gdfCells.apply(lambda x : modules.earth.getGroundHeight(x['x'],x['y'],None), axis='columns')
     env.logger.trace(env.gdfCells)
 
@@ -104,8 +107,7 @@ def GenerateBuildings():
         env.logger.trace(env.gdfCells)
 
     # Generate voxels of buildings
-    env.logger.info("Generate voxel's of buildings")
-    pnts = vtkPoints()
+    env.logger.info("Generate voxel's of buildings...")
     for cell in env.tqdm(env.gdfCells.itertuples(), total=len(env.gdfCells.index)):
         if cfg.BuildingGroundMode != 'levels':
             z = cell.GP_agg
@@ -113,11 +115,15 @@ def GenerateBuildings():
             z = cell.GP
         if z is not None:
             for floor in range(int(float(cell.floors))):
-                pnts.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
+                if cell.flats>0:
+                    env.pntsVoxels_living.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
+                else:
+                    env.pntsVoxels_industrial.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
+    env.logger.success("{} living and {} industial voxels created", f'{env.pntsVoxels_living.GetNumberOfPoints():_}', f'{env.pntsVoxels_industrial.GetNumberOfPoints():_}')
 
     # Put Voxels on intersection points
     polyDataVoxels = vtkPolyData()
-    polyDataVoxels.SetPoints(pnts)
+    polyDataVoxels.SetPoints(env.pntsVoxels_living)
     env.pldtVoxels.append(polyDataVoxels)
     planeVoxel = vtk.vtkCubeSource()
     planeVoxel.SetXLength(cfg.sizeVoxel-cfg.gapVoxel)
@@ -137,6 +143,31 @@ def GenerateBuildings():
     pointsActorVoxels = vtkActor()
     pointsActorVoxels.SetMapper(pointsMapperVoxels)
     pointsActorVoxels.GetProperty().SetColor(env.Colors.GetColor3d("Green"))
+    pointsActorVoxels.GetProperty().SetOpacity(1)
+    env.actVoxels.append(pointsActorVoxels)
+
+    # Put Voxels on intersection points
+    polyDataVoxels = vtkPolyData()
+    polyDataVoxels.SetPoints(env.pntsVoxels_industrial)
+    env.pldtVoxels.append(polyDataVoxels)
+    planeVoxel = vtk.vtkCubeSource()
+    planeVoxel.SetXLength(cfg.sizeVoxel-cfg.gapVoxel)
+    planeVoxel.SetYLength(cfg.sizeVoxel-cfg.gapVoxel)
+    planeVoxel.SetZLength(cfg.sizeVoxel-cfg.gapVoxel)
+    env.plnVoxels.append(planeVoxel)
+    glyphVoxels = vtk.vtkGlyph3D()
+    glyphVoxels.SetInputData(polyDataVoxels)
+    glyphVoxels.SetSourceConnection(planeVoxel.GetOutputPort())
+    glyphVoxels.ScalingOff()
+    glyphVoxels.Update()
+    env.glphVoxels.append(glyphVoxels)
+    pointsMapperVoxels = vtkPolyDataMapper()
+    pointsMapperVoxels.SetInputConnection(glyphVoxels.GetOutputPort())
+    pointsMapperVoxels.ScalarVisibilityOff()
+    env.mapVoxels.append(pointsMapperVoxels)
+    pointsActorVoxels = vtkActor()
+    pointsActorVoxels.SetMapper(pointsMapperVoxels)
+    pointsActorVoxels.GetProperty().SetColor(env.Colors.GetColor3d("Gray"))
     pointsActorVoxels.GetProperty().SetOpacity(1)
     env.actVoxels.append(pointsActorVoxels)
 

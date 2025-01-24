@@ -9,6 +9,7 @@
 # Standart modules
 from loguru import logger # Write log
 from tqdm import tqdm # Write log
+from vtkmodules.vtkCommonCore import vtkPoints # Use points clouds in 3D-world
 from vtkmodules.vtkIOImage import vtkImageReader2Factory # Read raster images from files
 from vtkmodules.vtkRenderingCore import ( vtkRenderer, vtkRenderWindow, vtkRenderWindowInteractor ) # All for render 3D-models
 from vtkmodules.vtkCommonColor import vtkNamedColors # Use colors
@@ -96,7 +97,9 @@ mapTexture = [] # vtkPolyDataMapper
 actTexture = [] # vtkActor
 
 # Arrays of VTK objects: polygonal squares of DEM's surface
-pntsSquares = [] # vtkPoints
+pntsSquares_unassigned = vtkPoints()
+pntsSquares_yes = vtkPoints()
+pntsSquares_no = vtkPoints()
 pldtSquares = [] # vtkPolyData
 plnSquares = [] # vtkSphereSource
 glphSquares = [] # vtkGlyph3D
@@ -104,7 +107,10 @@ mapSquares = [] # vtkPolyDataMapper
 actSquares = [] # vtkActor
 
 # Arrays of VTK objects: cubes of buildings
-pntsVoxels = [] # vtkPoints
+pntsVoxels_industrial = vtkPoints()
+pntsVoxels_living = vtkPoints()
+pntsVoxels_yes = vtkPoints()
+pntsVoxels_no = vtkPoints()
 pldtVoxels = [] # vtkPolyData
 plnVoxels = [] # vtkSphereSource
 glphVoxels = [] # vtkGlyph3D

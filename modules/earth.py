@@ -9,7 +9,7 @@
 from pathlib import Path # Crossplatform pathing
 from modules.geotiff import GeoTiff # GeoTIFF format reader
 import numpy as np # Work with DEM matrix
-from vtkmodules.vtkCommonCore import vtkPoints # Use points cloud in 3D-world
+from vtkmodules.vtkCommonCore import vtkPoints # Use points clouds in 3D-world
 from vtkmodules.vtkCommonDataModel import vtkPolyData # Use 3D-primitives
 from vtkmodules.vtkRenderingCore import (vtkActor, vtkPolyDataMapper, vtkTexture) # Use VTK rendering
 import vtk # Use other 3D-visualization features
@@ -222,7 +222,6 @@ def GenerateEarthSurface():
                 flBounds = polyDataClipped.GetBounds()
                 [x_min, x_max, y_min, y_max] = env.boxM2Int(flBounds[0],flBounds[1],flBounds[4],flBounds[5])
                 env.logger.debug("Surface bounds: {} = [{}..{}],[{}..{}]",flBounds,x_min,x_max,y_min,y_max)
-                pnts = vtkPoints()
                 # Loop throght voxels
                 for x in env.tqdm(range(x_min,x_max+1)):
                     for y in range (y_min,y_max+1):
@@ -231,12 +230,12 @@ def GenerateEarthSurface():
                         if z is not None:
                             # Add point to collection
                             None
-                            pnts.InsertNextPoint((x+0.5)*cfg.sizeVoxel,z*cfg.sizeVoxel,(y+0.5)*cfg.sizeVoxel)
-                env.logger.success("Earth surface height calculation done")
+                            env.pntsSquares_unassigned.InsertNextPoint((x+0.5)*cfg.sizeVoxel,z*cfg.sizeVoxel,(y+0.5)*cfg.sizeVoxel)
+                env.logger.success("Earth surface height calculation done: {} squares created", f'{env.pntsSquares_unassigned.GetNumberOfPoints():_}')
 
                 # Put squares on intersection points
                 polyDataSquares = vtkPolyData()
-                polyDataSquares.SetPoints(pnts)
+                polyDataSquares.SetPoints(env.pntsSquares_unassigned)
                 env.pldtSquares.append(polyDataSquares)
                 planeSquare = vtk.vtkPlaneSource()
                 planeSquare.SetOrigin(0, 0, 0)
