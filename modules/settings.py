@@ -21,10 +21,13 @@ logLevel = "DEBUG"
 # Voxel's edge size, meter. Default value is 3 meter - approximately one floor
 sizeVoxel = 3
 
+# The gap between voxels, meter. Default value is 0.5 meter
+gapVoxel = 0.5
+
 # Floor size, meter.  Default value is 3 meter
 sizeFloor = 3
 
-# How many pixeles get out of box border. Increase it to prevent blank lines on raster's or DEMs seams. Default value is 2 px
+# How many pixeles get out of box border. Increase it to prevent blank lines on raster's or DEMs seams. Default value is 3 px
 SurfaceOutline = 3
 
 # Count of neighboring points, used for aproximate surface. Low values lead to a haotic surface. Default value is 20
@@ -33,17 +36,18 @@ SurfaceNeighbor = 20
 # Count of neighboring points, used for aproximate one cell of surface. Low values lead to long calculation times. Default value is 36
 SurfaceCells = 6*6
 
-# Show original DEM earth's point: True or False. Used for debug surface purposes
+# Show original DEM earth's point: True or False. Used for debug surface purposes. Default value is False
 flagShowEarthPoints = False
 
-# Show axis of ccordinate system
+# Show axis of ccordinate system. Used for debug surface purposes. Default value is True
 flagShowAxis = True
 
 # Show squares and calculate audibility on earth surface:
 # 'full' - for all surface
 # 'buffer' - for surface around buildings and megaphones
 # 'none' - do not calculate and show
-ShowSquares = 'buffer'
+# Default value is 'buffer'
+ShowSquares = 'none'
 
 # Select mode for ground point of buildings:
 # 'min' - building positioned at the lowerest point on his ground. All voxels of building have same ground level.

@@ -205,7 +205,7 @@ def GenerateEarthSurface():
             actor = vtkActor()
             actor.SetMapper(mapper)
             actor.SetTexture(texture)
-            actor.GetProperty().SetOpacity(0.5)
+            actor.GetProperty().SetOpacity(1 if cfg.ShowSquares=='none' else 0.5)
             env.actTexture.append(actor)
             env.logger.success("{}: DEM ready for render",fileD.name)
 
