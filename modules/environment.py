@@ -40,7 +40,7 @@ squares = None
 
 # GeoPandas GeoDataFrames
 gdfBuildings = None # Geometric 2D vector objects of buildings loaded from vector files
-gdfSquares = None # 2D grid of points - centers of voxels on the plane
+#gdfSquares = None # 2D grid of points - centers of voxels on the plane # Excluded to save memory
 gdfCells = None # Intersect of buildings and voxels center
 gdfMegaphones = None
 

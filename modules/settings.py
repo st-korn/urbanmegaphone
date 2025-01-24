@@ -40,4 +40,4 @@ flagShowEarthPoints = False
 flagShowAxis = True
 
 # Show squares and calculate audibility on earth surface
-flagSquares = False
+flagSquares = True

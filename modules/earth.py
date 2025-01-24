@@ -226,23 +226,11 @@ def GenerateEarthSurface():
                 for x in env.tqdm(range(x_min,x_max+1)):
                     for y in range (y_min,y_max+1):
                         # Find intersection point of vertical ray from the center of voxel and the surface
-                        t = vtk.mutable(0)
-                        pos = [0.0, 0.0, 0.0]
-                        pcoords = [0.0, 0.0, 0.0]
-                        subId = vtk.mutable(0)
-                        x_center = (x+0.5)*cfg.sizeVoxel
-                        y_center = (y+0.5)*cfg.sizeVoxel
-                        intersected = locator.IntersectWithLine([x_center, flBounds[2], y_center], [x_center, flBounds[3], y_center], 
-                                                                0.01, t, pos, pcoords, subId)
-                        if intersected:
-                            # Find vertical z-coordinate of first voxel over earth's surface
-                            #z = np.round(pos[1]/cfg.sizeVoxel-0.4999)
-                            z = np.ceil(pos[1]/cfg.sizeVoxel)
-                            if z<0:
-                                z = 0
-                            env.squares[x,y] = z
+                        z = getGroundHeight(x,y,locator)
+                        if z is not None:
                             # Add point to collection
-                            pnts.InsertNextPoint(x_center,z*cfg.sizeVoxel,y_center)
+                            None
+                            pnts.InsertNextPoint((x+0.5)*cfg.sizeVoxel,z*cfg.sizeVoxel,(y+0.5)*cfg.sizeVoxel)
                 env.logger.success("Earth surface height calculation done")
 
                 # Put squares on intersection points
@@ -271,31 +259,51 @@ def GenerateEarthSurface():
                 env.actSquares.append(pointsActorSquares)
 
 # ============================================
-# Find float Y vertical coordiate of intersection 
-# the vertical ray from the point (x, z) and earth surface on VTK space
+# Find int Z vertical coordiate of intersection 
+# the vertical ray from the center of voxel (x, y) and earth surface on VTK space
 # Can search on specifec surface (using locator) or on all surfaces in VTK space
+# Store found coordinate in env.squares array
 # IN:
-# x : float X horizontal coordinate of desired point in VTK coordinate system
-# z : float Z horizontal coordinate of desired point in VTK coordinate system
+# x : int X horizontal coordinate of desired voxel
+# y : int Y horizontal coordinate of desired voxel
 # locator: vtkCellLocator if we need to search on one specific surface
 #          or None if we need to search on all surfaces
 # OUT:
-# float Y vertical coordinate in VTK coordinate system of ground intersection point
+# integer Z vertical coordinate of first voxel over earth's surface
 #         or None if no intersection found
 # ============================================
-def getGroudHeight(x, z, locator):
+def getGroundHeight(x, y, locator):
+    # Fail if (x,y) is out of bounds voxel's world
+    if (x<0) or (x>=env.bounds[0]) or (y<0) or (y>=env.bounds[1]):
+        return None
+    # Is current ground position just calculated and stored?
+    z = env.squares[x,y]
+    if z >= 0:
+        return z # Yes, it was stored
+    # No, we need to calculate them
+    # Find center of voxel
+    x_center = (x+0.5)*cfg.sizeVoxel
+    y_center = (y+0.5)*cfg.sizeVoxel
+    # Prepare search engine using localor
     t = vtk.mutable(0)
     pos = [0.0, 0.0, 0.0]
     pcoords = [0.0, 0.0, 0.0]
     subId = vtk.mutable(0)
+    # How many surfaces we need to search
     if locator is not None:
-        locators = [locator]
+        locators = [locator] # One surface
     else:
-        locators = lctrClipped
+        locators = env.lctrClipped # All surfaces
+    # Loop through surfaces and search intersection on each
     for lctr in locators:
-        intersected = locator.IntersectWithLine([x, (-1)*cfg.sizeVoxel, z], 
-                                                [x, (env.bounds[2]+1)*cfg.sizeVoxel, z], 
+        intersected = lctr.IntersectWithLine([x_center, (-1)*cfg.sizeVoxel, y_center], 
+                                        [x_center, (env.bounds[2]+1)*cfg.sizeVoxel, y_center], 
                                             0.01, t, pos, pcoords, subId)
+        # if intersection found - use first one
         if intersected:
-            return pos[1]
+            z = np.ceil(pos[1]/cfg.sizeVoxel)
+            if z<0:
+                z = 0
+            env.squares[x,y] = z
+            return z
     return None

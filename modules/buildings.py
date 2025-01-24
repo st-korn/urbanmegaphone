@@ -12,10 +12,12 @@ from vtkmodules.vtkCommonCore import vtkPoints # Use points cloud in 3D-world
 from vtkmodules.vtkCommonDataModel import vtkPolyData # Use 3D-primitives
 from vtkmodules.vtkRenderingCore import (vtkActor, vtkPolyDataMapper, vtkTexture) # Use VTK rendering
 import vtk # Use other 3D-visualization features
+import gc
 
 # Own core modules
 import modules.settings as cfg # Settings defenition
 import modules.environment as env # Environment defenition
+import modules.earth # Earth surface routines 
 
 
 # ============================================
@@ -29,9 +31,9 @@ def GenerateBuildings():
     arr = np.mgrid[0:env.bounds[0], 0:env.bounds[1]]
     arr_x = np.ravel(arr[0])
     arr_y = np.ravel(arr[1])
-    env.gdfSquares = gpd.GeoDataFrame({'x' : arr_x, 'y' : arr_y,
+    gdfSquares = gpd.GeoDataFrame({'x' : arr_x, 'y' : arr_y,
             'geometry' : gpd.points_from_xy((arr_x+0.5)*cfg.sizeVoxel, (arr_y+0.5)*cfg.sizeVoxel)})
-    env.logger.debug(env.gdfSquares)
+    env.logger.trace(gdfSquares)
     env.logger.success("World grid created")
 
     env.logger.info("Convert vector buildings to our world dimensions")
@@ -47,17 +49,18 @@ def GenerateBuildings():
     env.logger.info("Split buildings to voxel's grid cells")
 
     # Join buildings and centers of voxel's squares GeoDataFrames
-    env.gdfCells = env.gdfBuildings.sjoin(env.gdfSquares, how='inner', predicate='contains')
+    env.gdfCells = env.gdfBuildings.sjoin(gdfSquares, how='inner', predicate='contains')
     env.logger.trace(env.gdfCells)
+    del gdfSquares
+    gc.collect()
 
     env.logger.info("Generate voxel's of buildings")
     pnts = vtkPoints()
     for cell in env.gdfCells.itertuples():
-        for floor in range(int(float(cell.floors))):
-            z = env.squares[cell.x,cell.y]
-            if z<0:
-                s
-            pnts.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
+        z = modules.earth.getGroundHeight(cell.x,cell.y,None)
+        if z is not None:
+            for floor in range(int(float(cell.floors))):
+                pnts.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
 
     # Put Voxels on intersection points
     polyDataVoxels = vtkPolyData()
