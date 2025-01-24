@@ -34,7 +34,7 @@ def GenerateBuildings():
     arr_y = np.ravel(arr[1])
     gdfSquares = gpd.GeoDataFrame({'x' : arr_x, 'y' : arr_y,
             'geometry' : gpd.points_from_xy((arr_x+0.5)*cfg.sizeVoxel, (arr_y+0.5)*cfg.sizeVoxel)})
-    env.logger.trace(gdfSquares)
+    env.logger.debug(gdfSquares)
     env.logger.success("World grid created")
 
     env.logger.info("Convert vector buildings to our world dimensions")
@@ -49,14 +49,40 @@ def GenerateBuildings():
 
     # Add unique identificator of building (UIB)
     env.gdfBuildings['UIB'] = np.arange(len(env.gdfBuildings))
-    env.logger.trace(env.gdfBuildings)
+    env.logger.debug(env.gdfBuildings)
 
     env.logger.info("Split buildings to voxel's grid cells")
 
     # Join buildings and centers of voxel's squares GeoDataFrames
     env.gdfCells = env.gdfBuildings.sjoin(gdfSquares, how='inner', predicate='contains')
     env.logger.trace(env.gdfCells)
+
+    if cfg.ShowSquares == 'buffer':
+        # Make buffer zones around buildings
+        env.logger.info("Draw buffer zones arounf buildings")
+        env.gdfBuildings['Buffer'] = env.gdfBuildings.geometry.buffer(cfg.BufferRadius)
+        gdfBuffers = env.gdfBuildings.set_geometry('Buffer')
+        env.logger.debug(gdfBuffers)
+
+        # Join buildings and centers of voxel's squares GeoDataFrames
+        env.logger.info("Find cells in buffer zones")
+        gdfBufferCells = gdfBuffers.sjoin(gdfSquares, how='inner', predicate='contains')
+        env.logger.debug(gdfBufferCells)
+        gdfBufferCells = gdfBufferCells.drop_duplicates(subset=['x','y'], keep="first")
+        env.logger.debug(gdfBufferCells)
+
+        # Generate squares of buffer zones
+        env.logger.info("Generate squares of buffer zones")
+        pnts2 = vtkPoints()
+        for cell in gdfBufferCells.itertuples():
+            z = modules.earth.getGroundHeight(cell.x,cell.y,None)
+            if z is not None:
+                pnts2.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
+
+    # Clean memory
     del gdfSquares
+    del gdfBuffers
+    del gdfBufferCells
     gc.collect()
 
     # Find ground points for each cell
@@ -64,13 +90,14 @@ def GenerateBuildings():
     env.gdfCells['GP'] = env.gdfCells.apply(lambda x : modules.earth.getGroundHeight(x['x'],x['y'],None), axis='columns')
     env.logger.trace(env.gdfCells)
 
-    # Find nearest ground point for each buildnig
+    # Find common ground point for each buildnig
     if cfg.BuildingGroundMode != 'levels':
         pdMinGroundPoints = pd.pivot_table(data = env.gdfCells, index=['UIB'], values=['GP'], aggfunc={'GP':cfg.BuildingGroundMode})
         env.logger.trace(pdMinGroundPoints)
         env.gdfCells = env.gdfCells.merge(right=pdMinGroundPoints, how='left', left_on='UIB', right_on='UIB', suffixes=[None, '_agg'])
         env.logger.trace(env.gdfCells)
 
+    # Generate voxels of buildings
     env.logger.info("Generate voxel's of buildings")
     pnts = vtkPoints()
     for cell in env.gdfCells.itertuples():
@@ -106,3 +133,28 @@ def GenerateBuildings():
     pointsActorVoxels.GetProperty().SetColor(env.Colors.GetColor3d("Green"))
     pointsActorVoxels.GetProperty().SetOpacity(1)
     env.actVoxels.append(pointsActorVoxels)
+
+    # Put squares on intersection points
+    polyDataSquares = vtkPolyData()
+    polyDataSquares.SetPoints(pnts2)
+    env.pldtSquares.append(polyDataSquares)
+    planeSquare = vtk.vtkPlaneSource()
+    planeSquare.SetOrigin(0, 0, 0)
+    planeSquare.SetPoint1(cfg.sizeVoxel, 0, 0)
+    planeSquare.SetPoint2(0, 0, cfg.sizeVoxel)
+    env.plnSquares.append(planeSquare)
+    glyphSquares = vtk.vtkGlyph3D()
+    glyphSquares.SetInputData(polyDataSquares)
+    glyphSquares.SetSourceConnection(planeSquare.GetOutputPort())
+    glyphSquares.ScalingOff()
+    glyphSquares.Update()
+    env.glphSquares.append(glyphSquares)
+    pointsMapperSquares = vtkPolyDataMapper()
+    pointsMapperSquares.SetInputConnection(glyphSquares.GetOutputPort())
+    pointsMapperSquares.ScalarVisibilityOff()
+    env.mapSquares.append(pointsMapperSquares)
+    pointsActorSquares = vtkActor()
+    pointsActorSquares.SetMapper(pointsMapperSquares)
+    pointsActorSquares.GetProperty().SetColor(env.Colors.GetColor3d("Tomato"))
+    pointsActorSquares.GetProperty().SetOpacity(0.5)
+    env.actSquares.append(pointsActorSquares)
