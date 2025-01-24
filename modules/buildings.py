@@ -62,7 +62,7 @@ def GenerateBuildings():
     if cfg.ShowSquares == 'buffer':
         # Make buffer zones around buildings
         env.logger.info("Draw buffer zones arounf buildings")
-        gsBuffer = env.gdfBuildings.geometry.buffer(cfg.BufferRadius)
+        gsBuffer = env.gdfBuildings[ env.gdfBuildings['flats']>0 ].geometry.buffer(cfg.BufferRadius)
         env.logger.trace(gsBuffer)
 
         # Join buildings and centers of voxel's squares GeoDataFrames
