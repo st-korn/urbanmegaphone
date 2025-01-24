@@ -30,11 +30,12 @@ boundsMax = [None, None, None] #lon, lat, height
 bounds = [None, None, None] #x_lon, y_lat, z_height
 
 # Voxel's world matrix: NumPy 3D-array of int32
+# At first initialized by 0 values
 voxels = None
 
 # Squares matrix: NumPy 2D-array of int32 with 
 # integer vertical z-coordinate of first voxel over earth's surface in current point.
-# At first initialized by Nan values
+# At first initialized by -1 values
 squares = None
 
 # GeoPandas GeoDataFrames
@@ -86,6 +87,7 @@ actSurface = [] # vtkActor
 clpprClipped = [] # vtkClipPolyData
 pldtClipped = [] # vtkPolyData
 pntsClipped = [] # vtkPoints
+lctrClipped = [] # vtkCellLocator
 
 # Arrays of VTK objects: raster texture on DEM's surface
 fltarTexture = [] # vtkFloatArray array of texture coordinates

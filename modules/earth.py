@@ -209,16 +209,18 @@ def GenerateEarthSurface():
             env.actTexture.append(actor)
             env.logger.success("{}: DEM ready for render",fileD.name)
 
+            # Create cell locator
+            locator = vtk.vtkCellLocator()
+            locator.SetDataSet(polyDataClipped)
+            locator.BuildLocator()
+            env.lctrClipped.append(locator)
+
             if cfg.flagSquares:
                 env.logger.info("Calculate earth surface height of each voxel...")
                 # Find voxels of this surface
                 flBounds = polyDataClipped.GetBounds()
                 [x_min, x_max, y_min, y_max] = env.boxM2Int(flBounds[0],flBounds[1],flBounds[4],flBounds[5])
                 env.logger.debug("Surface bounds: {} = [{}..{}],[{}..{}]",flBounds,x_min,x_max,y_min,y_max)
-                # Create cell locator
-                locator = vtk.vtkCellLocator()
-                locator.SetDataSet(polyDataClipped)
-                locator.BuildLocator()
                 pnts = vtkPoints()
                 # Loop throght voxels
                 for x in env.tqdm(range(x_min,x_max+1)):
@@ -267,3 +269,33 @@ def GenerateEarthSurface():
                 pointsActorSquares.GetProperty().SetColor(env.Colors.GetColor3d("Tomato"))
                 pointsActorSquares.GetProperty().SetOpacity(0.5)
                 env.actSquares.append(pointsActorSquares)
+
+# ============================================
+# Find float Y vertical coordiate of intersection 
+# the vertical ray from the point (x, z) and earth surface on VTK space
+# Can search on specifec surface (using locator) or on all surfaces in VTK space
+# IN:
+# x : float X horizontal coordinate of desired point in VTK coordinate system
+# z : float Z horizontal coordinate of desired point in VTK coordinate system
+# locator: vtkCellLocator if we need to search on one specific surface
+#          or None if we need to search on all surfaces
+# OUT:
+# float Y vertical coordinate in VTK coordinate system of ground intersection point
+#         or None if no intersection found
+# ============================================
+def getGroudHeight(x, z, locator):
+    t = vtk.mutable(0)
+    pos = [0.0, 0.0, 0.0]
+    pcoords = [0.0, 0.0, 0.0]
+    subId = vtk.mutable(0)
+    if locator is not None:
+        locators = [locator]
+    else:
+        locators = lctrClipped
+    for lctr in locators:
+        intersected = locator.IntersectWithLine([x, (-1)*cfg.sizeVoxel, z], 
+                                                [x, (env.bounds[2]+1)*cfg.sizeVoxel, z], 
+                                            0.01, t, pos, pcoords, subId)
+        if intersected:
+            return pos[1]
+    return None

@@ -6,7 +6,7 @@
 # ============================================
 
 # Standart modules
-from shapely.geometry import Point
+import numpy as np # For arrays of numbers
 import geopandas as gpd # For vector objects
 from vtkmodules.vtkCommonCore import vtkPoints # Use points cloud in 3D-world
 from vtkmodules.vtkCommonDataModel import vtkPolyData # Use 3D-primitives
@@ -26,16 +26,12 @@ def GenerateBuildings():
     env.logger.info("Create grid of squares on voxel's plane...")
 
     # Generate 2D-GeoPandas GeoDataFrame with centers of voxel's squares on the plane
-    centresSquares = []
-    xSquares = []
-    ySquares = []
-    for x in env.tqdm(range(env.bounds[0])):
-        for y in range(env.bounds[1]):
-            centresSquares.append(Point((x+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel))
-            xSquares.append(x)
-            ySquares.append(y)
-    env.gdfSquares = gpd.GeoDataFrame({'geometry': centresSquares, 'x': xSquares, 'y': ySquares})
-    env.logger.trace(env.gdfSquares)
+    arr = np.mgrid[0:env.bounds[0], 0:env.bounds[1]]
+    arr_x = np.ravel(arr[0])
+    arr_y = np.ravel(arr[1])
+    env.gdfSquares = gpd.GeoDataFrame({'x' : arr_x, 'y' : arr_y,
+            'geometry' : gpd.points_from_xy((arr_x+0.5)*cfg.sizeVoxel, (arr_y+0.5)*cfg.sizeVoxel)})
+    env.logger.debug(env.gdfSquares)
     env.logger.success("World grid created")
 
     env.logger.info("Convert vector buildings to our world dimensions")
@@ -58,7 +54,10 @@ def GenerateBuildings():
     pnts = vtkPoints()
     for cell in env.gdfCells.itertuples():
         for floor in range(int(float(cell.floors))):
-            pnts.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (env.squares[cell.x,cell.y]+0.5+floor)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
+            z = env.squares[cell.x,cell.y]
+            if z<0:
+                s
+            pnts.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
 
     # Put Voxels on intersection points
     polyDataVoxels = vtkPolyData()
