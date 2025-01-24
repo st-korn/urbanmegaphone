@@ -91,6 +91,7 @@ def GenerateBuildings():
         del gdfBufferCells
 
     # Clean memory
+    env.logger.debug("Clear memory")
     del gdfSquares
     gc.collect()
 
