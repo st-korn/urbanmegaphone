@@ -19,6 +19,10 @@ import modules.buildings # Generate voxels for earth ground vector buildings
 modules.bounds.ReadWorldBounds() # Read .tif files of RASTER and DEM models, find the dimensions of the world being explored
 modules.earth.GenerateEarthSurface() # Read .tif files of RASTER and DEM models, generate 3D-surface with textures
 modules.buildings.GenerateBuildings() # Process vector buildings and generate voxel's world
+modules.earth.PrepareBufferZones() # Calculate buffer zones around living buildings if ShowSquares mode is 'buffer'
+env.clearMemory() # Clear memory from unused variables
+modules.buildings.VizualizeAllVoxels() # Generate voxels of buildings vizualiztion
+modules.earth.VizualizeAllSquares() # Generate squares of earth surface vizualization
 
 # Prepare VTK-window for view and interact
 # ============================================

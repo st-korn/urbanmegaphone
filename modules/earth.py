@@ -13,6 +13,9 @@ from vtkmodules.vtkCommonCore import vtkPoints # Use points clouds in 3D-world
 from vtkmodules.vtkCommonDataModel import vtkPolyData # Use 3D-primitives
 from vtkmodules.vtkRenderingCore import (vtkActor, vtkPolyDataMapper, vtkTexture) # Use VTK rendering
 import vtk # Use other 3D-visualization features
+import geopandas as gpd # For vector objects
+from shapely.ops import unary_union # For combine vector objects 
+import gc # For garbage collectors
 
 # Own core modules
 import modules.settings as cfg # Settings defenition
@@ -229,34 +232,44 @@ def GenerateEarthSurface():
                         z = getGroundHeight(x,y,locator)
                         if z is not None:
                             # Add point to collection
-                            None
                             env.pntsSquares_unassigned.InsertNextPoint((x+0.5)*cfg.sizeVoxel,z*cfg.sizeVoxel,(y+0.5)*cfg.sizeVoxel)
                 env.logger.success("Earth surface height calculation done: {} squares created", f'{env.pntsSquares_unassigned.GetNumberOfPoints():_}')
 
-                # Put squares on intersection points
-                polyDataSquares = vtkPolyData()
-                polyDataSquares.SetPoints(env.pntsSquares_unassigned)
-                env.pldtSquares.append(polyDataSquares)
-                planeSquare = vtk.vtkPlaneSource()
-                planeSquare.SetOrigin(0, 0, 0)
-                planeSquare.SetPoint1(cfg.sizeVoxel, 0, 0)
-                planeSquare.SetPoint2(0, 0, cfg.sizeVoxel)
-                env.plnSquares.append(planeSquare)
-                glyphSquares = vtk.vtkGlyph3D()
-                glyphSquares.SetInputData(polyDataSquares)
-                glyphSquares.SetSourceConnection(planeSquare.GetOutputPort())
-                glyphSquares.ScalingOff()
-                glyphSquares.Update()
-                env.glphSquares.append(glyphSquares)
-                pointsMapperSquares = vtkPolyDataMapper()
-                pointsMapperSquares.SetInputConnection(glyphSquares.GetOutputPort())
-                pointsMapperSquares.ScalarVisibilityOff()
-                env.mapSquares.append(pointsMapperSquares)
-                pointsActorSquares = vtkActor()
-                pointsActorSquares.SetMapper(pointsMapperSquares)
-                pointsActorSquares.GetProperty().SetColor(env.Colors.GetColor3d("Tomato"))
-                pointsActorSquares.GetProperty().SetOpacity(0.5)
-                env.actSquares.append(pointsActorSquares)
+
+# ============================================
+# Calculate buffer zones around living buildings if ShowSquares mode is 'buffer'
+# IN: no arguments
+# OUT: no return values. Modify pntsSquares_unassigned vtkPoints collection of environment.py
+# ============================================
+def PrepareBufferZones():
+    if cfg.ShowSquares == 'buffer':
+        # Make buffer zones around buildings
+        env.logger.info("Draw buffer zones around buildings")
+        gsBuffer = env.gdfBuildings[ env.gdfBuildings['flats']>0 ].geometry.buffer(cfg.BufferRadius)
+        env.logger.trace(gsBuffer)
+
+        # Join buildings and centers of voxel's squares GeoDataFrames
+        env.logger.info("Find cells in buffer zones")
+        boundary = gpd.GeoSeries(unary_union(gsBuffer))
+        gdfBuffer = gpd.GeoDataFrame(geometry=boundary)
+        env.logger.trace(boundary)
+        env.logger.trace(gdfBuffer)
+        gdfBufferCells = env.gdfSquares.sjoin(gdfBuffer, how='inner',predicate='within')
+        env.logger.trace(gdfBufferCells)
+
+        # Generate squares of buffer zones
+        env.logger.info("Generate squares of buffer zones...")
+        for cell in env.tqdm(gdfBufferCells.itertuples(), total=len(gdfBufferCells.index)):
+            z = getGroundHeight(cell.x,cell.y,None)
+            if z is not None:
+                env.pntsSquares_unassigned.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
+        env.logger.success("{} from {} cells are in buffer zones", f'{len(gdfBufferCells.index):_}', f'{len(env.gdfSquares.index):_}')
+
+        # Clear memory
+        del gsBuffer
+        del gdfBuffer
+        del gdfBufferCells
+        gc.collect()
 
 # ============================================
 # Find int Z vertical coordiate of intersection 
@@ -307,3 +320,49 @@ def getGroundHeight(x, y, locator):
             env.squares[x,y] = z
             return z
     return None
+
+
+# ============================================
+# Generate necessary square VTK objects from vtkPoints 
+# with the specified color and opacity to earth surface vizualization
+# IN: 
+# points - vtkPoints collection
+# color - tuple of three float number 0..1 for R,G,B values of color (0% .. 100%)
+# opacity - float number 0..1 for opacity value (0% .. 100%)
+# OUT:
+# No return values. Modify variables of environment.py in which VTK objects for further vizualization
+# ============================================
+def VizualizePartOfSquares(points, color, opacity):
+    # Put squares on points of earth surface
+    polyDataSquares = vtkPolyData()
+    polyDataSquares.SetPoints(points)
+    env.pldtSquares.append(polyDataSquares)
+    planeSquare = vtk.vtkPlaneSource()
+    planeSquare.SetOrigin(0, 0, 0)
+    planeSquare.SetPoint1(cfg.sizeVoxel, 0, 0)
+    planeSquare.SetPoint2(0, 0, cfg.sizeVoxel)
+    env.plnSquares.append(planeSquare)
+    glyphSquares = vtk.vtkGlyph3D()
+    glyphSquares.SetInputData(polyDataSquares)
+    glyphSquares.SetSourceConnection(planeSquare.GetOutputPort())
+    glyphSquares.ScalingOff()
+    glyphSquares.Update()
+    env.glphSquares.append(glyphSquares)
+    pointsMapperSquares = vtkPolyDataMapper()
+    pointsMapperSquares.SetInputConnection(glyphSquares.GetOutputPort())
+    pointsMapperSquares.ScalarVisibilityOff()
+    env.mapSquares.append(pointsMapperSquares)
+    pointsActorSquares = vtkActor()
+    pointsActorSquares.SetMapper(pointsMapperSquares)
+    pointsActorSquares.GetProperty().SetColor(color)
+    pointsActorSquares.GetProperty().SetOpacity(opacity)
+    env.actSquares.append(pointsActorSquares)
+
+# ============================================
+# Generate squares of earth surface vizualization
+# from previously calculated and classified points
+# ============================================
+def VizualizeAllSquares():
+    env.logger.info("Build squaers of earth surface")
+    VizualizePartOfSquares(env.pntsSquares_unassigned, env.Colors.GetColor3d("Tomato"), 0.5)
+

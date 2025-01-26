@@ -119,3 +119,12 @@ def ReadWorldBounds():
     env.squares = np.full([env.bounds[0],env.bounds[1]], -1, dtype=np.int32)
     env.logger.success("Memory allocated")
 
+    # Generate 2D-GeoPandas GeoDataFrame with centers of voxel's squares on the plane
+    env.logger.info("Create grid of squares on voxel's plane...")
+    arr = np.mgrid[0:env.bounds[0], 0:env.bounds[1]]
+    arr_x = np.ravel(arr[0])
+    arr_y = np.ravel(arr[1])
+    env.gdfSquares = gpd.GeoDataFrame({'x' : arr_x, 'y' : arr_y,
+            'geometry' : gpd.points_from_xy((arr_x+0.5)*cfg.sizeVoxel, (arr_y+0.5)*cfg.sizeVoxel)})
+    env.logger.trace(env.gdfSquares)
+    env.logger.success("World grid created: {} cells", f'{len(env.gdfSquares.index):_}')

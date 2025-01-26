@@ -14,7 +14,8 @@ from vtkmodules.vtkIOImage import vtkImageReader2Factory # Read raster images fr
 from vtkmodules.vtkRenderingCore import ( vtkRenderer, vtkRenderWindow, vtkRenderWindowInteractor ) # All for render 3D-models
 from vtkmodules.vtkCommonColor import vtkNamedColors # Use colors
 import vtkmodules.vtkRenderingOpenGL2 # Use OpenGL for render
-import math
+import math # For rounding up numbers
+import gc # For garbage collectors
 
 # Own core modules
 import modules.settings as cfg # Settings defenition
@@ -41,7 +42,7 @@ squares = None
 
 # GeoPandas GeoDataFrames
 gdfBuildings = None # Geometric 2D vector objects of buildings loaded from vector files
-#gdfSquares = None # 2D grid of points - centers of voxels on the plane # Excluded to save memory
+gdfSquares = None # 2D grid of points - centers of voxels on the plane # Excluded to save memory
 gdfCells = None # Intersect of buildings and voxels center
 gdfMegaphones = None
 
@@ -166,4 +167,22 @@ def boxM2Int(lon_min, lon_max, lat_min, lat_max):
         y_max = bounds[1]
     return [x_min, x_max, y_min, y_max]
 
+# ============================================
+# Clear memory from unused GeoPandas GeoDataSet's
+# ============================================
+def clearMemory():
+    logger.debug("Clear memory")
 
+    global gdfBuildings
+    del gdfBuildings
+
+    global gdfSquares
+    del gdfSquares
+
+    global gdfCells
+    del gdfCells
+
+    global gdfMegaphones
+    del gdfMegaphones
+
+    gc.collect()

@@ -33,6 +33,7 @@
     pip install loguru
     pip install imagecodecs
     pip install tqdm
+    pip install shapely
     pip install pandas
     pip install geopandas
     ```
