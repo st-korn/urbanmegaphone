@@ -58,6 +58,7 @@ def GenerateBuildings():
         env.logger.trace(pdMinGroundPoints)
         env.gdfCells = env.gdfCells.merge(right=pdMinGroundPoints, how='left', left_on='UIB', right_on='UIB', suffixes=[None, '_agg'])
         env.logger.trace(env.gdfCells)
+        del pdMinGroundPoints
 
     # Generate voxels of buildings
     env.logger.info("Generate voxel's of buildings...")

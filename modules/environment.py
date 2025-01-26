@@ -171,7 +171,7 @@ def boxM2Int(lon_min, lon_max, lat_min, lat_max):
 # Clear memory from unused GeoPandas GeoDataSet's
 # ============================================
 def clearMemory():
-    logger.debug("Clear memory")
+    logger.info("Clear memory")
 
     global gdfBuildings
     del gdfBuildings

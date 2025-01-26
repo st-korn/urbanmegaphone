@@ -48,4 +48,4 @@ env.Window.Render()
 env.Interactor.SetInteractorStyle(vtk.vtkInteractorStyleTerrain())
 env.logger.success("Done. Ready for viewing")
 env.Interactor.Start()
-
+env.logger.info("Please wait for finishing memory cleanup")
