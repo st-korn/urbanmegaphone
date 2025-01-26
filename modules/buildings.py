@@ -68,7 +68,8 @@ def GenerateBuildings():
         else:
             z = cell.GP
         if z is not None:
-            for floor in range(int(float(cell.floors))):
+            height = int(round( cell.floors * cfg.sizeFloor / cfg.sizeVoxel ))
+            for floor in range(height):
                 if cell.flats>0:
                     env.pntsVoxels_living.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
                 else:
