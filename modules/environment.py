@@ -45,6 +45,7 @@ gdfBuildings = None # Geometric 2D vector objects of buildings loaded from vecto
 gdfSquares = None # 2D grid of points - centers of voxels on the plane # Excluded to save memory
 gdfCells = None # 2D intersect of buildings and voxels center
 gdfMegaphones = None # 2D points of megaphones
+plgnBounds = None # 2D rectangle of VTK's world (shapely.geometry.Polygon)
 
 # Buildings statistic:
 maxFloors = None 
@@ -119,7 +120,8 @@ mapVoxels = [] # vtkPolyDataMapper
 actVoxels = [] # vtkActor
 
 # Arrays of VTK object: megaphones
-pntsMegaphones_cones = vtkPoints()
+pntsMegaphones_buildings_cones = vtkPoints()
+pntsMegaphones_standalone_cones = vtkPoints()
 pntsMegaphones_spheres = vtkPoints()
 pldtMegaphones = [] # vtkPolyData
 cnMegaphones = [] # vtkConeSource

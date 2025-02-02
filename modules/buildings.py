@@ -9,15 +9,14 @@
 import numpy as np # For arrays of numbers
 import pandas as pd # For tables of data
 import geopandas as gpd # For vector objects
-from vtkmodules.vtkCommonCore import vtkPoints # Use points clouds in 3D-world
 from vtkmodules.vtkCommonDataModel import vtkPolyData # Use 3D-primitives
-from vtkmodules.vtkRenderingCore import (vtkActor, vtkPolyDataMapper, vtkTexture) # Use VTK rendering
+from vtkmodules.vtkRenderingCore import (vtkActor, vtkPolyDataMapper) # Use VTK rendering
 import vtk # Use other 3D-visualization features
 
 # Own core modules
 import modules.settings as cfg # Settings defenition
 import modules.environment as env # Environment defenition
-import modules.earth # Earth surface routines 
+import modules.earth # Earth surface routines
 
 
 # ============================================
@@ -57,6 +56,7 @@ def GenerateBuildings():
         pdMinGroundPoints = pd.pivot_table(data = env.gdfCells, index=['UIB'], values=['GP'], aggfunc={'GP':cfg.BuildingGroundMode})
         env.logger.trace(pdMinGroundPoints)
         env.gdfCells = env.gdfCells.merge(right=pdMinGroundPoints, how='left', left_on='UIB', right_on='UIB', suffixes=[None, '_agg'])
+        env.gdfCells = env.gdfCells.drop(labels='index_right', axis='columns')
         env.logger.trace(env.gdfCells)
         del pdMinGroundPoints
 

@@ -11,6 +11,7 @@ from modules.geotiff import GeoTiff # GeoTIFF format reader
 import numpy as np # Work with DEM matrix
 import pandas as pd # For tables of data
 import geopandas as gpd # For vector objects
+from shapely.geometry import Polygon
 
 # Own core modules
 import modules.settings as cfg # Settings defenition
@@ -113,6 +114,11 @@ def ReadWorldBounds():
         env.bounds[i] = int(np.ceil((env.boundsMax[i]  - env.boundsMin[i]) / cfg.sizeVoxel).item())
     
     env.logger.success("Bounds of voxel's world:  {}", env.bounds)
+
+    # Create 2D polygon of VTK area
+    env.plgnBounds = Polygon ( [ (0,0), ((env.bounds[0]+0.5)*cfg.sizeVoxel,0), 
+                                 ((env.bounds[0]+0.5)*cfg.sizeVoxel,(env.bounds[1]+0.5)*cfg.sizeVoxel), 
+                                 (0,(env.bounds[1]+0.5)*cfg.sizeVoxel) ] )
 
     # Allocate memory for voxel's world
     env.voxels = np.zeros(env.bounds, dtype=np.int32)

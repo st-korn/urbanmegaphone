@@ -25,6 +25,7 @@ modules.megaphones.LoadMegaphones() # Load megaphones points
 env.clearMemory() # Clear memory from unused variables
 modules.buildings.VizualizeAllVoxels() # Generate voxels of buildings vizualiztion
 modules.earth.VizualizeAllSquares() # Generate squares of earth surface vizualization
+modules.megaphones.VizualizeAllMegaphones() # Generate cones and spheres for megaphones vizualization
 
 # Prepare VTK-window for view and interact
 # ============================================
@@ -41,6 +42,7 @@ for actor in env.actSurface: env.Renderer.AddActor(actor)
 for actor in env.actTexture: env.Renderer.AddActor(actor)
 for actor in env.actSquares: env.Renderer.AddActor(actor)
 for actor in env.actVoxels: env.Renderer.AddActor(actor)
+for actor in env.actMegaphones: env.Renderer.AddActor(actor)
 
 # Run VTK-window
 # ============================================
@@ -50,4 +52,4 @@ env.Window.Render()
 env.Interactor.SetInteractorStyle(vtk.vtkInteractorStyleTerrain())
 env.logger.success("Done. Ready for viewing")
 env.Interactor.Start()
-env.logger.info("Please wait for finishing memory cleanup")
+env.logger.info("Please wait for the completion of memory cleanup")
