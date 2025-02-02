@@ -63,7 +63,7 @@ BufferRadius = 300
 BuildingGroundMode = 'median'
 
 # Max distance between megaphone and building to consider it placed on top of the building, meters. Default value is sizeVoxel*2.
-distanceMegaphoneAndBuilding = sizeVoxel/2
+distanceMegaphoneAndBuilding = sizeVoxel*2
 
 # Default height of standalone megaprhone, meter. Default value is 9 metes.
 heightStansaloneMegaphone = 9

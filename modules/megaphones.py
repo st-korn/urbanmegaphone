@@ -53,7 +53,8 @@ def LoadMegaphones():
             y = int(round(cell.geometry.y/cfg.sizeVoxel))
             z = int(modules.earth.getGroundHeight( x, y, None ))
             env.logger.warning("Megaphone too far from the any building: {}. Use {} voxels as ground and {} voxels as height",cell,z,height)
-            env.pntsMegaphones_standalone_cones.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+            env.pntsMegaphones_standalone_cones.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z-0.5)*cfg.sizeVoxel+cfg.heightStansaloneMegaphone/2, (y+0.5)*cfg.sizeVoxel)
+            env.pntsMegaphones_spheres.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z-0.5)*cfg.sizeVoxel+cfg.heightStansaloneMegaphone, (y+0.5)*cfg.sizeVoxel)
         else:
             x = cell.x
             y = cell.y
@@ -63,7 +64,7 @@ def LoadMegaphones():
                 z = cell.GP
             height = int(round( cell.floors * cfg.sizeFloor / cfg.sizeVoxel ))
             env.pntsMegaphones_buildings_cones.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+height)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
-        env.pntsMegaphones_spheres.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+height+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+            env.pntsMegaphones_spheres.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+height+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
 
 # ============================================
 # Generate necessary VTK objects of megaphones from vtkPoints
