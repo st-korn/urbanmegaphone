@@ -364,5 +364,7 @@ def VizualizePartOfSquares(points, color, opacity):
 # ============================================
 def VizualizeAllSquares():
     env.logger.info("Build squaers of earth surface")
-    VizualizePartOfSquares(env.pntsSquares_unassigned, env.Colors.GetColor3d("Tomato"), 0.5)
+    VizualizePartOfSquares(env.pntsSquares_yes, env.Colors.GetColor3d("Green"), 0.5)
+    VizualizePartOfSquares(env.pntsSquares_no, env.Colors.GetColor3d("Tomato"), 0.5)
+    VizualizePartOfSquares(env.pntsSquares_unassigned, env.Colors.GetColor3d("Gold"), 0.5)
 

@@ -43,8 +43,8 @@ squares = None
 # GeoPandas GeoDataFrames
 gdfBuildings = None # Geometric 2D vector objects of buildings loaded from vector files
 gdfSquares = None # 2D grid of points - centers of voxels on the plane # Excluded to save memory
-gdfCells = None # Intersect of buildings and voxels center
-gdfMegaphones = None
+gdfCells = None # 2D intersect of buildings and voxels center
+gdfMegaphones = None # 2D points of megaphones
 
 # Buildings statistic:
 maxFloors = None 
@@ -102,7 +102,7 @@ pntsSquares_unassigned = vtkPoints()
 pntsSquares_yes = vtkPoints()
 pntsSquares_no = vtkPoints()
 pldtSquares = [] # vtkPolyData
-plnSquares = [] # vtkSphereSource
+plnSquares = [] # vtkPlaneSource
 glphSquares = [] # vtkGlyph3D
 mapSquares = [] # vtkPolyDataMapper
 actSquares = [] # vtkActor
@@ -113,10 +113,20 @@ pntsVoxels_living = vtkPoints()
 pntsVoxels_yes = vtkPoints()
 pntsVoxels_no = vtkPoints()
 pldtVoxels = [] # vtkPolyData
-plnVoxels = [] # vtkSphereSource
+cbVoxels = [] # vtkCubeSource
 glphVoxels = [] # vtkGlyph3D
 mapVoxels = [] # vtkPolyDataMapper
 actVoxels = [] # vtkActor
+
+# Arrays of VTK object: megaphones
+pntsMegaphones_cones = vtkPoints()
+pntsMegaphones_spheres = vtkPoints()
+pldtMegaphones = [] # vtkPolyData
+cnMegaphones = [] # vtkConeSource
+sphMegaphones = [] # vtkSphereSource
+glphMegaphones = [] # vtkGlyph3D
+mapMegaphones = [] # vtkPolyDataMapper
+actMegaphones = [] # vtkActor
 
 
 # Environment initialization

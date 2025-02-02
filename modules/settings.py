@@ -8,7 +8,8 @@
 # Path to files and folders
 folderRaster = 'RASTER' # Subfolder (in current folder) with raster tiles (.tif)
 folderDEM = 'DEM' # Subfolder (in current folder) with DEM tiles (.tif)
-folderBUILDINGS = 'BUILDINGS' # Subfolder (in current folder) with vector buildings tiles (.geojson)
+folderBUILDINGS = 'BUILDINGS' # Subfolder (in current folder) with vector buildings polygones (.geojson)
+folderMEGAPHONES = 'MEGAPHONES' # Subfolder (in current folder) with vector megaphones points (.geojson)
 
 # Debug log detail level, from verbose to terse:
 # "TRACE" or "DEBUG" or "INFO" or "SUCCESS" or "WARNING" or "ERROR" or "CRITICAL"
@@ -47,7 +48,7 @@ flagShowAxis = True
 # 'buffer' - for surface around living buildings
 # 'none' - do not calculate and show
 # Default value is 'buffer'
-ShowSquares = 'none'
+ShowSquares = 'buffer'
 
 # Radius of buffer zones around buildings. Used with ShowSquares = 'buffer. Meters, default value = 300
 BufferRadius = 300

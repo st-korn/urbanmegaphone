@@ -96,7 +96,7 @@ def VizualizePartOfVoxels(points, color, opacity):
     planeVoxel.SetXLength(cfg.sizeVoxel-cfg.gapVoxel)
     planeVoxel.SetYLength(cfg.sizeVoxel-cfg.gapVoxel)
     planeVoxel.SetZLength(cfg.sizeVoxel-cfg.gapVoxel)
-    env.plnVoxels.append(planeVoxel)
+    env.cbVoxels.append(planeVoxel)
     glyphVoxels = vtk.vtkGlyph3D()
     glyphVoxels.SetInputData(polyDataVoxels)
     glyphVoxels.SetSourceConnection(planeVoxel.GetOutputPort())
@@ -119,5 +119,7 @@ def VizualizePartOfVoxels(points, color, opacity):
 # ============================================
 def VizualizeAllVoxels():
     env.logger.info("Build voxels of buildings")
-    VizualizePartOfVoxels(env.pntsVoxels_living, env.Colors.GetColor3d("Green"), 1)
+    VizualizePartOfVoxels(env.pntsVoxels_yes, env.Colors.GetColor3d("Green"), 1)
+    VizualizePartOfVoxels(env.pntsVoxels_no, env.Colors.GetColor3d("Tomato"), 1)
+    VizualizePartOfVoxels(env.pntsVoxels_living, env.Colors.GetColor3d("Gold"), 1)
     VizualizePartOfVoxels(env.pntsVoxels_industrial, env.Colors.GetColor3d("Gray"), 1)
