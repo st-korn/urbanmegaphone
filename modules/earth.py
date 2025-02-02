@@ -244,31 +244,30 @@ def GenerateEarthSurface():
 def PrepareBufferZones():
     if cfg.ShowSquares == 'buffer':
         # Make buffer zones around buildings
-        env.logger.info("Draw buffer zones around buildings")
+        env.logger.info("Draw buffer zones around living buildings")
         gsBuffer = env.gdfBuildings[ env.gdfBuildings['flats']>0 ].geometry.buffer(cfg.BufferRadius)
         env.logger.trace(gsBuffer)
 
-        # Join buildings and centers of voxel's squares GeoDataFrames
-        env.logger.info("Find cells in buffer zones")
+        # Join buffer zones and centers of voxel's squares GeoDataFrames
+        env.logger.info("Find cells in buffer zones around living buildings")
         boundary = gpd.GeoSeries(unary_union(gsBuffer))
         gdfBuffer = gpd.GeoDataFrame(geometry=boundary)
         env.logger.trace(boundary)
         env.logger.trace(gdfBuffer)
-        gdfBufferCells = env.gdfSquares.sjoin(gdfBuffer, how='inner',predicate='within')
-        env.logger.trace(gdfBufferCells)
+        env.gdfBuffersLiving = env.gdfSquares.sjoin(gdfBuffer, how='inner',predicate='within')
+        env.logger.trace(env.gdfBuffersLiving)
 
         # Generate squares of buffer zones
-        env.logger.info("Generate squares of buffer zones...")
-        for cell in env.tqdm(gdfBufferCells.itertuples(), total=len(gdfBufferCells.index)):
+        env.logger.info("Generate squares of buffer zones around living buildings...")
+        for cell in env.tqdm(env.gdfBuffersLiving.itertuples(), total=len(env.gdfBuffersLiving.index)):
             z = getGroundHeight(cell.x,cell.y,None)
             if z is not None:
                 env.pntsSquares_unassigned.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
-        env.logger.success("{} from {} cells are in buffer zones", f'{len(gdfBufferCells.index):_}', f'{len(env.gdfSquares.index):_}')
+        env.logger.success("{} from {} cells are in buffer zones", f'{len(env.gdfBuffersLiving.index):_}', f'{len(env.gdfSquares.index):_}')
 
         # Clear memory
         del gsBuffer
         del gdfBuffer
-        del gdfBufferCells
         gc.collect()
 
 # ============================================

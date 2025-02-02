@@ -12,6 +12,8 @@ import geopandas as gpd # For vector objects
 from vtkmodules.vtkCommonDataModel import vtkPolyData # Use 3D-primitives
 from vtkmodules.vtkRenderingCore import (vtkActor, vtkPolyDataMapper) # Use VTK rendering
 import vtk # Use other 3D-visualization features
+from shapely.ops import unary_union # For combine vector objects 
+import gc # For garbage collectors
 
 # Own core modules
 import modules.settings as cfg # Settings defenition
@@ -46,25 +48,53 @@ def LoadMegaphones():
     env.gdfMegaphones = env.gdfMegaphones.sjoin_nearest(env.gdfCells, how='left', max_distance=cfg.distanceMegaphoneAndBuilding)
     env.logger.trace(env.gdfMegaphones)
 
-    # Calculate height of megaphones
+    # Calculate height of stanalone megaphones
+    env.gdfMegaphones['x'] = env.gdfMegaphones['x'].fillna(env.gdfMegaphones['geometry'].apply(lambda g : int(round(g.x/cfg.sizeVoxel))))
+    env.gdfMegaphones['y'] = env.gdfMegaphones['y'].fillna(env.gdfMegaphones['geometry'].apply(lambda g : int(round(g.y/cfg.sizeVoxel))))
+
+    # Generate VTK's objects for megaphones
     for cell in env.gdfMegaphones.itertuples():
         if pd.isna(cell.floors):
-            x = int(round(cell.geometry.x/cfg.sizeVoxel))
-            y = int(round(cell.geometry.y/cfg.sizeVoxel))
-            z = int(modules.earth.getGroundHeight( x, y, None ))
             env.logger.warning("Megaphone too far from the any building: {}. Use {} voxels as ground and {} voxels as height",cell,z,height)
-            env.pntsMegaphones_standalone_cones.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z-0.5)*cfg.sizeVoxel+cfg.heightStansaloneMegaphone/2, (y+0.5)*cfg.sizeVoxel)
-            env.pntsMegaphones_spheres.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z-0.5)*cfg.sizeVoxel+cfg.heightStansaloneMegaphone, (y+0.5)*cfg.sizeVoxel)
+            z = int(modules.earth.getGroundHeight( int(cell.x), int(cell.y), None ))
+            env.pntsMegaphones_standalone_cones.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z-0.5)*cfg.sizeVoxel+cfg.heightStansaloneMegaphone/2, (cell.y+0.5)*cfg.sizeVoxel)
+            env.pntsMegaphones_spheres.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z-0.5)*cfg.sizeVoxel+cfg.heightStansaloneMegaphone, (cell.y+0.5)*cfg.sizeVoxel)
         else:
-            x = cell.x
-            y = cell.y
             if cfg.BuildingGroundMode != 'levels':
                 z = cell.GP_agg
             else:
                 z = cell.GP
             height = int(round( cell.floors * cfg.sizeFloor / cfg.sizeVoxel ))
-            env.pntsMegaphones_buildings_cones.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+height)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
-            env.pntsMegaphones_spheres.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+height+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+            env.pntsMegaphones_buildings_cones.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+height)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
+            env.pntsMegaphones_spheres.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+height+0.5)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
+
+    # Generate zones of possible audibility
+    env.logger.info("Generate zones of possible audibility")
+    gsBuffer = env.gdfMegaphones.geometry.buffer(1000)
+    env.logger.trace(gsBuffer)
+
+    # Join buffer zones and centers of voxel's squares GeoDataFrames
+    env.logger.info("Find cells in buffer zones of possible audibility")
+    boundary = gpd.GeoSeries(unary_union(gsBuffer))
+    gdfBuffer = gpd.GeoDataFrame(geometry=boundary)
+    env.logger.trace(boundary)
+    env.logger.trace(gdfBuffer)
+    env.gdfBuffersMegaphones = env.gdfSquares.sjoin(gdfBuffer, how='inner',predicate='within')
+    env.logger.trace(env.gdfBuffersMegaphones)
+
+    # Generate squares of buffer zones
+    env.logger.info("Generate squares of buffer zones of possible audibility...")
+    for cell in env.tqdm(env.gdfBuffersMegaphones.itertuples(), total=len(env.gdfBuffersMegaphones.index)):
+        z = modules.earth.getGroundHeight(cell.x,cell.y,None)
+        if z is not None:
+            env.pntsSquares_yes.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
+    env.logger.success("{} from {} cells are in buffer zones", f'{len(env.gdfBuffersMegaphones.index):_}', f'{len(env.gdfSquares.index):_}')
+
+    # Clear memory
+    del gsBuffer
+    del gdfBuffer
+    gc.collect()
+
 
 # ============================================
 # Generate necessary VTK objects of megaphones from vtkPoints

@@ -41,11 +41,13 @@ voxels = None
 squares = None
 
 # GeoPandas GeoDataFrames
+plgnBounds = None # 2D rectangle of VTK's world (shapely.geometry.Polygon)
 gdfBuildings = None # Geometric 2D vector objects of buildings loaded from vector files
 gdfSquares = None # 2D grid of points - centers of voxels on the plane # Excluded to save memory
-gdfCells = None # 2D intersect of buildings and voxels center
+gdfCells = None # 2D intersect of buildings and voxels centers
+gdfBuffersLiving = None # 2D voxels centers of buffer zones arround living buildings (if ShowSquares = 'buffer')
 gdfMegaphones = None # 2D points of megaphones
-plgnBounds = None # 2D rectangle of VTK's world (shapely.geometry.Polygon)
+gdfBuffersMegaphones = None # 2D voxels centers of buffer zones arround megaphones (possible audibility)
 
 # Buildings statistic:
 maxFloors = None 
@@ -194,7 +196,13 @@ def clearMemory():
     global gdfCells
     del gdfCells
 
+    global gdfBuffersLiving
+    del gdfBuffersLiving
+
     global gdfMegaphones
     del gdfMegaphones
+
+    global gdfBuffersMegaphones
+    del gdfBuffersMegaphones
 
     gc.collect()
