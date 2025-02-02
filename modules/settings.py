@@ -48,7 +48,7 @@ flagShowAxis = True
 # 'buffer' - for surface around living buildings
 # 'none' - do not calculate and show
 # Default value is 'buffer'
-ShowSquares = 'buffer'
+ShowSquares = 'none'
 
 # Radius of buffer zones around buildings. Used with ShowSquares = 'buffer. Meters, default value = 300
 BufferRadius = 300
@@ -67,3 +67,7 @@ distanceMegaphoneAndBuilding = sizeVoxel*2
 
 # Default height of standalone megaprhone, meter. Default value is 9 metes.
 heightStansaloneMegaphone = 9
+
+# Max distance between megaphone and point, where theoretically is possible an audibility, meters. 
+# Used to speed up and facilitate calculations. Default value is 1000 meters.
+distancePossibleAudibility = 300

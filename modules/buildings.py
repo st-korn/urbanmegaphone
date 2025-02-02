@@ -61,20 +61,18 @@ def GenerateBuildings():
         del pdMinGroundPoints
 
     # Generate voxels of buildings
-    env.logger.info("Generate voxel's of buildings...")
+    env.logger.info("Calculate squares's of buildings")
     for cell in env.tqdm(env.gdfCells.itertuples(), total=len(env.gdfCells.index)):
+        env.UIB[cell.x,cell.y] = cell.UIB
         if cfg.BuildingGroundMode != 'levels':
-            z = cell.GP_agg
+            if np.isnan(cell.GP_agg):
+                continue
+            env.bottomfloor[cell.x,cell.y] = cell.GP_agg
         else:
-            z = cell.GP
-        if z is not None:
-            height = int(round( cell.floors * cfg.sizeFloor / cfg.sizeVoxel ))
-            for floor in range(height):
-                if cell.flats>0:
-                    env.pntsVoxels_living.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
-                else:
-                    env.pntsVoxels_industrial.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
-    env.logger.success("{} living and {} industial voxels created", f'{env.pntsVoxels_living.GetNumberOfPoints():_}', f'{env.pntsVoxels_industrial.GetNumberOfPoints():_}')
+            if np.isnan(cell.GP):
+                continue
+            env.bottomfloor[cell.x,cell.y] = cell.GP
+        env.topfloor[cell.x,cell.y] = env.bottomfloor[cell.x,cell.y] + int(round( cell.floors * cfg.sizeFloor / cfg.sizeVoxel )) -1
 
 
 # ============================================
@@ -123,3 +121,21 @@ def VizualizeAllVoxels():
     VizualizePartOfVoxels(env.pntsVoxels_no, env.Colors.GetColor3d("Tomato"), 1)
     VizualizePartOfVoxels(env.pntsVoxels_living, env.Colors.GetColor3d("Gold"), 1)
     VizualizePartOfVoxels(env.pntsVoxels_industrial, env.Colors.GetColor3d("Gray"), 1)
+
+'''
+    # Generate voxels of buildings
+    env.logger.info("Generate voxel's of buildings...")
+    for cell in env.tqdm(env.gdfCells.itertuples(), total=len(env.gdfCells.index)):
+        if cfg.BuildingGroundMode != 'levels':
+            z = cell.GP_agg
+        else:
+            z = cell.GP
+        if z is not None:
+            height = int(round( cell.floors * cfg.sizeFloor / cfg.sizeVoxel ))
+            for floor in range(height):
+                if cell.flats>0:
+                    env.pntsVoxels_living.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
+                else:
+                    env.pntsVoxels_industrial.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
+    env.logger.success("{} living and {} industial voxels created", f'{env.pntsVoxels_living.GetNumberOfPoints():_}', f'{env.pntsVoxels_industrial.GetNumberOfPoints():_}')
+'''

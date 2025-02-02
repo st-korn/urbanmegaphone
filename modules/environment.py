@@ -31,14 +31,31 @@ boundsMax = [None, None, None] #lon, lat, height
 # Voxel's world dimensions (integer)
 bounds = [None, None, None] #x_lon, y_lat, z_height
 
-# Voxel's world matrix: NumPy 3D-array of int32
-# At first initialized by 0 values
-voxels = None
-
-# Squares matrix: NumPy 2D-array of int32 with 
+# Squares matrix: NumPy 2D-arrays of int32 with
 # integer vertical z-coordinate of first voxel over earth's surface in current point.
 # At first initialized by -1 values
-squares = None
+ground = None
+
+# Squares matrix: NumPy 2D-arrays of int32 with
+# integer vertical z-coordinate of the lowest/topmost voxel of building in current point.
+# At first initialized by -1 values
+bottomfloor = None
+topfloor = None
+
+# Squares matrix: NumPy 2D-arrays of int32 with
+# integer unique building's identificator in this place.
+# At first initialized by -1 values
+UIB = None
+
+# Squares matrix: NumPy 2D-arrays of int32 with
+# integer value of audibility on the earth surface in this place: -1 (no), 0 (unknown), 1(yes)
+# At first initialized by 0 values
+audibility2D = None
+
+# Voxel's world matrix: NumPy 3D-array of int32
+# integer value of audibility on the earth surface in this place: -1 (no), 0 (unknown), 1(yes)
+# At first initialized by 0 values
+audibility3D = None
 
 # GeoPandas GeoDataFrames
 plgnBounds = None # 2D rectangle of VTK's world (shapely.geometry.Polygon)

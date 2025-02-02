@@ -121,8 +121,12 @@ def ReadWorldBounds():
                                  (0,(env.bounds[1]+0.5)*cfg.sizeVoxel) ] )
 
     # Allocate memory for voxel's world
-    env.voxels = np.zeros(env.bounds, dtype=np.int32)
-    env.squares = np.full([env.bounds[0],env.bounds[1]], -1, dtype=np.int32)
+    env.ground = np.full([env.bounds[0],env.bounds[1]], -1, dtype=np.int32)
+    env.bottomfloor = np.full([env.bounds[0],env.bounds[1]], -1, dtype=np.int32)
+    env.topfloor = np.full([env.bounds[0],env.bounds[1]], -1, dtype=np.int32)
+    env.UIB = np.full([env.bounds[0],env.bounds[1]], -1, dtype=np.int32)
+    env.audibility2D = np.zeros([env.bounds[0],env.bounds[1]], dtype=np.int32)
+    env.audibility3D = np.zeros(env.bounds, dtype=np.int32)
     env.logger.success("Memory allocated")
 
     # Generate 2D-GeoPandas GeoDataFrame with centers of voxel's squares on the plane

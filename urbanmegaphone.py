@@ -22,6 +22,7 @@ modules.earth.GenerateEarthSurface() # Read .tif files of RASTER and DEM models,
 modules.buildings.GenerateBuildings() # Process vector buildings and generate voxel's world
 modules.earth.PrepareBufferZones() # Calculate buffer zones around living buildings if ShowSquares mode is 'buffer'
 modules.megaphones.LoadMegaphones() # Load megaphones points
+modules.megaphones.CalculateAudibility() # Calculate audibility of squares and voxels
 env.clearMemory() # Clear memory from unused variables
 modules.buildings.VizualizeAllVoxels() # Generate voxels of buildings vizualiztion
 modules.earth.VizualizeAllSquares() # Generate squares of earth surface vizualization

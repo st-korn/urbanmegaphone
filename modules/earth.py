@@ -229,11 +229,8 @@ def GenerateEarthSurface():
                 for x in env.tqdm(range(x_min,x_max+1)):
                     for y in range (y_min,y_max+1):
                         # Find intersection point of vertical ray from the center of voxel and the surface
-                        z = getGroundHeight(x,y,locator)
-                        if z is not None:
-                            # Add point to collection
-                            env.pntsSquares_unassigned.InsertNextPoint((x+0.5)*cfg.sizeVoxel,z*cfg.sizeVoxel,(y+0.5)*cfg.sizeVoxel)
-                env.logger.success("Earth surface height calculation done: {} squares created", f'{env.pntsSquares_unassigned.GetNumberOfPoints():_}')
+                        getGroundHeight(x,y,locator)
+                env.logger.success("Earth surface height calculation done: {} squares calculated", f'{env.pntsSquares_unassigned.GetNumberOfPoints():_}')
 
 
 # ============================================
@@ -260,9 +257,7 @@ def PrepareBufferZones():
         # Generate squares of buffer zones
         env.logger.info("Generate squares of buffer zones around living buildings...")
         for cell in env.tqdm(env.gdfBuffersLiving.itertuples(), total=len(env.gdfBuffersLiving.index)):
-            z = getGroundHeight(cell.x,cell.y,None)
-            if z is not None:
-                env.pntsSquares_unassigned.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
+            getGroundHeight(cell.x,cell.y,None)
         env.logger.success("{} from {} cells are in buffer zones", f'{len(env.gdfBuffersLiving.index):_}', f'{len(env.gdfSquares.index):_}')
 
         # Clear memory
@@ -274,7 +269,7 @@ def PrepareBufferZones():
 # Find int Z vertical coordiate of intersection 
 # the vertical ray from the center of voxel (x, y) and earth surface on VTK space
 # Can search on specifec surface (using locator) or on all surfaces in VTK space
-# Store found coordinate in env.squares array
+# Store found coordinate in env.ground array
 # IN:
 # x : int X horizontal coordinate of desired voxel
 # y : int Y horizontal coordinate of desired voxel
@@ -289,7 +284,7 @@ def getGroundHeight(x, y, locator):
     if (x<0) or (x>=env.bounds[0]) or (y<0) or (y>=env.bounds[1]):
         return None
     # Is current ground position just calculated and stored?
-    z = env.squares[x,y]
+    z = env.ground[x,y]
     if z >= 0:
         return z # Yes, it was stored
     # No, we need to calculate them
@@ -316,7 +311,7 @@ def getGroundHeight(x, y, locator):
             z = np.ceil(pos[1]/cfg.sizeVoxel)
             if z<0:
                 z = 0
-            env.squares[x,y] = z
+            env.ground[x,y] = z
             return z
     return None
 
@@ -362,8 +357,17 @@ def VizualizePartOfSquares(points, color, opacity):
 # from previously calculated and classified points
 # ============================================
 def VizualizeAllSquares():
-    env.logger.info("Build squaers of earth surface")
+    env.logger.info("Build squares of earth surface")
     VizualizePartOfSquares(env.pntsSquares_yes, env.Colors.GetColor3d("Green"), 0.5)
     VizualizePartOfSquares(env.pntsSquares_no, env.Colors.GetColor3d("Tomato"), 0.5)
     VizualizePartOfSquares(env.pntsSquares_unassigned, env.Colors.GetColor3d("Gold"), 0.5)
 
+'''
+                        if z is not None:
+                            # Add point to collection
+                            env.pntsSquares_unassigned.InsertNextPoint((x+0.5)*cfg.sizeVoxel,z*cfg.sizeVoxel,(y+0.5)*cfg.sizeVoxel)
+'''
+'''
+            if z is not None:
+                env.pntsSquares_unassigned.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
+'''
