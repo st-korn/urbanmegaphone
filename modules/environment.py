@@ -64,6 +64,7 @@ gdfSquares = None # 2D grid of points - centers of voxels on the plane # Exclude
 gdfCells = None # 2D intersect of buildings and voxels centers
 gdfBuffersLiving = None # 2D voxels centers of buffer zones arround living buildings (if ShowSquares = 'buffer')
 gdfMegaphones = None # 2D points of megaphones
+gdfMegaphonesCells = None # 2D cells under megaphones
 gdfBuffersMegaphones = None # 2D voxels centers of buffer zones arround megaphones (possible audibility)
 
 # Buildings statistic:
@@ -218,6 +219,9 @@ def clearMemory():
 
     global gdfMegaphones
     del gdfMegaphones
+
+    global gdfMegaphonesCells
+    del gdfMegaphonesCells
 
     global gdfBuffersMegaphones
     del gdfBuffersMegaphones

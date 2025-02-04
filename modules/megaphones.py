@@ -43,19 +43,21 @@ def LoadMegaphones():
 
     # Remove megaphones outside of currend world
     env.gdfMegaphones = env.gdfMegaphones.loc[env.gdfMegaphones.within(env.plgnBounds)]
+    env.logger.info("{} megaphones left after removing megaphones outside of current area", len(env.gdfMegaphones.index))
     env.logger.trace(env.gdfMegaphones)
 
     # Join megaphones and cells of buildings GeoDataFrames
-    env.gdfMegaphones = env.gdfMegaphones.sjoin_nearest(env.gdfCells, how='left', max_distance=cfg.distanceMegaphoneAndBuilding)
-    env.logger.trace(env.gdfMegaphones)
+    env.gdfMegaphonesCells = env.gdfMegaphones.sjoin_nearest(env.gdfCells, how='left', max_distance=cfg.distanceMegaphoneAndBuilding)
+    env.logger.info("{} from {} cells are under megaphones", f'{len(env.gdfMegaphonesCells.index):_}', f'{len(env.gdfSquares.index):_}')
+    env.logger.trace(env.gdfMegaphonesCells)
 
     # Calculate height of stanalone megaphones
-    env.gdfMegaphones['x'] = env.gdfMegaphones['x'].fillna(env.gdfMegaphones['geometry'].apply(lambda g : int(round(g.x/cfg.sizeVoxel))))
-    env.gdfMegaphones['y'] = env.gdfMegaphones['y'].fillna(env.gdfMegaphones['geometry'].apply(lambda g : int(round(g.y/cfg.sizeVoxel))))
-    env.logger.trace(env.gdfMegaphones)
+    env.gdfMegaphonesCells['x'] = env.gdfMegaphonesCells['x'].fillna(env.gdfMegaphonesCells['geometry'].apply(lambda g : int(round(g.x/cfg.sizeVoxel))))
+    env.gdfMegaphonesCells['y'] = env.gdfMegaphonesCells['y'].fillna(env.gdfMegaphonesCells['geometry'].apply(lambda g : int(round(g.y/cfg.sizeVoxel))))
+    env.logger.trace(env.gdfMegaphonesCells)
 
     # Generate VTK's objects for megaphones
-    for cell in env.gdfMegaphones.itertuples():
+    for cell in env.gdfMegaphonesCells.itertuples():
         if pd.isna(cell.floors):
             env.logger.warning("Megaphone too far from the any building: {}. Use {} voxels as ground and {} voxels as height",cell,z,height)
             z = int(modules.earth.getGroundHeight( int(cell.x), int(cell.y), None ))
@@ -78,31 +80,37 @@ def CalculateAudibility():
 
     # Generate zones of possible audibility
     env.logger.info("Generate zones of possible audibility")
+
+    # Join megaphones and buildings GeoDataFrames
+    env.gdfMegaphones = env.gdfMegaphones.sjoin_nearest(env.gdfBuildings, how='left', max_distance=cfg.distanceMegaphoneAndBuilding)
+    env.logger.debug(env.gdfMegaphones)
     
     # Add buildings polygones to each cell-megaphone row
     env.gdfMegaphones = env.gdfMegaphones.merge(right=env.gdfBuildings, how='left', left_on="UIB", right_on="UIB", suffixes=[None, '_buildings'])
     env.gdfMegaphones['geometry_buildings'] = env.gdfMegaphones['geometry_buildings'].fillna(env.gdfMegaphones['geometry'])
     env.gdfMegaphones = env.gdfMegaphones.set_geometry(col='geometry_buildings').drop(columns='geometry').rename_geometry('geometry')
-    env.gdfMegaphones = env.gdfMegaphones.rename(columns={'x':'x_megaphone', 'y':'y_megaphone', 'UIB':'UIB_megaphone'})[
-                                        ['x_megaphone', 'y_megaphone', 'UIB_megaphone', 'geometry']]
-    env.gdfMegaphones['x_megaphone'] = env.gdfMegaphones['x_megaphone'].astype(int)
-    env.gdfMegaphones['y_megaphone'] = env.gdfMegaphones['y_megaphone'].astype(int)
+    #env.gdfMegaphones = env.gdfMegaphones.rename(columns={'x':'x_megaphone', 'y':'y_megaphone', 'UIB':'UIB_megaphone'})[
+    #                                    ['x_megaphone', 'y_megaphone', 'UIB_megaphone', 'geometry']]
+    #env.gdfMegaphones['x_megaphone'] = env.gdfMegaphones['x_megaphone'].astype(int)
+    #env.gdfMegaphones['y_megaphone'] = env.gdfMegaphones['y_megaphone'].astype(int)
     env.logger.debug(env.gdfMegaphones)
     
     # Calculate buffer around all megaphones
-    env.gdfMegaphones['geometry'] = env.gdfMegaphones['geometry'].buffer(distance=cfg.distancePossibleAudibility)    
-    env.logger.debug(env.gdfMegaphones)
+    env.gdfBuffersMegaphones = env.gdfMegaphones.copy()
+    env.gdfBuffersMegaphones = env.gdfBuffersMegaphones.drop(labels='index_right', axis='columns')
+    env.gdfBuffersMegaphones['geometry'] = env.gdfBuffersMegaphones['geometry'].buffer(distance=cfg.distancePossibleAudibility)    
+    env.logger.debug(env.gdfBuffersMegaphones)
 
-    gsBuffer = env.gdfMegaphones.geometry
-    env.logger.trace(gsBuffer)
+    #gsBuffer = env.gdfMegaphones.geometry
+    #env.logger.trace(gsBuffer)
 
     # Join buffer zones and centers of voxel's squares GeoDataFrames
     env.logger.info("Find cells in buffer zones of possible audibility")
-    boundary = gpd.GeoSeries(unary_union(gsBuffer))
-    gdfBuffer = gpd.GeoDataFrame(geometry=boundary)
-    env.logger.trace(boundary)
-    env.logger.trace(gdfBuffer)
-    env.gdfBuffersMegaphones = env.gdfSquares.sjoin(gdfBuffer, how='inner',predicate='within')
+    #boundary = gpd.GeoSeries(unary_union(gsBuffer))
+    #gdfBuffer = gpd.GeoDataFrame(geometry=boundary)
+    #env.logger.trace(boundary)
+    #env.logger.trace(gdfBuffer)
+    env.gdfBuffersMegaphones = env.gdfSquares.sjoin(env.gdfBuffersMegaphones, how='inner',predicate='within')
     env.logger.debug(env.gdfBuffersMegaphones)
     env.logger.debug(env.gdfBuffersMegaphones.dtypes)
 
@@ -113,8 +121,8 @@ def CalculateAudibility():
         # Find megaphones of possible audibility on current cell
         #gdfFoundMegaphones = env.gdfMegaphones.contains(cell.geometry)
         #env.logger.debug("{} = {}",cell,gdfFoundMegaphones)
-        for m in env.gdfMegaphones.itertuples():
-            a = a+1
+        #for m in env.gdfMegaphones.itertuples():
+        a = a+1
             #math.sqrt( (m.x_megaphone-cell.x)**2 + (m.y_megaphone-cell.y)**2 )
         # Create a square
         z = modules.earth.getGroundHeight(cell.x,cell.y,None)
@@ -124,9 +132,9 @@ def CalculateAudibility():
     env.logger.success("{} from {} cells are in buffer zones of possible audibility", f'{len(env.gdfBuffersMegaphones.index):_}', f'{len(env.gdfSquares.index):_}')
 
     # Clear memory
-    del gsBuffer
-    del gdfBuffer
-    gc.collect()
+    #del gsBuffer
+    #del gdfBuffer
+    #gc.collect()
 
 
 # ============================================
