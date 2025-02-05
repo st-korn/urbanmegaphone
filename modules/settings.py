@@ -1,6 +1,7 @@
 # ============================================
 # Module: Settings defenition
 # ============================================
+import math
 
 # Global program settings
 # ============================================
@@ -62,12 +63,30 @@ BufferRadius = 300
 # Default value is 'median'
 BuildingGroundMode = 'median'
 
+# Audibility calculation parameters
+# ============================================
+
 # Max distance between megaphone and building to consider it placed on top of the building, meters. Default value is sizeVoxel*2.
 distanceMegaphoneAndBuilding = sizeVoxel*2
 
 # Default height of standalone megaphone, meter. Default value is 9 metes.
 heightStansaloneMegaphone = 9
 
+#Default value of sound power of one megaphone, dBA. 120 dBA by default
+dBAMegaphone = 120
+
+# Average sound decline, when passing through the standart window, dBA. -30 dBA by default
+dBAWindow = -30
+
+# Maximum noise level on the streets in the city, dBA. 55 dBA by default
+dBAStreet = 55
+
+# Maximum noise level in living homes, dBA. 40 dBA by default
+dBAHome = 40
+
+# Difference of noise levels so that a person can clearly hear the sound, dBA. +15 dBA by default
+dBALevel = +15
+
 # Max distance between megaphone and point, where theoretically is possible an audibility, meters. 
 # Used to speed up and facilitate calculations. Default value is 1000 meters.
-distancePossibleAudibility = 1000
+distancePossibleAudibility = math.ceil( max( math.pow(10, (dBAMegaphone-dBAStreet-dBALevel)/20), math.exp((dBAMegaphone-dBAWindow-dBAHome-dBALevel)/20) ) )

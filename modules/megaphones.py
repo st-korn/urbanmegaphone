@@ -78,6 +78,8 @@ def LoadMegaphones():
 # ============================================
 def CalculateAudibility():
 
+    env.logger.info("{} meter", cfg.distancePossibleAudibility)
+    
     # Generate zones of possible audibility
     env.logger.info("Generate zones of possible audibility")
 
