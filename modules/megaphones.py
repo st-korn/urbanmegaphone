@@ -157,9 +157,9 @@ def LoadMegaphones():
             env.audibility2D[cell.x*env.bounds[1]+cell.y] = -1
         env.logger.success('{} from {} living cells excluded', 
                            env.printLong(len(gdfLivingWithoutAudibility.index)), env.printLong(len(env.gdfBuffersLiving.index)) )
+        del gdfLivingWithoutAudibility
 
     # Clear temporary variables
-    del gdfLivingWithoutAudibility
     del gdfBufferMegaphones
     gc.collect()
 

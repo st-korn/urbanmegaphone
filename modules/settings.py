@@ -51,7 +51,7 @@ flagShowAxis = True
 # Default value is 'buffer'
 ShowSquares = 'buffer'
 
-# Radius of buffer zones around buildings. Used with ShowSquares = 'buffer. Meters, default value = 300
+# Radius of buffer zones around buildings. Used with ShowSquares = 'buffer', meters. Default value 100 meters
 BufferRadius = 100
 
 # Select mode for ground point of buildings:

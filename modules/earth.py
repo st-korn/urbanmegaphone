@@ -221,7 +221,7 @@ def GenerateEarthSurface():
 
             # Prepare squares of the whole earth surface
             if cfg.ShowSquares == 'full':
-                env.logger.info("Calculate earth surface height of each voxel...")
+                env.logger.info("Calculate earth surface height of each square...")
                 # Find voxels of this surface
                 flBounds = polyDataClipped.GetBounds()
                 [x_min, x_max, y_min, y_max] = env.boxM2Int(flBounds[0],flBounds[1],flBounds[4],flBounds[5])
@@ -231,9 +231,6 @@ def GenerateEarthSurface():
                     for y in range (y_min,y_max+1):
                         # Find intersection point of vertical ray from the center of voxel and the surface
                         getGroundHeight(x,y,locator)
-                env.logger.success("Earth surface height calculation done: {} squares calculated", 
-                                   env.printLong(env.pntsSquares_unassigned.GetNumberOfPoints()))
-
 
 # ============================================
 # Calculate buffer zones around living buildings if ShowSquares mode is 'buffer'
@@ -376,13 +373,13 @@ def VizualizeAllSquares():
             if (env.audibility2D[idx]==0) and (cfg.ShowSquares == 'full'):
                 z = getGroundHeight(x,y,None)
                 if z is not None:
-                    env.pntsSquares_unassigned.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+                    env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
             idx = idx + 1
 
     VizualizePartOfSquares(env.pntsSquares_yes, env.Colors.GetColor3d("Green"), 0.5)
     VizualizePartOfSquares(env.pntsSquares_no, env.Colors.GetColor3d("Tomato"), 0.5)
     VizualizePartOfSquares(env.pntsSquares_unassigned, env.Colors.GetColor3d("Gold"), 0.5)
-    
+
     totalSquaresCount = env.pntsSquares_yes.GetNumberOfPoints() + env.pntsSquares_no.GetNumberOfPoints() + \
                         env.pntsSquares_unassigned.GetNumberOfPoints()
     env.logger.success("{} ({}) audibility squares, {} ({}) non-audibility squares, {} ({}) unknown squares",

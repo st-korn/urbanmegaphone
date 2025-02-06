@@ -138,7 +138,8 @@ def VizualizePartOfVoxels(points, color, opacity):
 # from previously calculated and classified points
 # ============================================
 def VizualizeAllVoxels():
-    env.logger.info("Build voxels of buildings")
+    env.logger.info("Build voxels of buildings...")
+    
     VizualizePartOfVoxels(env.pntsVoxels_yes, env.Colors.GetColor3d("Green"), 1)
     VizualizePartOfVoxels(env.pntsVoxels_no, env.Colors.GetColor3d("Tomato"), 1)
     VizualizePartOfVoxels(env.pntsVoxels_living, env.Colors.GetColor3d("Gold"), 1)
