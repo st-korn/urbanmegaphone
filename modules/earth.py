@@ -359,6 +359,7 @@ def VizualizePartOfSquares(points, color, opacity):
 def VizualizeAllSquares():
     env.logger.info("Build squares of earth surface")
     
+    # Loop throught grid of earth surface cells audibility
     idx = 0
     for x in env.tqdm(range(env.bounds[0])):
         for y in range(env.bounds[1]):

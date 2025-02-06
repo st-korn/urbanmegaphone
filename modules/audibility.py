@@ -19,7 +19,7 @@ import modules.environment as env # Environment defenition
 # and store them in global variables of this module of current proccess
 # ============================================
 def InitializeAudibilityOfMegaphone(pCellsSize, pCells, pCellsCount, pCellsIndex, pBuffers, pBuffersCount, pBuffersIndex,
-                                   pBoundsX, pBoundsY, pBoundsZ, pGround, pShmemAudibility2D, pUIB, pVoxelIndex,
+                                   pBoundsX, pBoundsY, pBoundsZ, pGround, pAudibility2D, pUIB, pVoxelIndex,
                                    pAudibilityVoxels, pBuildingsSize, pBuildings):
     global cellsSize, cells, cells_count, cells_index, buffers, buffers_count, buffers_index
     global boundsX, boundsY, boundsZ, ground, audibility2D, uib, VoxelIndex
@@ -35,9 +35,7 @@ def InitializeAudibilityOfMegaphone(pCellsSize, pCells, pCellsCount, pCellsIndex
     boundsY = pBoundsY
     boundsZ = pBoundsZ
     ground = pGround
-    #shm2D = SharedMemory(name=pShmemAudibility2D)
-    #audibility2D = (ctypes.c_byte * (boundsX*boundsY)).from_buffer(shm2D.buf)
-    audibility2D = pShmemAudibility2D
+    audibility2D = pAudibility2D
     uib = pUIB
     VoxelIndex = pVoxelIndex
     audibilityVoxels = pAudibilityVoxels
@@ -56,7 +54,7 @@ def CalculateAudibilityOfMegaphone(uim):
     for i in range(buffers_count[uim]):
         x = buffers[idx]
         y = buffers[idx+1]
-        audibility2D[x*boundsX+y] = 1
+        audibility2D[x*boundsY+y] = 1
         idx = idx + cellsSize
         count = count + 1
 
