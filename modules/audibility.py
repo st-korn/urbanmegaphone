@@ -15,7 +15,11 @@ import modules.settings as cfg # Settings defenition
 import modules.environment as env # Environment defenition
 
 # ============================================
-# 
+# Check audibility on destination voxel with integer coordinates (xDst, yDst, zDst)
+# from megaphone on source voxel with integer coordinates (xSrc, ySrc, zSrc)
+# uibDst - UIB of building on checked destination voxel, -1 if not exists
+# floorDst - number of floor of checked destination voxel, 0 in there is no building where
+# uibSrc - UIB of building, where is source megaphone based
 # ============================================
 def CheckAudibility(xDst, yDst, zDst, uibDst, floorDst, xSrc, ySrc, zSrc, uibSrc):
 
