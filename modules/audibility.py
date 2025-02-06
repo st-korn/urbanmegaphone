@@ -21,9 +21,9 @@ import modules.environment as env # Environment defenition
 def InitializeAudibilityOfMegaphone(pCellsSize, pCells, pCellsCount, pCellsIndex, pBuffers, pBuffersCount, pBuffersIndex,
                                    pBoundsX, pBoundsY, pBoundsZ, pGround, pAudibility2D, pUIB, pVoxelIndex,
                                    pAudibilityVoxels, pBuildingsSize, pBuildings):
-    global cellsSize, cells, cells_count, cells_index, buffers, buffers_count, buffers_index
-    global boundsX, boundsY, boundsZ, ground, audibility2D, uib, VoxelIndex
-    global audibilityVoxels, buildingsSize, buildings
+    global cellsSize, cells, cells_count, cells_index, buffers, buffers_count, buffers_index, \
+           boundsX, boundsY, boundsZ, ground, audibility2D, uib, VoxelIndex, \
+           audibilityVoxels, buildingsSize, buildings
     cellsSize = pCellsSize
     cells = pCells
     cells_count = pCellsCount

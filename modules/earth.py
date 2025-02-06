@@ -94,9 +94,10 @@ def GenerateEarthSurface():
             lons, lats = gtfD.get_coord_arrays(boxR, outer_points=cfg.SurfaceOutline)
 
             env.logger.debug("{file} intersection: {dim}",file=fileD.name, dim=dem.shape)
-            env.logger.debug("@ ({src}) = ({dst})", src=[float(lons[0,0]),float(lats[0,0]),float(dem[0,0])], dst=env.coordM2Float([float(lons[0,0]),float(lats[0,0]),float(dem[0,0])]))
+            env.logger.debug("@ ({src}) = ({dst})", src=[float(lons[0,0]),float(lats[0,0]),float(dem[0,0])], 
+                                                    dst=env.coordM2Float([float(lons[0,0]),float(lats[0,0]),float(dem[0,0])]))
             env.logger.debug("@ ({src}) = ({dst})", src=[float(lons[dem.shape[0]-1,dem.shape[1]-1]),float(lats[dem.shape[0]-1,dem.shape[1]-1]),float(dem[dem.shape[0]-1,dem.shape[1]-1])], 
-                                                dst=env.coordM2Float([float(lons[dem.shape[0]-1,dem.shape[1]-1]),float(lats[dem.shape[0]-1,dem.shape[1]-1]),float(dem[dem.shape[0]-1,dem.shape[1]-1])]))
+                                                    dst=env.coordM2Float([float(lons[dem.shape[0]-1,dem.shape[1]-1]),float(lats[dem.shape[0]-1,dem.shape[1]-1]),float(dem[dem.shape[0]-1,dem.shape[1]-1])]))
 
             # Collect points of surface
             points = vtkPoints()
@@ -230,7 +231,8 @@ def GenerateEarthSurface():
                     for y in range (y_min,y_max+1):
                         # Find intersection point of vertical ray from the center of voxel and the surface
                         getGroundHeight(x,y,locator)
-                env.logger.success("Earth surface height calculation done: {} squares calculated", env.printLong(env.pntsSquares_unassigned.GetNumberOfPoints()))
+                env.logger.success("Earth surface height calculation done: {} squares calculated", 
+                                   env.printLong(env.pntsSquares_unassigned.GetNumberOfPoints()))
 
 
 # ============================================
@@ -246,19 +248,20 @@ def PrepareLivingBuffer():
         env.logger.trace(gsBuffer)
 
         # Join buffer zones and centers of voxel's squares GeoDataFrames
-        env.logger.info("Find cells in buffer zones around living buildings")
+        env.logger.info("Find cells in buffer zones around living buildings...")
         boundary = gpd.GeoSeries(unary_union(gsBuffer))
         gdfBuffer = gpd.GeoDataFrame(geometry=boundary)
         env.logger.trace(boundary)
         env.logger.trace(gdfBuffer)
         env.gdfBuffersLiving = env.gdfCells.sjoin(gdfBuffer, how='inner',predicate='within')
         env.logger.trace(env.gdfBuffersLiving)
+        env.logger.success("{} from {} cells are in buffer zones", 
+                           env.printLong(len(env.gdfBuffersLiving.index)), env.printLong(len(env.gdfCells.index)))
 
         # Generate squares of buffer zones
-        env.logger.info("Generate squares of buffer zones around living buildings...")
+        env.logger.info("Calculate ground height for each cell in buffer zone around living buildings...")
         for cell in env.tqdm(env.gdfBuffersLiving.itertuples(), total=len(env.gdfBuffersLiving.index)):
             getGroundHeight(cell.x,cell.y,None)
-        env.logger.success("{} from {} cells are in buffer zones", env.printLong(len(env.gdfBuffersLiving.index)), env.printLong(len(env.gdfCells.index)))
 
         # Clear memory
         del gsBuffer
@@ -379,8 +382,13 @@ def VizualizeAllSquares():
     VizualizePartOfSquares(env.pntsSquares_yes, env.Colors.GetColor3d("Green"), 0.5)
     VizualizePartOfSquares(env.pntsSquares_no, env.Colors.GetColor3d("Tomato"), 0.5)
     VizualizePartOfSquares(env.pntsSquares_unassigned, env.Colors.GetColor3d("Gold"), 0.5)
-    totalSquaresCount = env.pntsSquares_yes.GetNumberOfPoints() + env.pntsSquares_no.GetNumberOfPoints() + env.pntsSquares_unassigned.GetNumberOfPoints()
+    
+    totalSquaresCount = env.pntsSquares_yes.GetNumberOfPoints() + env.pntsSquares_no.GetNumberOfPoints() + \
+                        env.pntsSquares_unassigned.GetNumberOfPoints()
     env.logger.success("{} ({}) audibility squares, {} ({}) non-audibility squares, {} ({}) unknown squares",
-                       env.printLong(env.pntsSquares_yes.GetNumberOfPoints()), f'{env.pntsSquares_yes.GetNumberOfPoints()/totalSquaresCount:.0%}',
-                       env.printLong(env.pntsSquares_no.GetNumberOfPoints()), f'{env.pntsSquares_no.GetNumberOfPoints()/totalSquaresCount:.0%}',
-                       env.printLong(env.pntsSquares_unassigned.GetNumberOfPoints()), f'{env.pntsSquares_unassigned.GetNumberOfPoints()/totalSquaresCount:.0%}')
+                       env.printLong(env.pntsSquares_yes.GetNumberOfPoints()), 
+                       f'{env.pntsSquares_yes.GetNumberOfPoints()/totalSquaresCount:.0%}',
+                       env.printLong(env.pntsSquares_no.GetNumberOfPoints()), 
+                       f'{env.pntsSquares_no.GetNumberOfPoints()/totalSquaresCount:.0%}',
+                       env.printLong(env.pntsSquares_unassigned.GetNumberOfPoints()), 
+                       f'{env.pntsSquares_unassigned.GetNumberOfPoints()/totalSquaresCount:.0%}')

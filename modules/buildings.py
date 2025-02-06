@@ -48,11 +48,16 @@ def GenerateBuildings():
     env.gdfCellsBuildings = env.gdfBuildings.sjoin(env.gdfCells, how='inner', predicate='contains')
     env.gdfCellsBuildings = env.gdfCellsBuildings.drop(labels='index_right', axis='columns')
     env.logger.trace(env.gdfCellsBuildings)
-    env.logger.success("{} from {} cells are under buildings", env.printLong(len(env.gdfCellsBuildings.index)), env.printLong(len(env.gdfCells.index)))
+    env.logger.success("{} from {} cells are under buildings", 
+                       env.printLong(len(env.gdfCellsBuildings.index)), env.printLong(len(env.gdfCells.index)))
 
     # Find ground points for each cell
     env.logger.info("Looking for ground points of each building...")
-    env.gdfCellsBuildings['GP'] = env.gdfCellsBuildings.apply(lambda x : modules.earth.getGroundHeight(x['x'],x['y'],None), axis='columns')
+    gp = []  # Use "for" loop, not "apply" to show progress bar
+    for cell in env.tqdm(env.gdfCellsBuildings.itertuples(), total=len(env.gdfCellsBuildings.index)):
+        gp.append(modules.earth.getGroundHeight(cell.x, cell.y, None))
+    env.gdfCellsBuildings['GP'] = gp
+    #env.gdfCellsBuildings['GP'] = env.gdfCellsBuildings.apply(lambda x : modules.earth.getGroundHeight(x['x'],x['y'],None), axis='columns')
     env.logger.trace(env.gdfCellsBuildings)
 
     # Find common ground point for each buildnig
@@ -60,7 +65,7 @@ def GenerateBuildings():
         pdMinGroundPoints = pd.pivot_table(data = env.gdfCellsBuildings, index=['UIB'], values=['GP'], aggfunc={'GP':cfg.BuildingGroundMode})
         env.logger.trace(pdMinGroundPoints)
         env.gdfBuildings = env.gdfBuildings.merge(right=pdMinGroundPoints, how='left', left_on='UIB', right_on='UIB')
-        env.gdfCellsBuildings = env.gdfCellsBuildings.merge(right=pdMinGroundPoints, how='left', left_on='UIB', right_on='UIB', suffixes=[None, '_agg'])
+        env.gdfCellsBuildings = env.gdfCellsBuildings.merge(right=pdMinGroundPoints, how='left', on='UIB', suffixes=[None, '_agg'])
         env.logger.trace(env.gdfBuildings)
         env.logger.trace(env.gdfCellsBuildings)
         del pdMinGroundPoints
@@ -71,7 +76,7 @@ def GenerateBuildings():
     env.logger.info("Allocate memory and store buildings parameters...")
     env.countBuildings = len(env.gdfBuildings.index)
     env.buildings = mp.RawArray(ctypes.c_ushort, env.countBuildings*env.sizeBuilding)
-    for b in env.gdfBuildings.itertuples():
+    for b in env.gdfBuildings.itertuples(): # tqdm is not needed
         env.buildings[int(b.UIB*env.sizeBuilding)] = int(b.floors)
         if cfg.BuildingGroundMode != 'levels':
             if not(np.isnan(b.GP)):
@@ -87,7 +92,8 @@ def GenerateBuildings():
         env.buildings[int(cell.UIB*env.sizeBuilding+3)] = env.buildings[int(cell.UIB*env.sizeBuilding+3)] + int(cell.floors)
     # Allocate memory for buildings voxels
     env.audibilityVoxels = mp.RawArray(ctypes.c_byte, env.countVoxels)
-    env.logger.success("{} buildings stored. {} voxels of buildings allocated", env.printLong(env.countBuildings), env.printLong(env.countVoxels))
+    env.logger.success("{} buildings stored. {} voxels of buildings allocated", 
+                       env.printLong(env.countBuildings), env.printLong(env.countVoxels))
 
 
 

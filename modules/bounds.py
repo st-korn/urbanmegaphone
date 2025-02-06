@@ -102,7 +102,8 @@ def ReadWorldBounds():
     env.gdfBuildings = gpd.GeoDataFrame(pd.concat(gdfVectors, ignore_index=True, sort=False))
     env.maxFloors = env.gdfBuildings['floors'].max()
     env.sumFlats = env.gdfBuildings['flats'].sum()
-    env.logger.success("{} vector buildings loaded. Max floor: {}, Total flats: {}", len(env.gdfBuildings.index), env.maxFloors, env.sumFlats)
+    env.logger.success("{} vector buildings loaded. Max floor: {}, Total flats: {}", 
+                       env.printLong(len(env.gdfBuildings.index)), int(env.maxFloors), env.printLong(int(env.sumFlats)))
 
     # -------------------------------------------------------------------
     # Calculate global world's bounds
@@ -128,12 +129,11 @@ def ReadWorldBounds():
     # Allocate memory for voxel's world
     env.logger.info("Allocate memory for voxel's world...")
     env.ground = mp.RawArray(ctypes.c_short,env.bounds[0]*env.bounds[1])
+    ctypes.memset(ctypes.addressof(env.ground), 0xFF, ctypes.sizeof(ctypes.c_short)*env.bounds[0]*env.bounds[1]) # Initialize with -1 values
     env.audibility2D = mp.RawArray(ctypes.c_byte,env.bounds[0]*env.bounds[1])
     env.uib = mp.RawArray(ctypes.c_long,env.bounds[0]*env.bounds[1])
+    ctypes.memset(ctypes.addressof(env.uib), 0xFF, ctypes.sizeof(ctypes.c_long)*env.bounds[0]*env.bounds[1]) # Initialize with -1 values
     env.VoxelIndex = mp.RawArray(ctypes.c_ulong,env.bounds[0]*env.bounds[1])
-    for i in range(env.bounds[0]*env.bounds[1]):
-        env.ground[i] = -1
-        env.uib[i] = -1
     env.logger.success("Memory allocated")
 
     # Generate 2D-GeoPandas GeoDataFrame with centers of voxel's squares on the plane

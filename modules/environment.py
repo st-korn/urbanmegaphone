@@ -242,7 +242,7 @@ def printLong(number):
 # Clear memory from unused GeoPandas GeoDataSet's
 # ============================================
 def clearMemory():
-    logger.info("Clear memory...")
+    logger.info("Clear memory. It may take a few minutes...")
 
     global gdfBuildings
     del gdfBuildings
@@ -266,5 +266,5 @@ def clearMemory():
     del gdfBuffersMegaphones
 
     gc.collect()
-    logger.success("Memory clean")
+    logger.success("Memory clean. Continue soon...")
 

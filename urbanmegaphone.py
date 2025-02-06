@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     # Prepare VTK 3D-objects
     # ============================================
-    for actor in env.actAxes: env.Renderer.AddActor(actor)
+    for actor in env.actAxes: env.Renderer.AddActor(actor) # tqdm is not needed
     for actor in env.actCube: env.Renderer.AddActor(actor)
     for actor in env.actDEM: env.Renderer.AddActor(actor)
     for actor in env.actSurface: env.Renderer.AddActor(actor)
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     for actor in env.actVoxels: env.Renderer.AddActor(actor)
     for actor in env.actMegaphones: env.Renderer.AddActor(actor)
 
-    # Run VTK-window
+    # Prepare VTK-window
     # ============================================
     env.Interactor.Initialize()
     env.Renderer.ResetCamera()
@@ -62,12 +62,16 @@ if __name__ == '__main__':
     env.Interactor.SetInteractorStyle(vtk.vtkInteractorStyleTerrain())
 
     # Calculate and print the elapsed time
+    # ============================================
     end_time = time.time() # Record the end time
     elapsed_time = end_time - start_time
     elapsed_minutes = int(elapsed_time // 60)
     elapsed_seconds = int(elapsed_time % 60)
-    env.logger.success("The whole job took {} minutes {} seconds", elapsed_minutes, elapsed_seconds)
-    
+    env.logger.success("The whole job took: {} minutes {} seconds", elapsed_minutes, elapsed_seconds)
+
+
     env.logger.success("Done. Ready for viewing")
     env.Interactor.Start()
-    env.logger.info("Please wait for the completion of memory cleanup")
+
+    env.logger.info("Glad to work hard, see you")
+    env.logger.success("Please wait for the completion of memory cleanup...")
