@@ -95,8 +95,6 @@ def GenerateBuildings():
     env.logger.success("{} buildings stored. {} voxels of buildings allocated", 
                        env.printLong(env.countBuildings), env.printLong(env.countVoxels))
 
-
-
 # ============================================
 # Generate necessary voxel VTK objects from vtkPoints 
 # with the specified color and opacity to buildings vizualization
@@ -142,30 +140,29 @@ def VizualizeAllVoxels():
 
     # Loop throught grid of earth surface cells audibility
     idx2D = 0
-    
     for x in env.tqdm(range(env.bounds[0])):
         for y in range(env.bounds[1]):
             uib = env.uib[idx2D]
-            idxZ = env.VoxelIndex[idx2D]
-            idx2D = idx2D + 1
-            if uib<0: continue
-            floors = env.buildings[uib*env.sizeBuilding]
-            flats = env.buildings[uib*env.sizeBuilding+2]
-            if cfg.BuildingGroundMode != 'levels':
-                z = env.buildings[uib*env.sizeBuilding+1]
-            else:
-                z = env.ground[x*env.bounds[1]+y]
-            for floor in range(floors):
-                audibility = env.audibilityVoxels[idxZ+floor]
-                if audibility>0:
-                    env.pntsVoxels_yes.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
-                elif audibility<0:
-                    env.pntsVoxels_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+            if uib>=0:
+                idxZ = env.VoxelIndex[idx2D]
+                floors = env.buildings[uib*env.sizeBuilding]
+                flats = env.buildings[uib*env.sizeBuilding+2]
+                if cfg.BuildingGroundMode != 'levels':
+                    z = env.buildings[uib*env.sizeBuilding+1]
                 else:
-                    if flats>0:
-                        env.pntsVoxels_living.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+                    z = env.ground[x*env.bounds[1]+y]
+                for floor in range(floors):
+                    audibility = env.audibilityVoxels[idxZ+floor]
+                    if audibility>0:
+                        env.pntsVoxels_yes.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+                    elif audibility<0:
+                        env.pntsVoxels_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
                     else:
-                        env.pntsVoxels_industrial.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+                        if flats>0:
+                            env.pntsVoxels_living.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+                        else:
+                            env.pntsVoxels_industrial.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+            idx2D = idx2D + 1
 
     VizualizePartOfVoxels(env.pntsVoxels_yes, env.Colors.GetColor3d("Green"), 1)
     VizualizePartOfVoxels(env.pntsVoxels_no, env.Colors.GetColor3d("Tomato"), 1)
@@ -182,24 +179,3 @@ def VizualizeAllVoxels():
                        env.printLong(env.pntsVoxels_living.GetNumberOfPoints()),
                        f'{env.pntsVoxels_living.GetNumberOfPoints()/totalVoxelsCount:.0%}',
                        env.printLong(env.pntsVoxels_industrial.GetNumberOfPoints()) )
-                       
-
-
-
-'''
-    # Generate voxels of buildings
-    env.logger.info("Generate voxel's of buildings...")
-    for cell in env.tqdm(env.gdfCellsBuildings.itertuples(), total=len(env.gdfCellsBuildings.index)):
-        if cfg.BuildingGroundMode != 'levels':
-            z = cell.GP_agg
-        else:
-            z = cell.GP
-        if z is not None:
-            height = int(round( cell.floors * cfg.sizeFloor / cfg.sizeVoxel ))
-            for floor in range(height):
-                if cell.flats>0:
-                    env.pntsVoxels_living.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
-                else:
-                    env.pntsVoxels_industrial.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
-    env.logger.success("{} living and {} industial voxels created", env.printLong(env.pntsVoxels_living.GetNumberOfPoints()), env.printLong(env.pntsVoxels_industrial.GetNumberOfPoints()))
-'''

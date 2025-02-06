@@ -11,7 +11,20 @@ from multiprocessing.shared_memory import SharedMemory # Use shared memory
 import ctypes # Use primitive datatypes for multiprocessing data exchange
 
 # Own core modules
+import modules.settings as cfg # Settings defenition
 import modules.environment as env # Environment defenition
+
+# 
+def CheckAudibility(xDst, yDst, zDst, uibDst, floorDst, xSrc, ySrc, zSrc, uibSrc):
+
+    # Global variables
+    global cellsSize, cells, cells_count, cells_index, buffers, buffers_count, buffers_index, \
+           boundsX, boundsY, boundsZ, ground, audibility2D, uib, VoxelIndex, \
+           audibilityVoxels, buildingsSize, buildings
+
+    if zDst<=zSrc:
+        return True
+    return False
 
 # ============================================
 # Initialize calculation audibility of squares and voxels by the specific megaphone
@@ -47,18 +60,73 @@ def InitializeAudibilityOfMegaphone(pCellsSize, pCells, pCellsCount, pCellsIndex
 # ============================================
 def CalculateAudibilityOfMegaphone(uim):
     env.logger.info('Start calculation for Megaphone #{}', uim)
-    
-    # Loop through buffer zone
-    idx = buffers_index[uim]
-    count = 0
-    for i in range(buffers_count[uim]):
-        x = buffers[idx]
-        y = buffers[idx+1]
-        audibility2D[x*boundsY+y] = 1
-        idx = idx + cellsSize
-        count = count + 1
+    standaloneMegaphoneHeight = round(cfg.heightStansaloneMegaphone / cfg.sizeVoxel) + 1
 
-    env.logger.success('Finish calculation for Megaphone #{}. {} audibility squares found', uim, count)
+    # Global variables
+    global cellsSize, cells, cells_count, cells_index, buffers, buffers_count, buffers_index, \
+           boundsX, boundsY, boundsZ, ground, audibility2D, uib, VoxelIndex, \
+           audibilityVoxels, buildingsSize, buildings
+    
+    # Global counters
+    global countCheckedSquares, countAudibilitySquares, countCheckedVoxels, countAudibilityVoxels
+    countCheckedSquares = 0
+    countAudibilitySquares = 0
+    countCheckedVoxels = 0
+    countAudibilityVoxels = 0
+
+    # Loop through megaphones cells
+    idxCell = cells_index[uim]
+    for i in range(cells_count[uim]):
+
+        xCell = cells[idxCell] # Coordinates of megaphone cell
+        yCell = cells[idxCell+1]
+        uibMegaphone = uib[xCell*boundsY+yCell] # UIB of megaphone building (if exists)
+        if uibMegaphone<0:
+            zCell = ground[xCell*boundsY+yCell] + standaloneMegaphoneHeight
+        else:
+            if cfg.BuildingGroundMode != 'levels':
+                zCell = buildings[uibMegaphone*env.sizeBuilding+1] + buildings[uibMegaphone*env.sizeBuilding] + 1
+            else:
+                zCell = ground[xCell*boundsY+yCell] + buildings[uibMegaphone*env.sizeBuilding] + 1
+
+        # Loop through buffer zone
+        idxBuffer = buffers_index[uim]
+        for i in range(buffers_count[uim]):
+            xBuffer = buffers[idxBuffer] # Coordinates of test cell
+            yBuffer = buffers[idxBuffer+1]
+            uibTest = uib[xBuffer*boundsY+yBuffer] # UIB building on test cell (if exists)
+            zStart = ground[xBuffer*boundsY+yBuffer]
+
+            # Check ground square audibility
+            flag = CheckAudibility(xBuffer, yBuffer, zStart, uibTest, 0, xCell, yCell, zCell, uibMegaphone)
+            countCheckedSquares = countCheckedSquares + 1
+            if flag:
+                audibility2D[xBuffer*boundsY+yBuffer] = 1
+                countAudibilitySquares = countAudibilitySquares + 1
+
+            # There is any building on tested square
+            if uibTest>=0:
+                if cfg.BuildingGroundMode != 'levels':
+                    zStart = buildings[uibTest*env.sizeBuilding+1]
+                else:
+                    zStart = ground[xCell*boundsY+yCell]
+                floors = buildings[uibTest*env.sizeBuilding]
+                for floor in range(floors): # Loop through floors
+
+                    # Check building voxel audibility
+                    flag = CheckAudibility(xBuffer, yBuffer, zStart+floor, uibTest, floor, xCell, yCell, zCell, uibMegaphone)
+                    countCheckedVoxels = countCheckedVoxels + 1
+                    if flag:
+                        audibilityVoxels[ VoxelIndex[xBuffer*boundsY+yBuffer] + floor ] = 1
+                        countAudibilityVoxels = countAudibilityVoxels + 1
+
+            idxBuffer = idxBuffer + cellsSize # Go to next test cell
+
+        idxCell = idxCell + cellsSize # Go to next megaphone cell
+
+    env.logger.success('Finish calculation for Megaphone #{}. {} of {} audibility squares found. {} of {} audibility voxels found',
+                       uim, env.printLong(countAudibilitySquares), env.printLong(countCheckedSquares), 
+                       env.printLong(countAudibilityVoxels), env.printLong(countCheckedVoxels))
 
 # ============================================
 # Calculate audibility of all squares and voxels
