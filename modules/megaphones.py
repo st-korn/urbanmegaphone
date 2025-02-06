@@ -136,6 +136,7 @@ def LoadMegaphones():
             env.MegaphonesCells[indexCells] = int(cell.x)
             env.MegaphonesCells[indexCells+1] = int(cell.y)
             indexCells = indexCells + env.sizeCell
+            modules.earth.getGroundHeight(int(cell.x), int(cell.y), None)
         megaphoneBuffers = env.gdfBuffersMegaphones.loc[env.gdfBuffersMegaphones['UIM'] == uim]
         env.MegaphonesBuffers_count[uim] = len(megaphoneBuffers.index)
         env.MegaphonesBuffers_index[uim] = indexBuffers
@@ -143,6 +144,7 @@ def LoadMegaphones():
             env.MegaphonesBuffers[indexBuffers] = int(cell.x)
             env.MegaphonesBuffers[indexBuffers+1] = int(cell.y)
             indexBuffers = indexBuffers + env.sizeCell
+            modules.earth.getGroundHeight(int(cell.x), int(cell.y), None)
         del megaphoneCells
         del megaphoneBuffers
     env.logger.success('{} megaphones, {} cells under megaphones, {} cells in megaphones buffer zones stored', 

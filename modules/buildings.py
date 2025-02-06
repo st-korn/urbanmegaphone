@@ -142,36 +142,49 @@ def VizualizeAllVoxels():
 
     # Loop throught grid of earth surface cells audibility
     idx2D = 0
-    '''
+    
     for x in env.tqdm(range(env.bounds[0])):
         for y in range(env.bounds[1]):
             uib = env.uib[idx2D]
             idxZ = env.VoxelIndex[idx2D]
+            idx2D = idx2D + 1
+            if uib<0: continue
             floors = env.buildings[uib*env.sizeBuilding]
+            flats = env.buildings[uib*env.sizeBuilding+2]
             if cfg.BuildingGroundMode != 'levels':
                 z = env.buildings[uib*env.sizeBuilding+1]
             else:
-                z = ground[]
-            idx2D = idx2D + 1
+                z = env.ground[x*env.bounds[1]+y]
+            for floor in range(floors):
+                audibility = env.audibilityVoxels[idxZ+floor]
+                if audibility>0:
+                    env.pntsVoxels_yes.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+                elif audibility<0:
+                    env.pntsVoxels_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+                else:
+                    if flats>0:
+                        env.pntsVoxels_living.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+                    else:
+                        env.pntsVoxels_industrial.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
 
-
-            if env.audibility2D[idx]>0:
-                z = getGroundHeight(x,y,None)
-                if z is not None:
-                    env.pntsSquares_yes.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
-            if env.audibility2D[idx]<0:
-                z = getGroundHeight(x,y,None)
-                if z is not None:
-                    env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
-            if (env.audibility2D[idx]==0) and (cfg.ShowSquares == 'full'):
-                z = getGroundHeight(x,y,None)
-                if z is not None:
-                    env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
-'''
     VizualizePartOfVoxels(env.pntsVoxels_yes, env.Colors.GetColor3d("Green"), 1)
     VizualizePartOfVoxels(env.pntsVoxels_no, env.Colors.GetColor3d("Tomato"), 1)
     VizualizePartOfVoxels(env.pntsVoxels_living, env.Colors.GetColor3d("Gold"), 1)
     VizualizePartOfVoxels(env.pntsVoxels_industrial, env.Colors.GetColor3d("Gray"), 1)
+
+    totalVoxelsCount = env.pntsVoxels_yes.GetNumberOfPoints() + env.pntsVoxels_no.GetNumberOfPoints() + \
+                        env.pntsVoxels_living.GetNumberOfPoints()
+    env.logger.success("{} ({}) audibility voxels, {} ({}) non-audibility voxels, {} ({}) unknown voxels. {} non-living voxels",
+                       env.printLong(env.pntsVoxels_yes.GetNumberOfPoints()),
+                       f'{env.pntsVoxels_yes.GetNumberOfPoints()/totalVoxelsCount:.0%}',
+                       env.printLong(env.pntsVoxels_no.GetNumberOfPoints()),
+                       f'{env.pntsVoxels_no.GetNumberOfPoints()/totalVoxelsCount:.0%}',
+                       env.printLong(env.pntsVoxels_living.GetNumberOfPoints()),
+                       f'{env.pntsVoxels_living.GetNumberOfPoints()/totalVoxelsCount:.0%}',
+                       env.printLong(env.pntsVoxels_industrial.GetNumberOfPoints()) )
+                       
+
+
 
 '''
     # Generate voxels of buildings

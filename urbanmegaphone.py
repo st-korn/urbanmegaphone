@@ -69,9 +69,12 @@ if __name__ == '__main__':
     elapsed_seconds = int(elapsed_time % 60)
     env.logger.success("The whole job took: {} minutes {} seconds", elapsed_minutes, elapsed_seconds)
 
-
+    # Run VTK-window
+    # ============================================
     env.logger.success("Done. Ready for viewing")
     env.Interactor.Start()
 
-    env.logger.info("Glad to work hard, see you")
-    env.logger.success("Please wait for the completion of memory cleanup...")
+    # Finish
+    # ============================================
+    env.logger.success("Glad to work hard, see you")
+    env.logger.info("Please wait for the completion of memory cleanup...")

@@ -209,7 +209,7 @@ def GenerateEarthSurface():
             actor = vtkActor()
             actor.SetMapper(mapper)
             actor.SetTexture(texture)
-            actor.GetProperty().SetOpacity(1 if cfg.ShowSquares=='none' else 0.5)
+            actor.GetProperty().SetOpacity(1) #(1 if cfg.ShowSquares=='none' else 0.5)
             env.actTexture.append(actor)
             env.logger.success("{}: DEM ready for render",fileD.name)
 
@@ -364,11 +364,11 @@ def VizualizeAllSquares():
         for y in range(env.bounds[1]):
             z = env.ground[x*env.bounds[1]+y]
             if env.audibility2D[idx2D]>0:
-                env.pntsSquares_yes.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+                env.pntsSquares_yes.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.1)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
             elif env.audibility2D[idx2D]<0:
-                env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+                env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.1)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
             elif (env.audibility2D[idx2D]==0) and (cfg.ShowSquares == 'full'):
-                env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+                env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.1)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
             idx2D = idx2D + 1
 
     VizualizePartOfSquares(env.pntsSquares_yes, env.Colors.GetColor3d("Green"), 0.5)
