@@ -49,10 +49,10 @@ flagShowAxis = True
 # 'buffer' - for surface around living buildings
 # 'none' - do not calculate and show
 # Default value is 'buffer'
-ShowSquares = 'none'
+ShowSquares = 'buffer'
 
 # Radius of buffer zones around buildings. Used with ShowSquares = 'buffer. Meters, default value = 300
-BufferRadius = 300
+BufferRadius = 100
 
 # Select mode for ground point of buildings:
 # 'min' - building positioned at the lowerest point on his ground. All voxels of building have same ground level.

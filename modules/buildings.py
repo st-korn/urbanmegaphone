@@ -40,7 +40,7 @@ def GenerateBuildings():
     # Add unique identificator of building (UIB)
     env.gdfBuildings['UIB'] = np.arange(len(env.gdfBuildings.index))
     env.logger.trace(env.gdfBuildings)
-    env.logger.success("{} vector buildings found", f'{len(env.gdfBuildings.index):_}')
+    env.logger.success("{} vector buildings found", env.printLong(len(env.gdfBuildings.index)))
 
     env.logger.info("Split buildings to voxel's grid cells...")
 
@@ -48,10 +48,10 @@ def GenerateBuildings():
     env.gdfCellsBuildings = env.gdfBuildings.sjoin(env.gdfCells, how='inner', predicate='contains')
     env.gdfCellsBuildings = env.gdfCellsBuildings.drop(labels='index_right', axis='columns')
     env.logger.trace(env.gdfCellsBuildings)
-    env.logger.success("{} from {} cells are under buildings", f'{len(env.gdfCellsBuildings.index):_}', f'{len(env.gdfCells.index):_}')
+    env.logger.success("{} from {} cells are under buildings", env.printLong(len(env.gdfCellsBuildings.index)), env.printLong(len(env.gdfCells.index)))
 
     # Find ground points for each cell
-    env.logger.info("Looking for ground points of each building")
+    env.logger.info("Looking for ground points of each building...")
     env.gdfCellsBuildings['GP'] = env.gdfCellsBuildings.apply(lambda x : modules.earth.getGroundHeight(x['x'],x['y'],None), axis='columns')
     env.logger.trace(env.gdfCellsBuildings)
 
@@ -87,7 +87,7 @@ def GenerateBuildings():
         env.buildings[int(cell.UIB*env.sizeBuilding+3)] = env.buildings[int(cell.UIB*env.sizeBuilding+3)] + int(cell.floors)
     # Allocate memory for buildings voxels
     env.audibilityVoxels = mp.RawArray(ctypes.c_byte, env.countVoxels)
-    env.logger.success("{} buildings stored. {} voxels of buildings allocated", f'{env.countBuildings:_}', f'{env.countVoxels:_}')
+    env.logger.success("{} buildings stored. {} voxels of buildings allocated", env.printLong(env.countBuildings), env.printLong(env.countVoxels))
 
 
 
@@ -153,5 +153,5 @@ def VizualizeAllVoxels():
                     env.pntsVoxels_living.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
                 else:
                     env.pntsVoxels_industrial.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
-    env.logger.success("{} living and {} industial voxels created", f'{env.pntsVoxels_living.GetNumberOfPoints():_}', f'{env.pntsVoxels_industrial.GetNumberOfPoints():_}')
+    env.logger.success("{} living and {} industial voxels created", env.printLong(env.pntsVoxels_living.GetNumberOfPoints()), env.printLong(env.pntsVoxels_industrial.GetNumberOfPoints()))
 '''

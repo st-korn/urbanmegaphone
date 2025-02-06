@@ -233,6 +233,12 @@ def boxM2Int(lon_min, lon_max, lat_min, lat_max):
     return [x_min, x_max, y_min, y_max]
 
 # ============================================
+# Return number, formatet with using '.' (point) as thousands and millions delimeter
+# ============================================
+def printLong(number):
+    return f'{number:_}'.replace("_", ".")
+
+# ============================================
 # Clear memory from unused GeoPandas GeoDataSet's
 # ============================================
 def clearMemory():
@@ -261,3 +267,4 @@ def clearMemory():
 
     gc.collect()
     logger.success("Memory clean")
+

@@ -77,7 +77,7 @@ def GenerateEarthSurface():
         imageReader.Update()
         env.imgrdrRASTER.append(imageReader)
 
-        env.logger.success("Raster {} loaded", fileR.name)
+        env.logger.info("Raster {} loading...", fileR.name)
         env.logger.trace("Raster box: {}",boxR)
         
         for fileD in Path('.',cfg.folderDEM).glob("*.tif", case_sensitive=False):
@@ -230,7 +230,7 @@ def GenerateEarthSurface():
                     for y in range (y_min,y_max+1):
                         # Find intersection point of vertical ray from the center of voxel and the surface
                         getGroundHeight(x,y,locator)
-                env.logger.success("Earth surface height calculation done: {} squares calculated", f'{env.pntsSquares_unassigned.GetNumberOfPoints():_}')
+                env.logger.success("Earth surface height calculation done: {} squares calculated", env.printLong(env.pntsSquares_unassigned.GetNumberOfPoints()))
 
 
 # ============================================
@@ -238,7 +238,7 @@ def GenerateEarthSurface():
 # IN: no arguments
 # OUT: no return values. Modify pntsSquares_unassigned vtkPoints collection of environment.py
 # ============================================
-def PrepareBufferZones():
+def PrepareLivingBuffer():
     if cfg.ShowSquares == 'buffer':
         # Make buffer zones around buildings
         env.logger.info("Draw buffer zones around living buildings")
@@ -258,7 +258,7 @@ def PrepareBufferZones():
         env.logger.info("Generate squares of buffer zones around living buildings...")
         for cell in env.tqdm(env.gdfBuffersLiving.itertuples(), total=len(env.gdfBuffersLiving.index)):
             getGroundHeight(cell.x,cell.y,None)
-        env.logger.success("{} from {} cells are in buffer zones", f'{len(env.gdfBuffersLiving.index):_}', f'{len(env.gdfCells.index):_}')
+        env.logger.success("{} from {} cells are in buffer zones", env.printLong(len(env.gdfBuffersLiving.index)), env.printLong(len(env.gdfCells.index)))
 
         # Clear memory
         del gsBuffer
@@ -315,7 +315,6 @@ def getGroundHeight(x, y, locator):
             return z
     return None
 
-
 # ============================================
 # Generate necessary square VTK objects from vtkPoints 
 # with the specified color and opacity to earth surface vizualization
@@ -357,7 +356,7 @@ def VizualizePartOfSquares(points, color, opacity):
 # from previously calculated and classified points
 # ============================================
 def VizualizeAllSquares():
-    env.logger.info("Build squares of earth surface")
+    env.logger.info("Build squares of earth surface...")
     
     # Loop throught grid of earth surface cells audibility
     idx = 0
@@ -365,37 +364,23 @@ def VizualizeAllSquares():
         for y in range(env.bounds[1]):
             if env.audibility2D[idx]>0:
                 z = getGroundHeight(x,y,None)
-                if z is None:
-                    z = 0
-                env.pntsSquares_yes.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+                if z is not None:
+                    env.pntsSquares_yes.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+            if env.audibility2D[idx]<0:
+                z = getGroundHeight(x,y,None)
+                if z is not None:
+                    env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+            if (env.audibility2D[idx]==0) and (cfg.ShowSquares == 'full'):
+                z = getGroundHeight(x,y,None)
+                if z is not None:
+                    env.pntsSquares_unassigned.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
             idx = idx + 1
 
     VizualizePartOfSquares(env.pntsSquares_yes, env.Colors.GetColor3d("Green"), 0.5)
     VizualizePartOfSquares(env.pntsSquares_no, env.Colors.GetColor3d("Tomato"), 0.5)
     VizualizePartOfSquares(env.pntsSquares_unassigned, env.Colors.GetColor3d("Gold"), 0.5)
-
-'''
-                        if z is not None:
-                            # Add point to collection
-                            env.pntsSquares_unassigned.InsertNextPoint((x+0.5)*cfg.sizeVoxel,z*cfg.sizeVoxel,(y+0.5)*cfg.sizeVoxel)
-'''
-'''
-            if z is not None:
-                env.pntsSquares_unassigned.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
-'''
-'''
-    # Loop through squares of buffer zones
-    env.logger.info("Loop through squares of buffer zones...")
-    a = 0
-    for cell in env.tqdm(env.gdfBuffersMegaphones.itertuples(), total=len(env.gdfBuffersMegaphones.index)):
-        # Find megaphones of possible audibility on current cell
-        #gdfFoundMegaphones = env.gdfMegaphones.contains(cell.geometry)
-        #env.logger.debug("{} = {}",cell,gdfFoundMegaphones)
-        #for m in env.gdfMegaphones.itertuples():
-        a = a+1
-            #math.sqrt( (m.x_megaphone-cell.x)**2 + (m.y_megaphone-cell.y)**2 )
-        # Create a square
-        z = modules.earth.getGroundHeight(cell.x,cell.y,None)
-        if z is not None:
-            env.pntsSquares_yes.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
-'''
+    totalSquaresCount = env.pntsSquares_yes.GetNumberOfPoints() + env.pntsSquares_no.GetNumberOfPoints() + env.pntsSquares_unassigned.GetNumberOfPoints()
+    env.logger.success("{} ({}) audibility squares, {} ({}) non-audibility squares, {} ({}) unknown squares",
+                       env.printLong(env.pntsSquares_yes.GetNumberOfPoints()), f'{env.pntsSquares_yes.GetNumberOfPoints()/totalSquaresCount:.0%}',
+                       env.printLong(env.pntsSquares_no.GetNumberOfPoints()), f'{env.pntsSquares_no.GetNumberOfPoints()/totalSquaresCount:.0%}',
+                       env.printLong(env.pntsSquares_unassigned.GetNumberOfPoints()), f'{env.pntsSquares_unassigned.GetNumberOfPoints()/totalSquaresCount:.0%}')

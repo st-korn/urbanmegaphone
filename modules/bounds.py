@@ -88,6 +88,8 @@ def ReadWorldBounds():
         if maxZ > env.boundsMax[2]: env.boundsMax[2] = maxZ
         env.logger.debug("Lowrest point: {}m, highest point {}m", minZ, maxZ)
 
+    env.logger.success("Lowrest point of all DEMs: {}m, highest point {}m", env.boundsMin[2], env.boundsMax[2])
+
     # -------------------------------------------------------------------
     # Read max floors of vector buildings
 
@@ -142,4 +144,4 @@ def ReadWorldBounds():
     env.gdfCells = gpd.GeoDataFrame({'x' : arr_x, 'y' : arr_y,
             'geometry' : gpd.points_from_xy((arr_x+0.5)*cfg.sizeVoxel, (arr_y+0.5)*cfg.sizeVoxel)})
     env.logger.trace(env.gdfCells)
-    env.logger.success("World grid created: {} cells", f'{len(env.gdfCells.index):_}')
+    env.logger.success("World grid created: {} cells", env.printLong(len(env.gdfCells.index)))

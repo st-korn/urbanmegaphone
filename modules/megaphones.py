@@ -34,7 +34,7 @@ def LoadMegaphones():
         env.logger.debug("Load points of megaphones: {file}", file=file)
         gdfPoints.append(gpd.read_file(file))
     env.gdfMegaphones = gpd.GeoDataFrame(pd.concat(gdfPoints, ignore_index=True, sort=False))
-    env.logger.success("{} megaphones loaded.", len(env.gdfMegaphones.index))
+    env.logger.success("{} megaphones loaded", len(env.gdfMegaphones.index))
     env.logger.trace(env.gdfMegaphones)
 
     # Convert 2D-coordinates of megaphones GeoDataFrame from meters (Web-Mercator ESPG:3857) to vtk's float
@@ -52,7 +52,7 @@ def LoadMegaphones():
 
     # Join megaphones and cells of buildings GeoDataFrames
     env.gdfCellsMegaphones = env.gdfMegaphones.sjoin_nearest(env.gdfCellsBuildings, how='left', max_distance=cfg.distanceMegaphoneAndBuilding)
-    env.logger.info("{} from {} cells are under megaphones", f'{len(env.gdfCellsMegaphones.index):_}', f'{len(env.gdfCells.index):_}')
+    env.logger.info("{} from {} cells are under megaphones", env.printLong(len(env.gdfCellsMegaphones.index)), env.printLong(len(env.gdfCells.index)))
     env.logger.trace(env.gdfCellsMegaphones)
 
     # Calculate height of stanalone megaphones
@@ -63,10 +63,11 @@ def LoadMegaphones():
     # Generate VTK's objects for megaphones
     for cell in env.gdfCellsMegaphones.itertuples():
         if pd.isna(cell.floors):
-            env.logger.warning("Megaphone too far from the any building: {}. Use {} voxels as ground and {} voxels as height",cell,z,height)
             z = int(modules.earth.getGroundHeight( int(cell.x), int(cell.y), None ))
+            height = cfg.heightStansaloneMegaphone / cfg.sizeVoxel
             env.pntsMegaphones_standalone_cones.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z-0.5)*cfg.sizeVoxel+cfg.heightStansaloneMegaphone/2, (cell.y+0.5)*cfg.sizeVoxel)
             env.pntsMegaphones_spheres.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z-0.5)*cfg.sizeVoxel+cfg.heightStansaloneMegaphone, (cell.y+0.5)*cfg.sizeVoxel)
+            env.logger.warning("Megaphone too far from the any building: {}. Use {} voxels as ground and {} voxels as height",cell.geometry,z,f'{height:.1f}')
         else:
             if cfg.BuildingGroundMode != 'levels':
                 z = cell.GP_agg
@@ -78,7 +79,7 @@ def LoadMegaphones():
 
     # Echo distance of maxium possible audibility
     env.logger.success("Maximum distance of possible audibility is {} meter on a street and {} meter in a building. Use {} meters", 
-                       cfg.distancePossibleAudibilityStreet, cfg.distancePossibleAudibilityBuildings, cfg.distancePossibleAudibility)
+                       f'{cfg.distancePossibleAudibilityStreet:.1f}', f'{cfg.distancePossibleAudibilityBuildings:.1f}', f'{cfg.distancePossibleAudibility:.1f}')
 
     # Generate zones of possible audibility
     env.logger.info("Generate zones of possible audibility...")
@@ -100,15 +101,15 @@ def LoadMegaphones():
     env.logger.trace(env.gdfBuffersMegaphones)
 
     # Join buffer zones and centers of voxel's squares GeoDataFrames
-    env.logger.info("Find cells in buffer zones of possible audibility")
+    env.logger.info("Find cells in buffer zones of possible audibility...")
     env.gdfBuffersMegaphones = env.gdfCells.sjoin(env.gdfBuffersMegaphones, how='inner',predicate='within')
     env.logger.trace(env.gdfBuffersMegaphones)
     env.logger.trace(env.gdfBuffersMegaphones.dtypes)
 
     # Calculate count of unique cells
     gdfBufferMegaphones = env.gdfBuffersMegaphones.groupby(['x','y']).size().reset_index()
-    env.logger.success("{} from {} unique cells in zones of possible audibility", f'{len(gdfBufferMegaphones.index):_}', f'{len(env.gdfCells.index):_}')
-    env.logger.success("{} cell-megaphone combinations", f'{len(env.gdfBuffersMegaphones.index):_}')
+    env.logger.success("{} from {} unique cells in zones of possible audibility", env.printLong(len(gdfBufferMegaphones.index)), env.printLong(len(env.gdfCells.index)))
+    env.logger.success("{} cell-megaphone combinations", env.printLong(len(env.gdfBuffersMegaphones.index)))
 
     # Allocate memory and store megaphones and their zones
     env.logger.info("Allocate memory and store megaphones and their zones...")
@@ -123,7 +124,7 @@ def LoadMegaphones():
     env.MegaphonesBuffers_index = mp.RawArray(ctypes.c_long, env.countMegaphones)    
     indexCells = 0
     indexBuffers = 0
-    for uim in range(env.countMegaphones):
+    for uim in env.tqdm(range(env.countMegaphones)):
         megaphoneCells = env.gdfCellsMegaphones.loc[env.gdfCellsMegaphones['UIM'] == uim]
         env.MegaphonesCells_count[uim] = len(megaphoneCells.index)
         env.MegaphonesCells_index[uim] = indexCells
@@ -141,9 +142,19 @@ def LoadMegaphones():
         del megaphoneCells
         del megaphoneBuffers
     env.logger.success('{} megaphones, {} cells under megaphones, {} cells in megaphones buffer zones stored', 
-                       f'{env.countMegaphones:_}', f'{env.countMegaphonesCells:_}', f'{env.countMegaphonesBuffers:_}')
+                       env.printLong(env.countMegaphones), env.printLong(env.countMegaphonesCells), env.printLong(env.countMegaphonesBuffers))
+
+    # Select livings buffer zone, excluded megaphones potential audibility zone
+    if cfg.ShowSquares == 'buffer':
+        env.logger.info("Exclude living zones without possible audibility...")
+        gdfLivingWithoutAudibility = env.gdfBuffersLiving.merge(gdfBufferMegaphones, how='left', on=['x','y'], indicator=True)
+        gdfLivingWithoutAudibility = gdfLivingWithoutAudibility.loc[gdfLivingWithoutAudibility['_merge'] == 'left_only']
+        for cell in env.tqdm(gdfLivingWithoutAudibility.itertuples(), total=len(gdfLivingWithoutAudibility.index)):
+            env.audibility2D[cell.x*env.bounds[1]+cell.y] = -1
+        env.logger.success('{} cells excluded', len(gdfLivingWithoutAudibility.index) )
 
     # Clear temporary variables
+    del gdfLivingWithoutAudibility
     del gdfBufferMegaphones
     gc.collect()
 

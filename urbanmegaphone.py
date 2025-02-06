@@ -6,6 +6,7 @@
 # Modules import
 # ============================================
 import vtk # Use other 3D-visualization features
+import time # Tracking the execution time
 
 # Own core modules
 import modules.settings as cfg # Settings defenition
@@ -18,13 +19,14 @@ import modules.audibility # Multiprocessing audibility calculation
 
 # Only for main process
 if __name__ == '__main__':
+    start_time = time.time() # Record the start time
 
     # Real work
     # ============================================
     modules.bounds.ReadWorldBounds() # Read .tif files of RASTER and DEM models, find the dimensions of the world being explored
     modules.earth.GenerateEarthSurface() # Read .tif files of RASTER and DEM models, generate 3D-surface with textures
     modules.buildings.GenerateBuildings() # Process vector buildings and generate voxel's world
-    modules.earth.PrepareBufferZones() # Calculate buffer zones around living buildings if ShowSquares mode is 'buffer'
+    modules.earth.PrepareLivingBuffer() # Calculate buffer zones around living buildings if ShowSquares mode is 'buffer'
     modules.megaphones.LoadMegaphones() # Load megaphones points
     env.clearMemory() # Clear memory from unused variables
     modules.audibility.CalculateAudibility() # Calculate audibility of squares and voxels
@@ -58,6 +60,14 @@ if __name__ == '__main__':
     env.Renderer.ResetCamera()
     env.Window.Render()
     env.Interactor.SetInteractorStyle(vtk.vtkInteractorStyleTerrain())
+
+    # Calculate and print the elapsed time
+    end_time = time.time() # Record the end time
+    elapsed_time = end_time - start_time
+    elapsed_minutes = int(elapsed_time // 60)
+    elapsed_seconds = int(elapsed_time % 60)
+    env.logger.success("The whole job took {} minutes {} seconds", elapsed_minutes, elapsed_seconds)
+    
     env.logger.success("Done. Ready for viewing")
     env.Interactor.Start()
     env.logger.info("Please wait for the completion of memory cleanup")
