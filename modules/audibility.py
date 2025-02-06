@@ -35,8 +35,9 @@ def InitializeAudibilityOfMegaphone(pCellsSize, pCells, pCellsCount, pCellsIndex
     boundsY = pBoundsY
     boundsZ = pBoundsZ
     ground = pGround
-    shm2D = SharedMemory(name=pShmemAudibility2D)
-    audibility2D = (ctypes.c_byte * (boundsX*boundsY)).from_buffer(shm2D.buf)
+    #shm2D = SharedMemory(name=pShmemAudibility2D)
+    #audibility2D = (ctypes.c_byte * (boundsX*boundsY)).from_buffer(shm2D.buf)
+    audibility2D = pShmemAudibility2D
     uib = pUIB
     VoxelIndex = pVoxelIndex
     audibilityVoxels = pAudibilityVoxels
@@ -55,7 +56,7 @@ def CalculateAudibilityOfMegaphone(uim):
     for i in range(buffers_count[uim]):
         x = buffers[idx]
         y = buffers[idx+1]
-        #audibility2D[x*boundsX+y] = 1
+        audibility2D[x*boundsX+y] = 1
         idx = idx + cellsSize
         count = count + 1
 
@@ -75,7 +76,7 @@ def CalculateAudibility():
     with mp.Pool(processes=mp.cpu_count(), initializer=InitializeAudibilityOfMegaphone, 
                  initargs=(env.sizeCell, env.MegaphonesCells, env.MegaphonesCells_count, env.MegaphonesCells_index,
                            env.MegaphonesBuffers, env.MegaphonesBuffers_count, env.MegaphonesBuffers_index,
-                           env.bounds[0], env.bounds[1], env.bounds[2], env.ground, env.shmemAudibility2D.name, env.uib, env.VoxelIndex,
+                           env.bounds[0], env.bounds[1], env.bounds[2], env.ground, env.audibility2D, env.uib, env.VoxelIndex,
                            env.audibilityVoxels, env.sizeBuilding, env.buildings)) as pool:
         pool.starmap(CalculateAudibilityOfMegaphone, params)
 

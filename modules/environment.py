@@ -42,7 +42,6 @@ ground = None
 # Squares matrix: 2D-array of signed byte integer values [−127, +127]:
 # integer value of audibility on the earth surface in this place: -1 (no), 0 (unknown), 1(yes)
 # At first initialized by 0 values
-shmemAudibility2D = None # Shared memory class of this matrix
 audibility2D = None # Just matrix
 
 # Squares matrix: 2D-array of signed long integer values [−2 147 483 647, +2 147 483 647]:
@@ -60,8 +59,7 @@ VoxelIndex = None
 # use VoxelIndex matrix to find desired index of element in this array
 # Contains separate sequential values for each floor
 # At first initialized by 0 values
-countVoxels = None # total count of buildings voxels
-shmemAudibilityVoxels = None # Shared memory class of this array
+countVoxels = None # Total count of buildings voxels
 audibilityVoxels = None # Just array
 
 # Linear array: 1D-array of the fives values of unsigned short integer values [0, 65535]:

@@ -61,5 +61,3 @@ if __name__ == '__main__':
     env.logger.success("Done. Ready for viewing")
     env.Interactor.Start()
     env.logger.info("Please wait for the completion of memory cleanup")
-    #env.shmemAudibility2D.close()
-    #env.shmemAudibility2D.unlink()

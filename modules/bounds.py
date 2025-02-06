@@ -126,11 +126,7 @@ def ReadWorldBounds():
     # Allocate memory for voxel's world
     env.logger.info("Allocate memory for voxel's world...")
     env.ground = mp.RawArray(ctypes.c_short,env.bounds[0]*env.bounds[1])
-    
-    env.shmemAudibility2D = SharedMemory(create=True, size=ctypes.sizeof(ctypes.c_byte)*env.bounds[0]*env.bounds[1])
-    env.audibility2D = (ctypes.c_byte * (env.bounds[0]*env.bounds[1])).from_buffer(env.shmemAudibility2D.buf)
-    ctypes.memset(ctypes.addressof(env.audibility2D), 0, ctypes.sizeof(env.audibility2D))
-
+    env.audibility2D = mp.RawArray(ctypes.c_byte,env.bounds[0]*env.bounds[1])
     env.uib = mp.RawArray(ctypes.c_long,env.bounds[0]*env.bounds[1])
     env.VoxelIndex = mp.RawArray(ctypes.c_ulong,env.bounds[0]*env.bounds[1])
     for i in range(env.bounds[0]*env.bounds[1]):
