@@ -14,7 +14,9 @@ import ctypes # Use primitive datatypes for multiprocessing data exchange
 import modules.settings as cfg # Settings defenition
 import modules.environment as env # Environment defenition
 
+# ============================================
 # 
+# ============================================
 def CheckAudibility(xDst, yDst, zDst, uibDst, floorDst, xSrc, ySrc, zSrc, uibSrc):
 
     # Global variables
@@ -124,9 +126,9 @@ def CalculateAudibilityOfMegaphone(uim):
 
         idxCell = idxCell + cellsSize # Go to next megaphone cell
 
-    env.logger.success('Finish calculation for Megaphone #{}. {} of {} audibility squares found. {} of {} audibility voxels found',
-                       uim, env.printLong(countAudibilitySquares), env.printLong(countCheckedSquares), 
-                       env.printLong(countAudibilityVoxels), env.printLong(countCheckedVoxels))
+    env.logger.success('Finish calculation for Megaphone #{}. {} ({}) audibility squares found. {} ({}) audibility voxels found',
+                       uim, env.printLong(countAudibilitySquares), f'{countAudibilitySquares/countCheckedSquares:.0%}', 
+                       env.printLong(countAudibilityVoxels), f'{countAudibilityVoxels/countCheckedVoxels:.0%}')
 
 # ============================================
 # Calculate audibility of all squares and voxels
