@@ -139,7 +139,35 @@ def VizualizePartOfVoxels(points, color, opacity):
 # ============================================
 def VizualizeAllVoxels():
     env.logger.info("Build voxels of buildings...")
-    
+
+    # Loop throught grid of earth surface cells audibility
+    idx2D = 0
+    '''
+    for x in env.tqdm(range(env.bounds[0])):
+        for y in range(env.bounds[1]):
+            uib = env.uib[idx2D]
+            idxZ = env.VoxelIndex[idx2D]
+            floors = env.buildings[uib*env.sizeBuilding]
+            if cfg.BuildingGroundMode != 'levels':
+                z = env.buildings[uib*env.sizeBuilding+1]
+            else:
+                z = ground[]
+            idx2D = idx2D + 1
+
+
+            if env.audibility2D[idx]>0:
+                z = getGroundHeight(x,y,None)
+                if z is not None:
+                    env.pntsSquares_yes.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+            if env.audibility2D[idx]<0:
+                z = getGroundHeight(x,y,None)
+                if z is not None:
+                    env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+            if (env.audibility2D[idx]==0) and (cfg.ShowSquares == 'full'):
+                z = getGroundHeight(x,y,None)
+                if z is not None:
+                    env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+'''
     VizualizePartOfVoxels(env.pntsVoxels_yes, env.Colors.GetColor3d("Green"), 1)
     VizualizePartOfVoxels(env.pntsVoxels_no, env.Colors.GetColor3d("Tomato"), 1)
     VizualizePartOfVoxels(env.pntsVoxels_living, env.Colors.GetColor3d("Gold"), 1)

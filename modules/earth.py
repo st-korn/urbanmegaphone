@@ -359,22 +359,17 @@ def VizualizeAllSquares():
     env.logger.info("Build squares of earth surface...")
     
     # Loop throught grid of earth surface cells audibility
-    idx = 0
+    idx2D = 0
     for x in env.tqdm(range(env.bounds[0])):
         for y in range(env.bounds[1]):
-            if env.audibility2D[idx]>0:
-                z = getGroundHeight(x,y,None)
-                if z is not None:
-                    env.pntsSquares_yes.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
-            if env.audibility2D[idx]<0:
-                z = getGroundHeight(x,y,None)
-                if z is not None:
-                    env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
-            if (env.audibility2D[idx]==0) and (cfg.ShowSquares == 'full'):
-                z = getGroundHeight(x,y,None)
-                if z is not None:
-                    env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
-            idx = idx + 1
+            z = env.ground[x*env.bounds[1]+y]
+            if env.audibility2D[idx2D]>0:
+                env.pntsSquares_yes.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+            elif env.audibility2D[idx2D]<0:
+                env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+            elif (env.audibility2D[idx2D]==0) and (cfg.ShowSquares == 'full'):
+                env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+            idx2D = idx2D + 1
 
     VizualizePartOfSquares(env.pntsSquares_yes, env.Colors.GetColor3d("Green"), 0.5)
     VizualizePartOfSquares(env.pntsSquares_no, env.Colors.GetColor3d("Tomato"), 0.5)
