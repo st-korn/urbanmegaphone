@@ -65,7 +65,7 @@ def InitializeAudibilityOfMegaphone(pCellsSize, pCells, pCellsCount, pCellsIndex
 # Calculate audibility of squares and voxels by the specific megaphone
 # ============================================
 def CalculateAudibilityOfMegaphone(uim):
-    env.logger.info('Start calculation for Megaphone #{}', uim)
+    env.logger.info('Start calculation for megaphone #{}', uim)
     standaloneMegaphoneHeight = round(cfg.heightStansaloneMegaphone / cfg.sizeVoxel) + 1
 
     # Global variables
@@ -130,14 +130,15 @@ def CalculateAudibilityOfMegaphone(uim):
 
         idxCell = idxCell + cellsSize # Go to next megaphone cell
 
-    env.logger.success('Finish calculation for Megaphone #{}. {} ({}) audibility squares found. {} ({}) audibility voxels found',
-                       uim, env.printLong(countAudibilitySquares), f'{countAudibilitySquares/countCheckedSquares:.0%}', 
-                       env.printLong(countAudibilityVoxels), f'{countAudibilityVoxels/countCheckedVoxels:.0%}')
+    env.logger.success('Finish calculation for megaphone #{}. {} ({}) audibility squares found. {} ({}) audibility voxels found',
+                       uim, env.printLong(countAudibilitySquares), f'{0 if countCheckedSquares==0 else countAudibilitySquares/countCheckedSquares:.0%}', 
+                       env.printLong(countAudibilityVoxels), f'{0 if countCheckedVoxels==0 else countAudibilityVoxels/countCheckedVoxels:.0%}')
 
 # ============================================
 # Calculate audibility of all squares and voxels
 # ============================================
 def CalculateAudibility():
+    env.logger.info("Switching to multiprocessing mode...")
 
     # Collect array of processes parameters
     params = []
