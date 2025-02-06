@@ -89,4 +89,6 @@ dBALevel = +15
 
 # Max distance between megaphone and point, where theoretically is possible an audibility, meters. 
 # Used to speed up and facilitate calculations. Default value is 1000 meters.
-distancePossibleAudibility = math.ceil( max( math.pow(10, (dBAMegaphone-dBAStreet-dBALevel)/20), math.exp((dBAMegaphone-dBAWindow-dBAHome-dBALevel)/20) ) )
+distancePossibleAudibilityStreet = math.pow(10, (dBAMegaphone-dBAStreet-dBALevel)/20)
+distancePossibleAudibilityBuildings = math.exp((dBAMegaphone-dBAWindow-dBAHome-dBALevel)/20)
+distancePossibleAudibility = math.ceil( max( distancePossibleAudibilityStreet, distancePossibleAudibilityBuildings ) )

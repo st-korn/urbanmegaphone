@@ -251,14 +251,14 @@ def PrepareBufferZones():
         gdfBuffer = gpd.GeoDataFrame(geometry=boundary)
         env.logger.trace(boundary)
         env.logger.trace(gdfBuffer)
-        env.gdfBuffersLiving = env.gdfSquares.sjoin(gdfBuffer, how='inner',predicate='within')
+        env.gdfBuffersLiving = env.gdfCells.sjoin(gdfBuffer, how='inner',predicate='within')
         env.logger.trace(env.gdfBuffersLiving)
 
         # Generate squares of buffer zones
         env.logger.info("Generate squares of buffer zones around living buildings...")
         for cell in env.tqdm(env.gdfBuffersLiving.itertuples(), total=len(env.gdfBuffersLiving.index)):
             getGroundHeight(cell.x,cell.y,None)
-        env.logger.success("{} from {} cells are in buffer zones", f'{len(env.gdfBuffersLiving.index):_}', f'{len(env.gdfSquares.index):_}')
+        env.logger.success("{} from {} cells are in buffer zones", f'{len(env.gdfBuffersLiving.index):_}', f'{len(env.gdfCells.index):_}')
 
         # Clear memory
         del gsBuffer
@@ -284,7 +284,7 @@ def getGroundHeight(x, y, locator):
     if (x<0) or (x>=env.bounds[0]) or (y<0) or (y>=env.bounds[1]):
         return None
     # Is current ground position just calculated and stored?
-    z = env.ground[x,y]
+    z = env.ground[x*env.bounds[1]+y]
     if z >= 0:
         return z # Yes, it was stored
     # No, we need to calculate them
@@ -311,7 +311,7 @@ def getGroundHeight(x, y, locator):
             z = np.ceil(pos[1]/cfg.sizeVoxel)
             if z<0:
                 z = 0
-            env.ground[x,y] = z
+            env.ground[x*env.bounds[1]+y] = int(z)
             return z
     return None
 

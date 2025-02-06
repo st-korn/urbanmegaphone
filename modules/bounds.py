@@ -6,6 +6,8 @@
 # ============================================
 
 # Standart modules
+import multiprocessing as mp # Use multiprocessing
+import ctypes # Use primitive datatypes for multiprocessing data exchange
 from pathlib import Path # Crossplatform pathing
 from modules.geotiff import GeoTiff # GeoTIFF format reader
 import numpy as np # Work with DEM matrix
@@ -121,12 +123,14 @@ def ReadWorldBounds():
                                  (0,(env.bounds[1]+0.5)*cfg.sizeVoxel) ] )
 
     # Allocate memory for voxel's world
-    env.ground = np.full([env.bounds[0],env.bounds[1]], -1, dtype=np.int32)
-    env.bottomfloor = np.full([env.bounds[0],env.bounds[1]], -1, dtype=np.int32)
-    env.topfloor = np.full([env.bounds[0],env.bounds[1]], -1, dtype=np.int32)
-    env.UIB = np.full([env.bounds[0],env.bounds[1]], -1, dtype=np.int32)
-    env.audibility2D = np.zeros([env.bounds[0],env.bounds[1]], dtype=np.int32)
-    env.audibility3D = np.zeros(env.bounds, dtype=np.int32)
+    env.logger.info("Allocate memory...")
+    env.ground = mp.RawArray(ctypes.c_short,env.bounds[0]*env.bounds[1])
+    env.audibility2D = mp.RawArray(ctypes.c_byte,env.bounds[0]*env.bounds[1])
+    env.UIB = mp.RawArray(ctypes.c_long,env.bounds[0]*env.bounds[1])
+    env.VoxelIndex = mp.RawArray(ctypes.c_ulong,env.bounds[0]*env.bounds[1])
+    for i in range(env.bounds[0]*env.bounds[1]):
+        env.ground[i] = -1
+        env.UIB[i] = -1
     env.logger.success("Memory allocated")
 
     # Generate 2D-GeoPandas GeoDataFrame with centers of voxel's squares on the plane
@@ -134,7 +138,7 @@ def ReadWorldBounds():
     arr = np.mgrid[0:env.bounds[0], 0:env.bounds[1]]
     arr_x = np.ravel(arr[0])
     arr_y = np.ravel(arr[1])
-    env.gdfSquares = gpd.GeoDataFrame({'x' : arr_x, 'y' : arr_y,
+    env.gdfCells = gpd.GeoDataFrame({'x' : arr_x, 'y' : arr_y,
             'geometry' : gpd.points_from_xy((arr_x+0.5)*cfg.sizeVoxel, (arr_y+0.5)*cfg.sizeVoxel)})
-    env.logger.trace(env.gdfSquares)
-    env.logger.success("World grid created: {} cells", f'{len(env.gdfSquares.index):_}')
+    env.logger.trace(env.gdfCells)
+    env.logger.success("World grid created: {} cells", f'{len(env.gdfCells.index):_}')

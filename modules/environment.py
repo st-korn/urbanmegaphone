@@ -31,45 +31,79 @@ boundsMax = [None, None, None] #lon, lat, height
 # Voxel's world dimensions (integer)
 bounds = [None, None, None] #x_lon, y_lat, z_height
 
-# Squares matrix: NumPy 2D-arrays of int32 with
+# Multiprocessing data in shared memory
+# ============================================
+
+# Squares matrix: 2D-array of signed short integer values [−32 767, +32 767]:
 # integer vertical z-coordinate of first voxel over earth's surface in current point.
 # At first initialized by -1 values
 ground = None
 
-# Squares matrix: NumPy 2D-arrays of int32 with
-# integer vertical z-coordinate of the lowest/topmost voxel of building in current point.
-# At first initialized by -1 values
-bottomfloor = None
-topfloor = None
-
-# Squares matrix: NumPy 2D-arrays of int32 with
-# integer unique building's identificator in this place.
-# At first initialized by -1 values
-UIB = None
-
-# Squares matrix: NumPy 2D-arrays of int32 with
+# Squares matrix: 2D-array of signed byte integer values [−127, +127]:
 # integer value of audibility on the earth surface in this place: -1 (no), 0 (unknown), 1(yes)
 # At first initialized by 0 values
 audibility2D = None
 
-# Voxel's world matrix: NumPy 3D-array of int32
-# integer value of audibility on the earth surface in this place: -1 (no), 0 (unknown), 1(yes)
+# Squares matrix: 2D-array of signed long integer values [−2 147 483 647, +2 147 483 647]:
+# integer unique building's identificator in this place.
+# At first initialized by -1 values
+UIB = None
+
+# Squares matrix: 2D-array of unsigned long integer values [0, 4 294 967 295]:
+# integer index of first signed byte element of first floor voxel in flat audibilityVoxels array
 # At first initialized by 0 values
-audibility3D = None
+VoxelIndex = None
+
+# Linear array: 1D-array of signed byte integer values [−127, +127]:
+# integer value of audibility on voxels of buildings: -1 (no), 0 (unknown), 1(yes)
+# use VoxelIndex matrix to find desired index of element in this array
+# Contains separate sequential values for each floor
+# At first initialized by 0 values
+countVoxels = None # total count of buildings voxels
+audibilityVoxels = None
+
+# Linear array: 1D-array of the fives values of unsigned short integer values [0, 65535]:
+# [UIB*5] value - count of floors
+# [UIB*5+1] value - integer vertical coordinate of voxel of the first floor (if BuildingGroundMode != 'levels')
+# [UIB*5+2] value - count of flats in building (0 for non-living buildings)
+# [UIB*5+3] value - count of total voxels
+# [UIB*5+4] value - count of total voxels with audibility
+sizeBuildings = 5 # count of values for each building
+countBuildings = None # count of buildings
+buildings = None
+
+# Store coordinates of cells for megaphones and its buffer zones
+sizeCells = 2 # Each cell have two signed long integer values [−2 147 483 647, +2 147 483 647] for its (x,y) cells coordinates
+countMegaphones = None # total count of megaphones
+MegaphonesCells = [] # Classic python array of linear 1D-arrays in shared memory with MegaphonesCells[UIM] - list of couples (x,y) coordinates of megaphones cells
+MegaphonesCells_count = [] # Classic python array of integer counts of cells in each MegaphonesCells[UIM] array
+MegaphonesBuffers = [] # Classic python array of linear 1D-arrays in shared memory with MegaphonesBuffers[UIM] - list of couples (x,y) coordinates of megaphones buffer zones cells
+MegaphonesBuffers_count = [] # Classic python array of integer counts of cells in each MegaphonesBuffers[UIM] array
+
+# DatraFrame, GeoDataFrame tables, Shapely geometries
+# ============================================
+
+# Shapely Geometries
+plgnBounds = None # 2D rectangle of VTK's world (shapely.geometry.Polygon)
 
 # GeoPandas GeoDataFrames
-plgnBounds = None # 2D rectangle of VTK's world (shapely.geometry.Polygon)
 gdfBuildings = None # Geometric 2D vector objects of buildings loaded from vector files
-gdfSquares = None # 2D grid of points - centers of voxels on the plane # Excluded to save memory
-gdfCells = None # 2D intersect of buildings and voxels centers
+gdfCells = None # 2D grid of points - centers of voxels on the plane # Excluded to save memory
+gdfCellsBuildings = None # 2D intersect of buildings and voxels centers
 gdfBuffersLiving = None # 2D voxels centers of buffer zones arround living buildings (if ShowSquares = 'buffer')
 gdfMegaphones = None # 2D points of megaphones
-gdfMegaphonesCells = None # 2D cells under megaphones
+gdfCellsMegaphones = None # 2D cells under megaphones
 gdfBuffersMegaphones = None # 2D voxels centers of buffer zones arround megaphones (possible audibility)
+
+# Miscellaneous data
+# ============================================
 
 # Buildings statistic:
 maxFloors = None 
 sumFlats = None
+
+# VTK 3D-vizualization objects
+# ============================================
 
 # Single VTK objects
 readerFactory = vtkImageReader2Factory()
@@ -203,16 +237,16 @@ def boxM2Int(lon_min, lon_max, lat_min, lat_max):
 # Clear memory from unused GeoPandas GeoDataSet's
 # ============================================
 def clearMemory():
-    logger.info("Clear memory")
+    logger.info("Clear memory...")
 
     global gdfBuildings
     del gdfBuildings
 
-    global gdfSquares
-    del gdfSquares
-
     global gdfCells
     del gdfCells
+
+    global gdfCellsBuildings
+    del gdfCellsBuildings
 
     global gdfBuffersLiving
     del gdfBuffersLiving
@@ -220,10 +254,11 @@ def clearMemory():
     global gdfMegaphones
     del gdfMegaphones
 
-    global gdfMegaphonesCells
-    del gdfMegaphonesCells
+    global gdfCellsMegaphones
+    del gdfCellsMegaphones
 
     global gdfBuffersMegaphones
     del gdfBuffersMegaphones
 
     gc.collect()
+    logger.success("Memory clean")

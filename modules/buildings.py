@@ -6,12 +6,15 @@
 # ============================================
 
 # Standart modules
+import multiprocessing as mp # Use multiprocessing
+import ctypes # Use primitive datatypes for multiprocessing data exchange
 import numpy as np # For arrays of numbers
 import pandas as pd # For tables of data
 import geopandas as gpd # For vector objects
 from vtkmodules.vtkCommonDataModel import vtkPolyData # Use 3D-primitives
 from vtkmodules.vtkRenderingCore import (vtkActor, vtkPolyDataMapper) # Use VTK rendering
 import vtk # Use other 3D-visualization features
+import gc # For garbage collectors
 
 # Own core modules
 import modules.settings as cfg # Settings defenition
@@ -35,44 +38,57 @@ def GenerateBuildings():
     env.logger.trace(env.gdfBuildings)
 
     # Add unique identificator of building (UIB)
-    env.gdfBuildings['UIB'] = np.arange(len(env.gdfBuildings))
+    env.gdfBuildings['UIB'] = np.arange(len(env.gdfBuildings.index))
     env.logger.trace(env.gdfBuildings)
     env.logger.success("{} vector buildings found", f'{len(env.gdfBuildings.index):_}')
 
     env.logger.info("Split buildings to voxel's grid cells...")
 
     # Join buildings and centers of voxel's squares GeoDataFrames
-    env.gdfCells = env.gdfBuildings.sjoin(env.gdfSquares, how='inner', predicate='contains')
-    env.logger.trace(env.gdfCells)
-    env.logger.success("{} from {} cells are under buildings", f'{len(env.gdfCells.index):_}', f'{len(env.gdfSquares.index):_}')
+    env.gdfCellsBuildings = env.gdfBuildings.sjoin(env.gdfCells, how='inner', predicate='contains')
+    env.gdfCellsBuildings = env.gdfCellsBuildings.drop(labels='index_right', axis='columns')
+    env.logger.trace(env.gdfCellsBuildings)
+    env.logger.success("{} from {} cells are under buildings", f'{len(env.gdfCellsBuildings.index):_}', f'{len(env.gdfCells.index):_}')
 
     # Find ground points for each cell
     env.logger.info("Looking for ground points of each building")
-    env.gdfCells['GP'] = env.gdfCells.apply(lambda x : modules.earth.getGroundHeight(x['x'],x['y'],None), axis='columns')
-    env.logger.trace(env.gdfCells)
+    env.gdfCellsBuildings['GP'] = env.gdfCellsBuildings.apply(lambda x : modules.earth.getGroundHeight(x['x'],x['y'],None), axis='columns')
+    env.logger.trace(env.gdfCellsBuildings)
 
     # Find common ground point for each buildnig
     if cfg.BuildingGroundMode != 'levels':
-        pdMinGroundPoints = pd.pivot_table(data = env.gdfCells, index=['UIB'], values=['GP'], aggfunc={'GP':cfg.BuildingGroundMode})
+        pdMinGroundPoints = pd.pivot_table(data = env.gdfCellsBuildings, index=['UIB'], values=['GP'], aggfunc={'GP':cfg.BuildingGroundMode})
         env.logger.trace(pdMinGroundPoints)
-        env.gdfCells = env.gdfCells.merge(right=pdMinGroundPoints, how='left', left_on='UIB', right_on='UIB', suffixes=[None, '_agg'])
-        env.gdfCells = env.gdfCells.drop(labels='index_right', axis='columns')
-        env.logger.trace(env.gdfCells)
+        env.gdfBuildings = env.gdfBuildings.merge(right=pdMinGroundPoints, how='left', left_on='UIB', right_on='UIB')
+        env.gdfCellsBuildings = env.gdfCellsBuildings.merge(right=pdMinGroundPoints, how='left', left_on='UIB', right_on='UIB', suffixes=[None, '_agg'])
+        env.logger.trace(env.gdfBuildings)
+        env.logger.trace(env.gdfCellsBuildings)
         del pdMinGroundPoints
+        gc.collect()
 
-    # Generate voxels of buildings
-    env.logger.info("Calculate squares's of buildings")
-    for cell in env.tqdm(env.gdfCells.itertuples(), total=len(env.gdfCells.index)):
-        env.UIB[cell.x,cell.y] = cell.UIB
+    # Save buildings parameters
+    # Save floors, flats and average ground for buildings by their UIBs
+    env.logger.info("Save buildings parameters")
+    env.countBuildings = len(env.gdfBuildings.index)
+    env.buildings = mp.RawArray(ctypes.c_ushort, env.countBuildings*env.sizeBuildings)
+    for b in env.gdfBuildings.itertuples():
+        env.buildings[int(b.UIB*env.sizeBuildings)] = int(b.floors)
         if cfg.BuildingGroundMode != 'levels':
-            if np.isnan(cell.GP_agg):
-                continue
-            env.bottomfloor[cell.x,cell.y] = cell.GP_agg
-        else:
-            if np.isnan(cell.GP):
-                continue
-            env.bottomfloor[cell.x,cell.y] = cell.GP
-        env.topfloor[cell.x,cell.y] = env.bottomfloor[cell.x,cell.y] + int(round( cell.floors * cfg.sizeFloor / cfg.sizeVoxel )) -1
+            if not(np.isnan(b.GP)):
+                env.buildings[int(b.UIB*env.sizeBuildings+1)] = int(b.GP)
+        if not(np.isnan(b.flats)):
+            env.buildings[int(b.UIB*env.sizeBuildings+2)] = int(b.flats)
+    # Loop through cells and count voxels count. Save voxels index and UIBs for each cell
+    env.countVoxels = 0
+    for cell in env.tqdm(env.gdfCellsBuildings.itertuples(), total=len(env.gdfCellsBuildings.index)):
+        env.UIB[cell.x*env.bounds[1]+cell.y] = int(cell.UIB)
+        env.VoxelIndex[int(cell.x*env.bounds[1]+cell.y)] = int(env.countVoxels)
+        env.countVoxels = env.countVoxels + int(cell.floors)
+        env.buildings[int(cell.UIB*env.sizeBuildings+3)] = env.buildings[int(cell.UIB*env.sizeBuildings+3)] + int(cell.floors)
+    # Allocate memory for buildings voxels
+    env.audibilityVoxels = mp.RawArray(ctypes.c_byte, env.countVoxels)
+    env.logger.success("{} buildings stored. {} voxels of buildings allocated", f'{env.countBuildings:_}', f'{env.countVoxels:_}')
+
 
 
 # ============================================
@@ -125,7 +141,7 @@ def VizualizeAllVoxels():
 '''
     # Generate voxels of buildings
     env.logger.info("Generate voxel's of buildings...")
-    for cell in env.tqdm(env.gdfCells.itertuples(), total=len(env.gdfCells.index)):
+    for cell in env.tqdm(env.gdfCellsBuildings.itertuples(), total=len(env.gdfCellsBuildings.index)):
         if cfg.BuildingGroundMode != 'levels':
             z = cell.GP_agg
         else:

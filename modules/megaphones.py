@@ -6,7 +6,10 @@
 # ============================================
 
 # Standart modules
+import multiprocessing as mp # Use multiprocessing
+import ctypes # Use primitive datatypes for multiprocessing data exchange
 from pathlib import Path # Crossplatform pathing
+import numpy as np # For arrays of numbers
 import pandas as pd # For tables of data
 import geopandas as gpd # For vector objects
 from vtkmodules.vtkCommonDataModel import vtkPolyData # Use 3D-primitives
@@ -14,7 +17,6 @@ from vtkmodules.vtkRenderingCore import (vtkActor, vtkPolyDataMapper) # Use VTK 
 import vtk # Use other 3D-visualization features
 from shapely.ops import unary_union # For combine vector objects 
 import gc # For garbage collectors
-import math 
 
 # Own core modules
 import modules.settings as cfg # Settings defenition
@@ -43,21 +45,23 @@ def LoadMegaphones():
 
     # Remove megaphones outside of currend world
     env.gdfMegaphones = env.gdfMegaphones.loc[env.gdfMegaphones.within(env.plgnBounds)]
+    # Add unique identificator of megaphone (UIM)
+    env.gdfMegaphones['UIM'] = np.arange(len(env.gdfMegaphones.index))
     env.logger.info("{} megaphones left after removing megaphones outside of current area", len(env.gdfMegaphones.index))
     env.logger.trace(env.gdfMegaphones)
 
     # Join megaphones and cells of buildings GeoDataFrames
-    env.gdfMegaphonesCells = env.gdfMegaphones.sjoin_nearest(env.gdfCells, how='left', max_distance=cfg.distanceMegaphoneAndBuilding)
-    env.logger.info("{} from {} cells are under megaphones", f'{len(env.gdfMegaphonesCells.index):_}', f'{len(env.gdfSquares.index):_}')
-    env.logger.trace(env.gdfMegaphonesCells)
+    env.gdfCellsMegaphones = env.gdfMegaphones.sjoin_nearest(env.gdfCellsBuildings, how='left', max_distance=cfg.distanceMegaphoneAndBuilding)
+    env.logger.info("{} from {} cells are under megaphones", f'{len(env.gdfCellsMegaphones.index):_}', f'{len(env.gdfCells.index):_}')
+    env.logger.trace(env.gdfCellsMegaphones)
 
     # Calculate height of stanalone megaphones
-    env.gdfMegaphonesCells['x'] = env.gdfMegaphonesCells['x'].fillna(env.gdfMegaphonesCells['geometry'].apply(lambda g : int(round(g.x/cfg.sizeVoxel))))
-    env.gdfMegaphonesCells['y'] = env.gdfMegaphonesCells['y'].fillna(env.gdfMegaphonesCells['geometry'].apply(lambda g : int(round(g.y/cfg.sizeVoxel))))
-    env.logger.trace(env.gdfMegaphonesCells)
+    env.gdfCellsMegaphones['x'] = env.gdfCellsMegaphones['x'].fillna(env.gdfCellsMegaphones['geometry'].apply(lambda g : int(round(g.x/cfg.sizeVoxel))))
+    env.gdfCellsMegaphones['y'] = env.gdfCellsMegaphones['y'].fillna(env.gdfCellsMegaphones['geometry'].apply(lambda g : int(round(g.y/cfg.sizeVoxel))))
+    env.logger.trace(env.gdfCellsMegaphones)
 
     # Generate VTK's objects for megaphones
-    for cell in env.gdfMegaphonesCells.itertuples():
+    for cell in env.gdfCellsMegaphones.itertuples():
         if pd.isna(cell.floors):
             env.logger.warning("Megaphone too far from the any building: {}. Use {} voxels as ground and {} voxels as height",cell,z,height)
             z = int(modules.earth.getGroundHeight( int(cell.x), int(cell.y), None ))
@@ -72,71 +76,62 @@ def LoadMegaphones():
             env.pntsMegaphones_buildings_cones.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+height)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
             env.pntsMegaphones_spheres.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+height+0.5)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
 
+    # Echo distance of maxium possible audibility
+    env.logger.success("Maximum distance of possible audibility is {} meter on a street and {} meter in a building. Use {} meters", 
+                       cfg.distancePossibleAudibilityStreet, cfg.distancePossibleAudibilityBuildings, cfg.distancePossibleAudibility)
 
-# ============================================
-# Calculate audibility of squares and voxels
-# ============================================
-def CalculateAudibility():
-
-    env.logger.info("{} meter", cfg.distancePossibleAudibility)
-    
     # Generate zones of possible audibility
-    env.logger.info("Generate zones of possible audibility")
+    env.logger.info("Generate zones of possible audibility...")
 
     # Join megaphones and buildings GeoDataFrames
     env.gdfMegaphones = env.gdfMegaphones.sjoin_nearest(env.gdfBuildings, how='left', max_distance=cfg.distanceMegaphoneAndBuilding)
-    env.logger.debug(env.gdfMegaphones)
+    env.logger.trace(env.gdfMegaphones)
     
     # Add buildings polygones to each cell-megaphone row
     env.gdfMegaphones = env.gdfMegaphones.merge(right=env.gdfBuildings, how='left', left_on="UIB", right_on="UIB", suffixes=[None, '_buildings'])
     env.gdfMegaphones['geometry_buildings'] = env.gdfMegaphones['geometry_buildings'].fillna(env.gdfMegaphones['geometry'])
     env.gdfMegaphones = env.gdfMegaphones.set_geometry(col='geometry_buildings').drop(columns='geometry').rename_geometry('geometry')
-    #env.gdfMegaphones = env.gdfMegaphones.rename(columns={'x':'x_megaphone', 'y':'y_megaphone', 'UIB':'UIB_megaphone'})[
-    #                                    ['x_megaphone', 'y_megaphone', 'UIB_megaphone', 'geometry']]
-    #env.gdfMegaphones['x_megaphone'] = env.gdfMegaphones['x_megaphone'].astype(int)
-    #env.gdfMegaphones['y_megaphone'] = env.gdfMegaphones['y_megaphone'].astype(int)
-    env.logger.debug(env.gdfMegaphones)
-    
+    env.logger.trace(env.gdfMegaphones)
+
     # Calculate buffer around all megaphones
     env.gdfBuffersMegaphones = env.gdfMegaphones.copy()
     env.gdfBuffersMegaphones = env.gdfBuffersMegaphones.drop(labels='index_right', axis='columns')
     env.gdfBuffersMegaphones['geometry'] = env.gdfBuffersMegaphones['geometry'].buffer(distance=cfg.distancePossibleAudibility)    
-    env.logger.debug(env.gdfBuffersMegaphones)
-
-    #gsBuffer = env.gdfMegaphones.geometry
-    #env.logger.trace(gsBuffer)
+    env.logger.trace(env.gdfBuffersMegaphones)
 
     # Join buffer zones and centers of voxel's squares GeoDataFrames
     env.logger.info("Find cells in buffer zones of possible audibility")
-    #boundary = gpd.GeoSeries(unary_union(gsBuffer))
-    #gdfBuffer = gpd.GeoDataFrame(geometry=boundary)
-    #env.logger.trace(boundary)
-    #env.logger.trace(gdfBuffer)
-    env.gdfBuffersMegaphones = env.gdfSquares.sjoin(env.gdfBuffersMegaphones, how='inner',predicate='within')
-    env.logger.debug(env.gdfBuffersMegaphones)
-    env.logger.debug(env.gdfBuffersMegaphones.dtypes)
+    env.gdfBuffersMegaphones = env.gdfCells.sjoin(env.gdfBuffersMegaphones, how='inner',predicate='within')
+    env.logger.trace(env.gdfBuffersMegaphones)
+    env.logger.trace(env.gdfBuffersMegaphones.dtypes)
 
-    # Loop through squares of buffer zones
-    env.logger.info("Loop through squares of buffer zones...")
-    a = 0
-    for cell in env.tqdm(env.gdfBuffersMegaphones.itertuples(), total=len(env.gdfBuffersMegaphones.index)):
-        # Find megaphones of possible audibility on current cell
-        #gdfFoundMegaphones = env.gdfMegaphones.contains(cell.geometry)
-        #env.logger.debug("{} = {}",cell,gdfFoundMegaphones)
-        #for m in env.gdfMegaphones.itertuples():
-        a = a+1
-            #math.sqrt( (m.x_megaphone-cell.x)**2 + (m.y_megaphone-cell.y)**2 )
-        # Create a square
-        z = modules.earth.getGroundHeight(cell.x,cell.y,None)
-        if z is not None:
-            env.pntsSquares_yes.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
-    env.logger.debug(a)
-    env.logger.success("{} from {} cells are in buffer zones of possible audibility", f'{len(env.gdfBuffersMegaphones.index):_}', f'{len(env.gdfSquares.index):_}')
+    # Calculate count of unique cells
+    gdfBufferMegaphones = env.gdfBuffersMegaphones.groupby(['x','y']).size().reset_index()
+    env.logger.success("{} from {} unique cells in zones of possible audibility", f'{len(gdfBufferMegaphones.index):_}', f'{len(env.gdfCells.index):_}')
+    env.logger.success("{} cell-megaphone combinations", f'{len(env.gdfBuffersMegaphones.index):_}')
 
-    # Clear memory
-    #del gsBuffer
-    #del gdfBuffer
-    #gc.collect()
+    # Allocate memory and store megaphones and their zones
+    env.logger.info("Allocate memory and store megaphones and their zones")
+    env.countMegaphones = len(env.gdfMegaphones.index)
+    for uim in range(env.countMegaphones):
+        megaphoneCells = env.gdfCellsMegaphones.loc[env.gdfCellsMegaphones['UIM'] == uim]
+        env.MegaphonesCells_count.append(len(megaphoneCells.index))
+        env.MegaphonesCells.append(mp.RawArray(ctypes.c_long, len(megaphoneCells.index)*env.sizeCells))
+        megaphoneBuffers = env.gdfBuffersMegaphones.loc[env.gdfBuffersMegaphones['UIM'] == uim]
+        env.MegaphonesBuffers_count.append(len(megaphoneBuffers.index))
+        env.MegaphonesBuffers.append(mp.RawArray(ctypes.c_long, len(megaphoneBuffers.index)*env.sizeCells))
+        del megaphoneCells
+        del megaphoneBuffers
+
+    # Clear temporary variables
+    del gdfBufferMegaphones
+    gc.collect()
+
+# ============================================
+# Calculate audibility of squares and voxels
+# ============================================
+def CalculateAudibility():
+    None
 
 
 # ============================================
@@ -200,3 +195,19 @@ def VizualizeAllMegaphones():
     env.sphMegaphones.append(sphereMegaphone)
     VizualizePartOfMegaphones(env.pntsMegaphones_spheres, sphereMegaphone, env.Colors.GetColor3d("GreenYellow"), 1.0)
 
+'''
+    # Loop through squares of buffer zones
+    env.logger.info("Loop through squares of buffer zones...")
+    a = 0
+    for cell in env.tqdm(env.gdfBuffersMegaphones.itertuples(), total=len(env.gdfBuffersMegaphones.index)):
+        # Find megaphones of possible audibility on current cell
+        #gdfFoundMegaphones = env.gdfMegaphones.contains(cell.geometry)
+        #env.logger.debug("{} = {}",cell,gdfFoundMegaphones)
+        #for m in env.gdfMegaphones.itertuples():
+        a = a+1
+            #math.sqrt( (m.x_megaphone-cell.x)**2 + (m.y_megaphone-cell.y)**2 )
+        # Create a square
+        z = modules.earth.getGroundHeight(cell.x,cell.y,None)
+        if z is not None:
+            env.pntsSquares_yes.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
+'''
