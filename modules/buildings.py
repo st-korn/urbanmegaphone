@@ -68,23 +68,23 @@ def GenerateBuildings():
 
     # Save buildings parameters
     # Save floors, flats and average ground for buildings by their UIBs
-    env.logger.info("Save buildings parameters")
+    env.logger.info("Allocate memory and store buildings parameters...")
     env.countBuildings = len(env.gdfBuildings.index)
-    env.buildings = mp.RawArray(ctypes.c_ushort, env.countBuildings*env.sizeBuildings)
+    env.buildings = mp.RawArray(ctypes.c_ushort, env.countBuildings*env.sizeBuilding)
     for b in env.gdfBuildings.itertuples():
-        env.buildings[int(b.UIB*env.sizeBuildings)] = int(b.floors)
+        env.buildings[int(b.UIB*env.sizeBuilding)] = int(b.floors)
         if cfg.BuildingGroundMode != 'levels':
             if not(np.isnan(b.GP)):
-                env.buildings[int(b.UIB*env.sizeBuildings+1)] = int(b.GP)
+                env.buildings[int(b.UIB*env.sizeBuilding+1)] = int(b.GP)
         if not(np.isnan(b.flats)):
-            env.buildings[int(b.UIB*env.sizeBuildings+2)] = int(b.flats)
+            env.buildings[int(b.UIB*env.sizeBuilding+2)] = int(b.flats)
     # Loop through cells and count voxels count. Save voxels index and UIBs for each cell
     env.countVoxels = 0
     for cell in env.tqdm(env.gdfCellsBuildings.itertuples(), total=len(env.gdfCellsBuildings.index)):
         env.UIB[cell.x*env.bounds[1]+cell.y] = int(cell.UIB)
         env.VoxelIndex[int(cell.x*env.bounds[1]+cell.y)] = int(env.countVoxels)
         env.countVoxels = env.countVoxels + int(cell.floors)
-        env.buildings[int(cell.UIB*env.sizeBuildings+3)] = env.buildings[int(cell.UIB*env.sizeBuildings+3)] + int(cell.floors)
+        env.buildings[int(cell.UIB*env.sizeBuilding+3)] = env.buildings[int(cell.UIB*env.sizeBuilding+3)] + int(cell.floors)
     # Allocate memory for buildings voxels
     env.audibilityVoxels = mp.RawArray(ctypes.c_byte, env.countVoxels)
     env.logger.success("{} buildings stored. {} voxels of buildings allocated", f'{env.countBuildings:_}', f'{env.countVoxels:_}')

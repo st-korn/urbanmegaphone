@@ -17,6 +17,7 @@ from vtkmodules.vtkRenderingCore import (vtkActor, vtkPolyDataMapper) # Use VTK 
 import vtk # Use other 3D-visualization features
 from shapely.ops import unary_union # For combine vector objects 
 import gc # For garbage collectors
+import time
 
 # Own core modules
 import modules.settings as cfg # Settings defenition
@@ -111,27 +112,74 @@ def LoadMegaphones():
     env.logger.success("{} cell-megaphone combinations", f'{len(env.gdfBuffersMegaphones.index):_}')
 
     # Allocate memory and store megaphones and their zones
-    env.logger.info("Allocate memory and store megaphones and their zones")
+    env.logger.info("Allocate memory and store megaphones and their zones...")
     env.countMegaphones = len(env.gdfMegaphones.index)
+    env.countMegaphonesCells = len(env.gdfCellsMegaphones.index)
+    env.MegaphonesCells = mp.RawArray(ctypes.c_long, env.countMegaphonesCells*env.sizeCell)
+    env.MegaphonesCells_count = mp.RawArray(ctypes.c_long, env.countMegaphones)
+    env.MegaphonesCells_index = mp.RawArray(ctypes.c_long, env.countMegaphones)
+    env.countMegaphonesBuffers = len(env.gdfBuffersMegaphones.index)
+    env.MegaphonesBuffers = mp.RawArray(ctypes.c_long, env.countMegaphonesBuffers*env.sizeCell)
+    env.MegaphonesBuffers_count = mp.RawArray(ctypes.c_long, env.countMegaphones)
+    env.MegaphonesBuffers_index = mp.RawArray(ctypes.c_long, env.countMegaphones)    
+    indexCells = 0
+    indexBuffers = 0
     for uim in range(env.countMegaphones):
         megaphoneCells = env.gdfCellsMegaphones.loc[env.gdfCellsMegaphones['UIM'] == uim]
-        env.MegaphonesCells_count.append(len(megaphoneCells.index))
-        env.MegaphonesCells.append(mp.RawArray(ctypes.c_long, len(megaphoneCells.index)*env.sizeCells))
+        env.MegaphonesCells_count[uim] = len(megaphoneCells.index)
+        env.MegaphonesCells_index[uim] = indexCells
+        for cell in megaphoneCells.itertuples():
+            env.MegaphonesCells[indexCells] = int(cell.x)
+            env.MegaphonesCells[indexCells+1] = int(cell.y)
+            indexCells = indexCells + env.sizeCell
         megaphoneBuffers = env.gdfBuffersMegaphones.loc[env.gdfBuffersMegaphones['UIM'] == uim]
-        env.MegaphonesBuffers_count.append(len(megaphoneBuffers.index))
-        env.MegaphonesBuffers.append(mp.RawArray(ctypes.c_long, len(megaphoneBuffers.index)*env.sizeCells))
+        env.MegaphonesBuffers_count[uim] = len(megaphoneBuffers.index)
+        env.MegaphonesBuffers_index[uim] = indexBuffers
+        for cell in megaphoneBuffers.itertuples():
+            env.MegaphonesBuffers[indexBuffers] = int(cell.x)
+            env.MegaphonesBuffers[indexBuffers+1] = int(cell.y)
+            indexBuffers = indexBuffers + env.sizeCell
         del megaphoneCells
         del megaphoneBuffers
+    env.logger.success('{} megaphones, {} cells under megaphones, {} cells in megaphones buffer zones stored', 
+                       f'{env.countMegaphones:_}', f'{env.countMegaphonesCells:_}', f'{env.countMegaphonesBuffers:_}')
 
     # Clear temporary variables
     del gdfBufferMegaphones
     gc.collect()
 
 # ============================================
-# Calculate audibility of squares and voxels
+# Initialize calculation audibility of squares and voxels by the specific megaphone
+# ============================================
+def InitializeAudibilityOfMegaphone(cellsSize, cells, cells_count, cells_index, buffers, buffers_count, buffers_index,
+                                   boundsX, boundsY, boundsZ, ground, audibility2D, UIB, VoxelIndex,
+                                   audibilityVoxels, buildingsSize, buildings):
+    global shared_array
+
+# ============================================
+# Calculate audibility of squares and voxels by the specific megaphone
+# ============================================
+def CalculateAudibilityOfMegaphone(UIM):
+    env.logger.debug(UIM)
+    time.sleep(20)
+
+# ============================================
+# Calculate audibility of all squares and voxels
 # ============================================
 def CalculateAudibility():
-    None
+     
+    # Collect array of processes parameters
+    params = []
+    for uim in range(env.countMegaphones):
+        params.append((uim,))
+
+    # Shcedule processes
+    with mp.Pool(processes=mp.cpu_count(), initializer=InitializeAudibilityOfMegaphone, 
+                 initargs=(env.sizeCell, env.MegaphonesCells, env.MegaphonesCells_count, env.MegaphonesCells_index,
+                           env.MegaphonesBuffers, env.MegaphonesBuffers_count, env.MegaphonesBuffers_index,
+                           env.bounds[0], env.bounds[1], env.bounds[2], env.ground, env.audibility2D, env.UIB, env.VoxelIndex,
+                           env.audibilityVoxels, env.sizeBuilding, env.buildings)) as pool:
+        pool.starmap(CalculateAudibilityOfMegaphone, params)
 
 
 # ============================================

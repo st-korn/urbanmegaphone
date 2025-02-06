@@ -123,7 +123,7 @@ def ReadWorldBounds():
                                  (0,(env.bounds[1]+0.5)*cfg.sizeVoxel) ] )
 
     # Allocate memory for voxel's world
-    env.logger.info("Allocate memory...")
+    env.logger.info("Allocate memory for voxel's world...")
     env.ground = mp.RawArray(ctypes.c_short,env.bounds[0]*env.bounds[1])
     env.audibility2D = mp.RawArray(ctypes.c_byte,env.bounds[0]*env.bounds[1])
     env.UIB = mp.RawArray(ctypes.c_long,env.bounds[0]*env.bounds[1])

@@ -68,17 +68,21 @@ audibilityVoxels = None
 # [UIB*5+2] value - count of flats in building (0 for non-living buildings)
 # [UIB*5+3] value - count of total voxels
 # [UIB*5+4] value - count of total voxels with audibility
-sizeBuildings = 5 # count of values for each building
+sizeBuilding = 5 # count of values for each building
 countBuildings = None # count of buildings
 buildings = None
 
 # Store coordinates of cells for megaphones and its buffer zones
-sizeCells = 2 # Each cell have two signed long integer values [−2 147 483 647, +2 147 483 647] for its (x,y) cells coordinates
-countMegaphones = None # total count of megaphones
-MegaphonesCells = [] # Classic python array of linear 1D-arrays in shared memory with MegaphonesCells[UIM] - list of couples (x,y) coordinates of megaphones cells
-MegaphonesCells_count = [] # Classic python array of integer counts of cells in each MegaphonesCells[UIM] array
-MegaphonesBuffers = [] # Classic python array of linear 1D-arrays in shared memory with MegaphonesBuffers[UIM] - list of couples (x,y) coordinates of megaphones buffer zones cells
-MegaphonesBuffers_count = [] # Classic python array of integer counts of cells in each MegaphonesBuffers[UIM] array
+sizeCell = 2 # Each cell have two signed long integer values [−2 147 483 647, +2 147 483 647] for its (x,y) cells coordinates
+countMegaphones = None # Total count of megaphones
+MegaphonesCells = None # Linear 1D-array with couples (x,y) signed long integer coordinates of cells under megaphones
+MegaphonesCells_count = None # Linear 1D-array with signed long integer values counts of each MegaphonesCells_count[UIM] cells in MegaphonesCells array
+MegaphonesCells_index = None # Linear 1D-array with signed long integer values indexes first of MegaphonesCells_index[UIM] cell in MegaphonesCells array
+countMegaphonesCells = None # Count of cells under megaphones
+MegaphonesBuffers = None # Linear 1D-array with couples (x,y) signed long integer coordinates of cells under buffer zones of megaphones
+MegaphonesBuffers_count = None # Linear 1D-array with signed long integer values counts of each MegaphonesBuffers_count[UIM] cells in MegaphonesBuffers array
+MegaphonesBuffers_index = None # Linear 1D-array with signed long integer values indexes first of MegaphonesBuffers_index[UIM] cell in MegaphonesBuffers array
+countMegaphonesBuffers = None # Count of cells in megaphones buffer zones
 
 # DatraFrame, GeoDataFrame tables, Shapely geometries
 # ============================================
@@ -185,18 +189,13 @@ mapMegaphones = [] # vtkPolyDataMapper
 actMegaphones = [] # vtkActor
 
 
-# Environment initialization
+# Environment initialization (applied for each process)
 # ============================================
 
 # Apply selected logging level
 logger.remove()
-#logger.add(sys.stderr, level=logLevel)
 logger.add(lambda msg: tqdm.write(msg, end=""), level=cfg.logLevel, colorize=True)
 
-# Prepare VTK rendering window
-Window.AddRenderer(Renderer)
-Renderer.SetBackground(Colors.GetColor3d("ivory_black"))
-Interactor.SetRenderWindow(Window)
 
 # ============================================
 # Accept three coordinates in meters [lon, lat, height]
