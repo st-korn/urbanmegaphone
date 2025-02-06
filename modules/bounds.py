@@ -7,6 +7,7 @@
 
 # Standart modules
 import multiprocessing as mp # Use multiprocessing
+from multiprocessing.shared_memory import SharedMemory # Use shared memory
 import ctypes # Use primitive datatypes for multiprocessing data exchange
 from pathlib import Path # Crossplatform pathing
 from modules.geotiff import GeoTiff # GeoTIFF format reader
@@ -125,12 +126,16 @@ def ReadWorldBounds():
     # Allocate memory for voxel's world
     env.logger.info("Allocate memory for voxel's world...")
     env.ground = mp.RawArray(ctypes.c_short,env.bounds[0]*env.bounds[1])
-    env.audibility2D = mp.RawArray(ctypes.c_byte,env.bounds[0]*env.bounds[1])
-    env.UIB = mp.RawArray(ctypes.c_long,env.bounds[0]*env.bounds[1])
+    
+    env.shmemAudibility2D = SharedMemory(create=True, size=ctypes.sizeof(ctypes.c_byte)*env.bounds[0]*env.bounds[1])
+    env.audibility2D = (ctypes.c_byte * (env.bounds[0]*env.bounds[1])).from_buffer(env.shmemAudibility2D.buf)
+    ctypes.memset(ctypes.addressof(env.audibility2D), 0, ctypes.sizeof(env.audibility2D))
+
+    env.uib = mp.RawArray(ctypes.c_long,env.bounds[0]*env.bounds[1])
     env.VoxelIndex = mp.RawArray(ctypes.c_ulong,env.bounds[0]*env.bounds[1])
     for i in range(env.bounds[0]*env.bounds[1]):
         env.ground[i] = -1
-        env.UIB[i] = -1
+        env.uib[i] = -1
     env.logger.success("Memory allocated")
 
     # Generate 2D-GeoPandas GeoDataFrame with centers of voxel's squares on the plane

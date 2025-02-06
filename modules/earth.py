@@ -358,6 +358,17 @@ def VizualizePartOfSquares(points, color, opacity):
 # ============================================
 def VizualizeAllSquares():
     env.logger.info("Build squares of earth surface")
+    
+    idx = 0
+    for x in env.tqdm(range(env.bounds[0])):
+        for y in range(env.bounds[1]):
+            if env.audibility2D[idx]>0:
+                z = getGroundHeight(x,y,None)
+                if z is None:
+                    z = 0
+                env.pntsSquares_yes.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+            idx = idx + 1
+
     VizualizePartOfSquares(env.pntsSquares_yes, env.Colors.GetColor3d("Green"), 0.5)
     VizualizePartOfSquares(env.pntsSquares_no, env.Colors.GetColor3d("Tomato"), 0.5)
     VizualizePartOfSquares(env.pntsSquares_unassigned, env.Colors.GetColor3d("Gold"), 0.5)
@@ -370,4 +381,20 @@ def VizualizeAllSquares():
 '''
             if z is not None:
                 env.pntsSquares_unassigned.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
+'''
+'''
+    # Loop through squares of buffer zones
+    env.logger.info("Loop through squares of buffer zones...")
+    a = 0
+    for cell in env.tqdm(env.gdfBuffersMegaphones.itertuples(), total=len(env.gdfBuffersMegaphones.index)):
+        # Find megaphones of possible audibility on current cell
+        #gdfFoundMegaphones = env.gdfMegaphones.contains(cell.geometry)
+        #env.logger.debug("{} = {}",cell,gdfFoundMegaphones)
+        #for m in env.gdfMegaphones.itertuples():
+        a = a+1
+            #math.sqrt( (m.x_megaphone-cell.x)**2 + (m.y_megaphone-cell.y)**2 )
+        # Create a square
+        z = modules.earth.getGroundHeight(cell.x,cell.y,None)
+        if z is not None:
+            env.pntsSquares_yes.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
 '''

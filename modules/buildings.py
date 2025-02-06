@@ -81,7 +81,7 @@ def GenerateBuildings():
     # Loop through cells and count voxels count. Save voxels index and UIBs for each cell
     env.countVoxels = 0
     for cell in env.tqdm(env.gdfCellsBuildings.itertuples(), total=len(env.gdfCellsBuildings.index)):
-        env.UIB[cell.x*env.bounds[1]+cell.y] = int(cell.UIB)
+        env.uib[cell.x*env.bounds[1]+cell.y] = int(cell.UIB)
         env.VoxelIndex[int(cell.x*env.bounds[1]+cell.y)] = int(env.countVoxels)
         env.countVoxels = env.countVoxels + int(cell.floors)
         env.buildings[int(cell.UIB*env.sizeBuilding+3)] = env.buildings[int(cell.UIB*env.sizeBuilding+3)] + int(cell.floors)

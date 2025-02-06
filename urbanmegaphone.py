@@ -14,6 +14,7 @@ import modules.bounds # Read raster and DEM data and calculate wolrd bounds
 import modules.earth # Read raster and DEM data and generate earth surface
 import modules.buildings # Generate voxels for earth ground vector buildings
 import modules.megaphones # Load megaphones points and calculate audibility level
+import modules.audibility # Multiprocessing audibility calculation
 
 # Only for main process
 if __name__ == '__main__':
@@ -26,7 +27,7 @@ if __name__ == '__main__':
     modules.earth.PrepareBufferZones() # Calculate buffer zones around living buildings if ShowSquares mode is 'buffer'
     modules.megaphones.LoadMegaphones() # Load megaphones points
     env.clearMemory() # Clear memory from unused variables
-    modules.megaphones.CalculateAudibility() # Calculate audibility of squares and voxels
+    modules.audibility.CalculateAudibility() # Calculate audibility of squares and voxels
     modules.buildings.VizualizeAllVoxels() # Generate voxels of buildings vizualiztion
     modules.earth.VizualizeAllSquares() # Generate squares of earth surface vizualization
     modules.megaphones.VizualizeAllMegaphones() # Generate cones and spheres for megaphones vizualization
@@ -60,3 +61,5 @@ if __name__ == '__main__':
     env.logger.success("Done. Ready for viewing")
     env.Interactor.Start()
     env.logger.info("Please wait for the completion of memory cleanup")
+    #env.shmemAudibility2D.close()
+    #env.shmemAudibility2D.unlink()

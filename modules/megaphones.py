@@ -17,7 +17,6 @@ from vtkmodules.vtkRenderingCore import (vtkActor, vtkPolyDataMapper) # Use VTK 
 import vtk # Use other 3D-visualization features
 from shapely.ops import unary_union # For combine vector objects 
 import gc # For garbage collectors
-import time
 
 # Own core modules
 import modules.settings as cfg # Settings defenition
@@ -149,40 +148,6 @@ def LoadMegaphones():
     gc.collect()
 
 # ============================================
-# Initialize calculation audibility of squares and voxels by the specific megaphone
-# ============================================
-def InitializeAudibilityOfMegaphone(cellsSize, cells, cells_count, cells_index, buffers, buffers_count, buffers_index,
-                                   boundsX, boundsY, boundsZ, ground, audibility2D, UIB, VoxelIndex,
-                                   audibilityVoxels, buildingsSize, buildings):
-    global shared_array
-
-# ============================================
-# Calculate audibility of squares and voxels by the specific megaphone
-# ============================================
-def CalculateAudibilityOfMegaphone(UIM):
-    env.logger.debug(UIM)
-    time.sleep(20)
-
-# ============================================
-# Calculate audibility of all squares and voxels
-# ============================================
-def CalculateAudibility():
-     
-    # Collect array of processes parameters
-    params = []
-    for uim in range(env.countMegaphones):
-        params.append((uim,))
-
-    # Shcedule processes
-    with mp.Pool(processes=mp.cpu_count(), initializer=InitializeAudibilityOfMegaphone, 
-                 initargs=(env.sizeCell, env.MegaphonesCells, env.MegaphonesCells_count, env.MegaphonesCells_index,
-                           env.MegaphonesBuffers, env.MegaphonesBuffers_count, env.MegaphonesBuffers_index,
-                           env.bounds[0], env.bounds[1], env.bounds[2], env.ground, env.audibility2D, env.UIB, env.VoxelIndex,
-                           env.audibilityVoxels, env.sizeBuilding, env.buildings)) as pool:
-        pool.starmap(CalculateAudibilityOfMegaphone, params)
-
-
-# ============================================
 # Generate necessary VTK objects of megaphones from vtkPoints
 # with the specified color and opacity to vizualization
 # IN: 
@@ -242,20 +207,3 @@ def VizualizeAllMegaphones():
     sphereMegaphone.SetRadius(cfg.sizeVoxel/4)
     env.sphMegaphones.append(sphereMegaphone)
     VizualizePartOfMegaphones(env.pntsMegaphones_spheres, sphereMegaphone, env.Colors.GetColor3d("GreenYellow"), 1.0)
-
-'''
-    # Loop through squares of buffer zones
-    env.logger.info("Loop through squares of buffer zones...")
-    a = 0
-    for cell in env.tqdm(env.gdfBuffersMegaphones.itertuples(), total=len(env.gdfBuffersMegaphones.index)):
-        # Find megaphones of possible audibility on current cell
-        #gdfFoundMegaphones = env.gdfMegaphones.contains(cell.geometry)
-        #env.logger.debug("{} = {}",cell,gdfFoundMegaphones)
-        #for m in env.gdfMegaphones.itertuples():
-        a = a+1
-            #math.sqrt( (m.x_megaphone-cell.x)**2 + (m.y_megaphone-cell.y)**2 )
-        # Create a square
-        z = modules.earth.getGroundHeight(cell.x,cell.y,None)
-        if z is not None:
-            env.pntsSquares_yes.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
-'''
