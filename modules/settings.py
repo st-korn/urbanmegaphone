@@ -49,7 +49,7 @@ flagShowAxis = True
 # 'buffer' - for surface around living buildings
 # 'none' - do not calculate and show
 # Default value is 'buffer'
-ShowSquares = 'none'
+ShowSquares = 'buffer'
 
 # Radius of buffer zones around buildings. Used with ShowSquares = 'buffer', meters. Default value 100 meters
 BufferRadius = 100
@@ -61,7 +61,7 @@ BufferRadius = 100
 # 'median' - building positioned at the median point on his ground. All voxels of building have same ground level.
 # 'levels' - Each voxel of building positioned at its own ground level.
 # Default value is 'median'
-BuildingGroundMode = 'levels'
+BuildingGroundMode = 'median'
 
 # Audibility calculation parameters
 # ============================================
