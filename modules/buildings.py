@@ -19,7 +19,7 @@ import gc # For garbage collectors
 # Own core modules
 import modules.settings as cfg # Settings defenition
 import modules.environment as env # Environment defenition
-import modules.earth # Earth surface routines
+import modules.earth # The earth's surface routines
 
 
 # ============================================
@@ -153,7 +153,7 @@ def VizualizePartOfVoxels(points, color, opacity):
 def VizualizeAllVoxels():
     env.logger.info("Build voxels of buildings...")
 
-    # Loop throught grid of earth surface cells audibility
+    # Loop throught grid of the earth's surface cells audibility
     idx2D = 0
     totalCells = 0
     totalFlats = 0

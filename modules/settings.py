@@ -44,7 +44,7 @@ flagShowEarthPoints = False
 # Show axis of ccordinate system. Used for debug surface purposes. Default value is True
 flagShowAxis = True
 
-# Show squares and calculate audibility on earth surface:
+# Show squares and calculate audibility on the earth's surface:
 # 'full' - for all surface
 # 'buffer' - for surface around living buildings
 # 'none' - do not calculate and show

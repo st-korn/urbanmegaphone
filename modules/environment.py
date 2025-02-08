@@ -40,7 +40,7 @@ bounds = [None, None, None] #x_lon, y_lat, z_height
 ground = None
 
 # Squares matrix: 2D-array of signed byte integer values [−127, +127]:
-# integer value of audibility on the earth surface in this place: -1 (no), 0 (unknown), 1(yes)
+# integer value of audibility on the earth's surface in this place: -1 (no), 0 (unknown), 1(yes)
 # At first initialized by 0 values
 audibility2D = None # Just matrix
 

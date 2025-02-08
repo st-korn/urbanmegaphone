@@ -21,7 +21,7 @@ import gc # For garbage collectors
 # Own core modules
 import modules.settings as cfg # Settings defenition
 import modules.environment as env # Environment defenition
-import modules.earth # Earth surface routines
+import modules.earth # The earth's surface routines
 
 # ============================================
 # Load vector points of megaphones

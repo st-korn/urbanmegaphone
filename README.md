@@ -138,11 +138,11 @@ Light spheres on the image means source points of DEM raster data. Dark spheres 
 
 ## 5. Stretching the texture onto the earth's surface
 
-Next step, we put raster tiles map on the earth surface. For each point of the generated surface we determine the plane coordinates of the corresponding raster map image. Thus, we stretch the raster to the elevation differences of the terrain.
+Next step, we put raster tiles map on the earth's surface. For each point of the generated surface we determine the plane coordinates of the corresponding raster map image. Thus, we stretch the raster to the elevation differences of the terrain.
 
-![Put texture on earth surface](/images/texture3.png)
+![Put texture on the earth's surface](/images/texture3.png)
 
-As result we got an earth surface with raster map above it
+As result we got an the earth's surface with raster map above it
 
 ![Caucasus relief](/images/gunib.gif)
 

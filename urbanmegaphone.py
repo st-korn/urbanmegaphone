@@ -12,7 +12,7 @@ import time # Tracking the execution time
 import modules.settings as cfg # Settings defenition
 import modules.environment as env # Environment defenition
 import modules.bounds # Read raster and DEM data and calculate wolrd bounds
-import modules.earth # Read raster and DEM data and generate earth surface
+import modules.earth # Read raster and DEM data and generate the earth's surface
 import modules.buildings # Generate voxels for earth ground vector buildings
 import modules.megaphones # Load megaphones points and calculate audibility level
 import modules.audibility # Multiprocessing audibility calculation
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     modules.megaphones.LoadMegaphones() # Load megaphones points
     env.clearMemory() # Clear memory from unused variables
     modules.audibility.CalculateAudibility() # Calculate audibility of squares and voxels
-    modules.earth.VizualizeAllSquares() # Generate squares of earth surface vizualization
+    modules.earth.VizualizeAllSquares() # Generate squares of the earth's surface vizualization
     modules.buildings.VizualizeAllVoxels() # Generate voxels of buildings vizualiztion
     modules.megaphones.VizualizeAllMegaphones() # Generate cones and spheres for megaphones vizualization
 

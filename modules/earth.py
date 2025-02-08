@@ -1,5 +1,5 @@
 # ============================================
-# Module: Read raster and DEM data and generate earth surface
+# Module: Read raster and DEM data and generate the earth's surface
 # ============================================
 
 # Modules import
@@ -28,7 +28,7 @@ import modules.environment as env # Environment defenition
 # ============================================
 def GenerateEarthSurface():
 
-    env.logger.info("Generate earth surface")
+    env.logger.info("Generating the earth's surface:")
 
     # Draw the coordinate axes, if necessary
     if cfg.flagShowAxis:
@@ -219,9 +219,9 @@ def GenerateEarthSurface():
             locator.BuildLocator()
             env.lctrClipped.append(locator)
 
-            # Prepare squares of the whole earth surface
+            # Prepare squares of the whole earth's surface
             if cfg.ShowSquares == 'full':
-                env.logger.info("Calculate earth surface height of each square...")
+                env.logger.info("Calculate the earth's surface height of each square...")
                 # Find voxels of this surface
                 flBounds = polyDataClipped.GetBounds()
                 [x_min, x_max, y_min, y_max] = env.boxM2Int(flBounds[0],flBounds[1],flBounds[4],flBounds[5])
@@ -266,7 +266,7 @@ def PrepareLivingBuffer():
 
 # ============================================
 # Find int Z vertical coordiate of intersection 
-# the vertical ray from the center of voxel (x, y) and earth surface on VTK space
+# the vertical ray from the center of voxel (x, y) and the earth's surface on VTK space
 # Can search on specifec surface (using locator) or on all surfaces in VTK space
 # Store found coordinate in env.ground array
 # IN:
@@ -316,7 +316,7 @@ def getGroundHeight(x, y, locator):
 
 # ============================================
 # Generate necessary square VTK objects from vtkPoints 
-# with the specified color and opacity to earth surface vizualization
+# with the specified color and opacity to the earth's surface vizualization
 # IN: 
 # points - vtkPoints collection
 # color - tuple of three float number 0..1 for R,G,B values of color (0% .. 100%)
@@ -325,7 +325,7 @@ def getGroundHeight(x, y, locator):
 # No return values. Modify variables of environment.py in which VTK objects for further vizualization
 # ============================================
 def VizualizePartOfSquares(points, color, opacity):
-    # Put squares on points of earth surface
+    # Put squares on points of the earth's surface
     polyDataSquares = vtkPolyData()
     polyDataSquares.SetPoints(points)
     env.pldtSquares.append(polyDataSquares)
@@ -351,13 +351,13 @@ def VizualizePartOfSquares(points, color, opacity):
     env.actSquares.append(pointsActorSquares)
 
 # ============================================
-# Generate squares of earth surface vizualization
+# Generate squares of the earth's surface vizualization
 # from previously calculated and classified points
 # ============================================
 def VizualizeAllSquares():
-    env.logger.info("Build squares of earth surface...")
+    env.logger.info("Build squares of the earth's surface...")
     
-    # Loop throught grid of earth surface cells audibility
+    # Loop throught grid of the earth's surface cells audibility
     idx2D = 0
     for x in env.tqdm(range(env.bounds[0])):
         for y in range(env.bounds[1]):
