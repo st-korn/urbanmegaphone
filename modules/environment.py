@@ -79,6 +79,7 @@ buildings = None
 # Store coordinates of cells for megaphones and its buffer zones
 sizeCell = 2 # Each cell have two signed long integer values [−2 147 483 647, +2 147 483 647] for its (x,y) cells coordinates
 countMegaphones = None # Total count of megaphones
+leftMegaphones = None # Counter of megaphones, which calculations are still not being finished or they are awaiting for an execution
 MegaphonesCells = None # Linear 1D-array with couples (x,y) signed long integer coordinates of cells under megaphones
 MegaphonesCells_count = None # Linear 1D-array with signed long integer values counts of each MegaphonesCells_count[UIM] cells in MegaphonesCells array
 MegaphonesCells_index = None # Linear 1D-array with signed long integer values indexes first of MegaphonesCells_index[UIM] cell in MegaphonesCells array
@@ -88,10 +89,7 @@ MegaphonesBuffers_count = None # Linear 1D-array with signed long integer values
 MegaphonesBuffers_index = None # Linear 1D-array with signed long integer values indexes first of MegaphonesBuffers_index[UIM] cell in MegaphonesBuffers array
 countMegaphonesBuffers = None # Count of cells in megaphones buffer zones
 countChecks = None # Count of total ckesks for audibility calculation (combination of megaphones cells and buffers cells)
-
-# Counter of megaphones, which calculations are still not being finished or they are awaiting for an execution
-leftMegaphones = None
-leftChecks = None
+madeChecks = None # Counter of calculated checks at current time
 
 # DatraFrame, GeoDataFrame tables, Shapely geometries
 # ============================================
