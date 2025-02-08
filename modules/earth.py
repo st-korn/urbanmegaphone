@@ -363,9 +363,11 @@ def VizualizeAllSquares():
         for y in range(env.bounds[1]):
             z = env.ground[idx2D]
             uib = env.uib[idx2D]
+            # Fix the earth's surface height if it is under the building
             if uib >= 0:
                 if cfg.BuildingGroundMode != 'levels':
-                    z = min(z, env.buildings[uib*env.sizeBuilding+1])
+                    z = min(z, env.buildings[uib*env.sizeBuilding+1]) # Use building's ground level
+            # Create points for squares of the earth's surface
             if env.audibility2D[idx2D]>0:
                 env.pntsSquares_yes.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.1)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
             elif env.audibility2D[idx2D]<0:

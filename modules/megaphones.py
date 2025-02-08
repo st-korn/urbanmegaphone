@@ -80,12 +80,10 @@ def LoadMegaphones():
             env.pntsMegaphones_spheres.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z+0.5+height+0.5)*cfg.sizeVoxel, (cell.y+0.5)*cfg.sizeVoxel)
 
     # Echo distance of maxium possible audibility
-    env.logger.success("Maximum distance of possible audibility is {} meter on a street and {} meter in a building. Use {} meters", 
-                       f'{cfg.distancePossibleAudibilityStreet:.1f}', f'{cfg.distancePossibleAudibilityBuildings:.1f}', 
-                       f'{cfg.distancePossibleAudibility:.1f}')
+    env.logger.success("Maximum distance of possible audibility is {} meter in the buildings and {} meter on the streets", 
+                       f'{cfg.distancePossibleAudibilityInt:.1f}', f'{cfg.distancePossibleAudibilityExt:.1f}' )
 
-    # Generate zones of possible audibility
-    env.logger.info("Locate zones of possible audibility...")
+    # Prepare for genetaion of zones of possible audibility
 
     # Join megaphones and buildings GeoDataFrames
     env.gdfMegaphones = env.gdfMegaphones.sjoin_nearest(env.gdfBuildings, how='left', max_distance=cfg.distanceMegaphoneAndBuilding)
@@ -97,22 +95,45 @@ def LoadMegaphones():
     env.gdfMegaphones = env.gdfMegaphones.set_geometry(col='geometry_buildings').drop(columns='geometry').rename_geometry('geometry')
     env.logger.trace(env.gdfMegaphones)
 
+    # Generate zones of possible audibility in the buildings
+    env.logger.info("Locate zones of possible audibility in the buildings...")
+
     # Calculate buffer around all megaphones
-    env.gdfBuffersMegaphones = env.gdfMegaphones.copy()
-    env.gdfBuffersMegaphones = env.gdfBuffersMegaphones.drop(labels='index_right', axis='columns')
-    env.gdfBuffersMegaphones['geometry'] = env.gdfBuffersMegaphones['geometry'].buffer(distance=cfg.distancePossibleAudibility)    
-    env.logger.trace(env.gdfBuffersMegaphones)
+    env.gdfBuffersMegaphonesInt = env.gdfMegaphones.copy()
+    env.gdfBuffersMegaphonesInt = env.gdfBuffersMegaphonesInt.drop(labels='index_right', axis='columns')
+    env.gdfBuffersMegaphonesInt['geometry'] = env.gdfBuffersMegaphonesInt['geometry'].buffer(distance=cfg.distancePossibleAudibilityInt)
+    env.logger.trace(env.gdfBuffersMegaphonesInt)
 
     # Join buffer zones and centers of voxel's squares GeoDataFrames
-    env.gdfBuffersMegaphones = env.gdfCells.sjoin(env.gdfBuffersMegaphones, how='inner',predicate='within')
-    env.logger.trace(env.gdfBuffersMegaphones)
-    env.logger.trace(env.gdfBuffersMegaphones.dtypes)
+    env.gdfBuffersMegaphonesInt = env.gdfCells.sjoin(env.gdfBuffersMegaphonesInt, how='inner',predicate='within')
+    env.logger.trace(env.gdfBuffersMegaphonesInt)
+    env.logger.trace(env.gdfBuffersMegaphonesInt.dtypes)
 
     # Calculate count of unique cells
-    gdfBufferMegaphones = env.gdfBuffersMegaphones.groupby(['x','y']).size().reset_index()
+    gdfBuffersMegaphonesInt = env.gdfBuffersMegaphonesInt.groupby(['x','y']).size().reset_index()
     env.logger.success("{} from {} unique cells in zones of possible audibility", 
-                       env.printLong(len(gdfBufferMegaphones.index)), env.printLong(len(env.gdfCells.index)))
-    env.logger.success("{} cell-megaphone combinations", env.printLong(len(env.gdfBuffersMegaphones.index)))
+                       env.printLong(len(gdfBuffersMegaphonesInt.index)), env.printLong(len(env.gdfCells.index)))
+    env.logger.success("{} cell-megaphone combinations", env.printLong(len(env.gdfBuffersMegaphonesInt.index)))
+
+    # Generate zones of possible audibility at the streets
+    env.logger.info("Locate zones of possible audibility at the streets...")
+
+    # Calculate buffer around all megaphones
+    env.gdfBuffersMegaphonesExt = env.gdfMegaphones.copy()
+    env.gdfBuffersMegaphonesExt = env.gdfBuffersMegaphonesExt.drop(labels='index_right', axis='columns')
+    env.gdfBuffersMegaphonesExt['geometry'] = env.gdfBuffersMegaphonesExt['geometry'].buffer(distance=cfg.distancePossibleAudibilityExt)
+    env.logger.trace(env.gdfBuffersMegaphonesExt)
+
+    # Join buffer zones and centers of voxel's squares GeoDataFrames
+    env.gdfBuffersMegaphonesExt = env.gdfCells.sjoin(env.gdfBuffersMegaphonesExt, how='inner',predicate='within')
+    env.logger.trace(env.gdfBuffersMegaphonesExt)
+    env.logger.trace(env.gdfBuffersMegaphonesExt.dtypes)
+
+    # Calculate count of unique cells
+    gdfBuffersMegaphonesExt = env.gdfBuffersMegaphonesExt.groupby(['x','y']).size().reset_index()
+    env.logger.success("{} from {} unique cells in zones of possible audibility", 
+                       env.printLong(len(gdfBuffersMegaphonesExt.index)), env.printLong(len(env.gdfCells.index)))
+    env.logger.success("{} cell-megaphone combinations", env.printLong(len(env.gdfBuffersMegaphonesExt.index)))
 
     # Allocate memory and store megaphones and their zones
     env.logger.info("Allocate memory and store megaphones and their zones...")
@@ -121,12 +142,17 @@ def LoadMegaphones():
     env.MegaphonesCells = mp.RawArray(ctypes.c_long, env.countMegaphonesCells*env.sizeCell)
     env.MegaphonesCells_count = mp.RawArray(ctypes.c_long, env.countMegaphones)
     env.MegaphonesCells_index = mp.RawArray(ctypes.c_long, env.countMegaphones)
-    env.countMegaphonesBuffers = len(env.gdfBuffersMegaphones.index)
-    env.MegaphonesBuffers = mp.RawArray(ctypes.c_long, env.countMegaphonesBuffers*env.sizeCell)
-    env.MegaphonesBuffers_count = mp.RawArray(ctypes.c_long, env.countMegaphones)
-    env.MegaphonesBuffers_index = mp.RawArray(ctypes.c_long, env.countMegaphones)    
+    env.countMegaphonesBuffersInt = len(env.gdfBuffersMegaphonesInt.index)
+    env.MegaphonesBuffersInt = mp.RawArray(ctypes.c_long, env.countMegaphonesBuffersInt*env.sizeCell)
+    env.MegaphonesBuffersInt_count = mp.RawArray(ctypes.c_long, env.countMegaphones)
+    env.MegaphonesBuffersInt_index = mp.RawArray(ctypes.c_long, env.countMegaphones)
+    env.countMegaphonesBuffersExt = len(env.gdfBuffersMegaphonesExt.index)
+    env.MegaphonesBuffersExt = mp.RawArray(ctypes.c_long, env.countMegaphonesBuffersExt*env.sizeCell)
+    env.MegaphonesBuffersExt_count = mp.RawArray(ctypes.c_long, env.countMegaphones)
+    env.MegaphonesBuffersExt_index = mp.RawArray(ctypes.c_long, env.countMegaphones)
     indexCells = 0
-    indexBuffers = 0
+    indexBuffersInt = 0
+    indexBuffersExt = 0
     env.countChecks = 0
     for uim in env.tqdm(range(env.countMegaphones)):
         megaphoneCells = env.gdfCellsMegaphones.loc[env.gdfCellsMegaphones['UIM'] == uim]
@@ -137,25 +163,37 @@ def LoadMegaphones():
             env.MegaphonesCells[indexCells+1] = int(cell.y)
             indexCells = indexCells + env.sizeCell
             modules.earth.getGroundHeight(int(cell.x), int(cell.y), None)
-        megaphoneBuffers = env.gdfBuffersMegaphones.loc[env.gdfBuffersMegaphones['UIM'] == uim]
-        env.MegaphonesBuffers_count[uim] = len(megaphoneBuffers.index)
-        env.MegaphonesBuffers_index[uim] = indexBuffers
-        for cell in megaphoneBuffers.itertuples():
-            env.MegaphonesBuffers[indexBuffers] = int(cell.x)
-            env.MegaphonesBuffers[indexBuffers+1] = int(cell.y)
-            indexBuffers = indexBuffers + env.sizeCell
+        megaphoneBuffersInt = env.gdfBuffersMegaphonesInt.loc[env.gdfBuffersMegaphonesInt['UIM'] == uim]
+        env.MegaphonesBuffersInt_count[uim] = len(megaphoneBuffersInt.index)
+        env.MegaphonesBuffersInt_index[uim] = indexBuffersInt
+        for cell in megaphoneBuffersInt.itertuples():
+            env.MegaphonesBuffersInt[indexBuffersInt] = int(cell.x)
+            env.MegaphonesBuffersInt[indexBuffersInt+1] = int(cell.y)
+            indexBuffersInt = indexBuffersInt + env.sizeCell
             modules.earth.getGroundHeight(int(cell.x), int(cell.y), None)
-        env.countChecks = env.countChecks + (env.MegaphonesCells_count[uim] * env.MegaphonesBuffers_count[uim])
+        megaphoneBuffersExt = env.gdfBuffersMegaphonesExt.loc[env.gdfBuffersMegaphonesExt['UIM'] == uim]
+        env.MegaphonesBuffersExt_count[uim] = len(megaphoneBuffersExt.index)
+        env.MegaphonesBuffersExt_index[uim] = indexBuffersExt
+        for cell in megaphoneBuffersExt.itertuples():
+            env.MegaphonesBuffersExt[indexBuffersExt] = int(cell.x)
+            env.MegaphonesBuffersExt[indexBuffersExt+1] = int(cell.y)
+            indexBuffersExt = indexBuffersExt + env.sizeCell
+            modules.earth.getGroundHeight(int(cell.x), int(cell.y), None)
+        env.countChecks = env.countChecks + (env.MegaphonesCells_count[uim] * env.MegaphonesBuffersInt_count[uim]) + \
+                                            (env.MegaphonesCells_count[uim] * env.MegaphonesBuffersExt_count[uim])
         del megaphoneCells
-        del megaphoneBuffers
-    env.logger.success('{} megaphones, {} cells under megaphones, {} cells in megaphones buffer zones stored', 
-                       env.printLong(env.countMegaphones), env.printLong(env.countMegaphonesCells), env.printLong(env.countMegaphonesBuffers))
+        del megaphoneBuffersInt
+        del megaphoneBuffersExt
+    env.logger.success('{} megaphones, {} cells under megaphones stored', 
+                       env.printLong(env.countMegaphones), env.printLong(env.countMegaphonesCells) )
+    env.logger.success('{} cells under buildings, {} cells at the streets in megaphones zones  of possible audibility stored',  
+                       env.printLong(env.countMegaphonesBuffersInt), env.printLong(env.countMegaphonesBuffersExt) )
     env.logger.success('{} total checks will be performed', env.printLong(env.countChecks))
 
     # Select livings buffer zone, excluded megaphones potential audibility zone
     if cfg.ShowSquares == 'buffer':
         env.logger.info("Exclude living zones without possible audibility...")
-        gdfLivingWithoutAudibility = env.gdfBuffersLiving.merge(gdfBufferMegaphones, how='left', on=['x','y'], indicator=True)
+        gdfLivingWithoutAudibility = env.gdfBuffersLiving.merge(gdfBuffersMegaphonesExt, how='left', on=['x','y'], indicator=True)
         gdfLivingWithoutAudibility = gdfLivingWithoutAudibility.loc[gdfLivingWithoutAudibility['_merge'] == 'left_only']
         for cell in env.tqdm(gdfLivingWithoutAudibility.itertuples(), total=len(gdfLivingWithoutAudibility.index)):
             env.audibility2D[cell.x*env.bounds[1]+cell.y] = -1
@@ -164,7 +202,8 @@ def LoadMegaphones():
         del gdfLivingWithoutAudibility
 
     # Clear temporary variables
-    del gdfBufferMegaphones
+    del gdfBuffersMegaphonesInt
+    del gdfBuffersMegaphonesExt
     gc.collect()
 
 # ============================================

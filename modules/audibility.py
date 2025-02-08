@@ -62,6 +62,7 @@ def CheckAudibility(xDst, yDst, zDst, uibDst, xSrc, ySrc, zSrc, uibSrc):
     t = 0.0
     while t <= 1.0:
         # Calculate coordinates of the Intermediate voxel (x, y, z) on the segment
+        # starting from the source voxel (xSrc, ySrc, zSrc) with the step t
         x = int(round(xSrc + t * dx))
         y = int(round(ySrc + t * dy))
         z = int(round(zSrc + t * dz))
@@ -75,7 +76,7 @@ def CheckAudibility(xDst, yDst, zDst, uibDst, xSrc, ySrc, zSrc, uibSrc):
             
         # If there is no building there, check if the intermediate voxel is higher than the earth's surface
         if uib < 0:
-            if z < ground[x* boundsY+y] - 1:
+            if z < (ground[x* boundsY+y] - 1): # smoothing out the steps of the earth's surface
                 return False
 
         t = t + step # Go to the next step on the segment
@@ -88,11 +89,15 @@ def CheckAudibility(xDst, yDst, zDst, uibDst, xSrc, ySrc, zSrc, uibSrc):
 # Retrieve scalar variables from parameters of function 
 # and store them in global variables of this module of current proccess
 # ============================================
-def InitializeAudibilityOfMegaphone(pCellsSize, pCells, pCellsCount, pCellsIndex, pBuffers, pBuffersCount, pBuffersIndex,
-                                   pBoundsX, pBoundsY, pBoundsZ, pGround, pAudibility2D, pUIB, pVoxelIndex,
-                                   pAudibilityVoxels, pBuildingsSize, pBuildings, pMegaphonesCount, pMegaphonesLeft, 
-                                   pQueueChecked):
-    global cellsSize, cells, cells_count, cells_index, buffers, buffers_count, buffers_index, \
+def InitializeAudibilityOfMegaphone(pCellsSize, pCells, pCellsCount, pCellsIndex, 
+                                    pBuffersInt, pBuffersIntCount, pBuffersIntIndex,
+                                    pBuffersExt, pBuffersExtCount, pBuffersExtIndex,
+                                    pBoundsX, pBoundsY, pBoundsZ, pGround, pAudibility2D, pUIB, pVoxelIndex,
+                                    pAudibilityVoxels, pBuildingsSize, pBuildings, pMegaphonesCount, pMegaphonesLeft, 
+                                    pQueueChecked):
+    global cellsSize, cells, cells_count, cells_index, \
+           buffersInt, buffersInt_count, buffersInt_index, \
+           buffersExt, buffersExt_count, buffersExt_index, \
            boundsX, boundsY, boundsZ, ground, audibility2D, uibs, VoxelIndex, \
            audibilityVoxels, buildingsSize, buildings, megaphonesCount, megaphonesLeft, \
            queueChecked
@@ -100,9 +105,12 @@ def InitializeAudibilityOfMegaphone(pCellsSize, pCells, pCellsCount, pCellsIndex
     cells = pCells
     cells_count = pCellsCount
     cells_index = pCellsIndex
-    buffers = pBuffers
-    buffers_count = pBuffersCount
-    buffers_index = pBuffersIndex
+    buffersInt = pBuffersInt
+    buffersInt_count = pBuffersIntCount
+    buffersInt_index = pBuffersIntIndex
+    buffersExt = pBuffersExt
+    buffersExt_count = pBuffersExtCount
+    buffersExt_index = pBuffersExtIndex
     boundsX = pBoundsX
     boundsY = pBoundsY
     boundsZ = pBoundsZ
@@ -122,7 +130,9 @@ def InitializeAudibilityOfMegaphone(pCellsSize, pCells, pCellsCount, pCellsIndex
 # ============================================
 def CalculateAudibilityOfMegaphone(uim):
     # Global variables
-    global cellsSize, cells, cells_count, cells_index, buffers, buffers_count, buffers_index, \
+    global cellsSize, cells, cells_count, cells_index, \
+           buffersInt, buffersInt_count, buffersInt_index, \
+           buffersExt, buffersExt_count, buffersExt_index, \
            boundsX, boundsY, boundsZ, ground, audibility2D, uibs, VoxelIndex, \
            audibilityVoxels, buildingsSize, buildings, megaphonesCount, megaphonesLeft, \
            queueChecked
@@ -151,21 +161,13 @@ def CalculateAudibilityOfMegaphone(uim):
         else:
             zCell = GetFirstBuildingVoxel(xCell, yCell, uibMegaphone) + buildings[uibMegaphone*env.sizeBuilding]
 
-        # Loop through buffer zone
-        idxBuffer = buffers_index[uim]
-        for j in range(buffers_count[uim]):
-            xBuffer = buffers[idxBuffer] # Coordinates of test cell
-            yBuffer = buffers[idxBuffer+1]
+        # Loop through buffer zone in the buildings
+        idxBufferInt = buffersInt_index[uim]
+        for j in range(buffersInt_count[uim]):
+            xBuffer = buffersInt[idxBufferInt] # Coordinates of test cell
+            yBuffer = buffersInt[idxBufferInt+1]
             uibTest = uibs[xBuffer*boundsY+yBuffer] # UIB building on test cell (if exists)
             zStart = ground[xBuffer*boundsY+yBuffer]
-
-            # Check ground square audibility
-            countCheckedSquares = countCheckedSquares + 1
-            flag = (audibility2D[xBuffer*boundsY+yBuffer] > 0)
-            if not(flag): # If voxel is not audibility yet
-                flag = CheckAudibility(xBuffer, yBuffer, zStart, uibTest, xCell, yCell, zCell, uibMegaphone)
-                audibility2D[xBuffer*boundsY+yBuffer] = (1 if flag else -1)
-            countAudibilitySquares = countAudibilitySquares + (1 if flag else 0)
 
             # There is any building on tested square
             if uibTest>=0:
@@ -183,11 +185,29 @@ def CalculateAudibilityOfMegaphone(uim):
                             audibilityVoxels[ VoxelIndex[xBuffer*boundsY+yBuffer] + floor ] = (1 if flag else -1)
                         countAudibilityVoxels = countAudibilityVoxels + (1 if flag else 0)
 
-            idxBuffer = idxBuffer + cellsSize # Go to next test cell
+            idxBufferInt = idxBufferInt + cellsSize # Go to next test cell
+
+        # Loop through buffer zone on the streets
+        idxBufferExt = buffersExt_index[uim]
+        for j in range(buffersExt_count[uim]):
+            xBuffer = buffersExt[idxBufferExt] # Coordinates of test cell
+            yBuffer = buffersExt[idxBufferExt+1]
+            uibTest = uibs[xBuffer*boundsY+yBuffer] # UIB building on test cell (if exists)
+            zStart = ground[xBuffer*boundsY+yBuffer]
+
+            # Check ground square audibility
+            countCheckedSquares = countCheckedSquares + 1
+            flag = (audibility2D[xBuffer*boundsY+yBuffer] > 0)
+            if not(flag): # If voxel is not audibility yet
+                flag = CheckAudibility(xBuffer, yBuffer, zStart, uibTest, xCell, yCell, zCell, uibMegaphone)
+                audibility2D[xBuffer*boundsY+yBuffer] = (1 if flag else -1)
+            countAudibilitySquares = countAudibilitySquares + (1 if flag else 0)
+
+            idxBufferExt = idxBufferExt + cellsSize # Go to next test cell
 
         idxCell = idxCell + cellsSize # Go to next megaphone cell
-        countChecked = countChecked + buffers_count[uim]
-        queueChecked.put(buffers_count[uim])
+        countChecked = countChecked + buffersInt_count[uim] + buffersExt_count[uim]
+        queueChecked.put( buffersInt_count[uim] + buffersExt_count[uim] )
 
     megaphonesLeft.value = megaphonesLeft.value - 1
     env.logger.debug("Finish #{}. {} combinations checked. {} ({}) audibility squares, {} ({}) audibility voxels found",
@@ -202,7 +222,7 @@ def CalculateAudibilityOfMegaphone(uim):
 # ============================================
 def CalculateAudibility():
     env.logger.info("Switching to multiprocessing mode...")
-    env.logger.info("Please note that due to the CPU cores, the actual time may be x2-x3 long as expected at first...")
+    env.logger.info("Please note that due to the CPU cores, the actual time may be x2-x5 long as expected at first...")
 
     # Collect array of processes parameters
     params = []
@@ -216,7 +236,8 @@ def CalculateAudibility():
     # Schedule processes
     with mp.Pool(processes=mp.cpu_count(), initializer=InitializeAudibilityOfMegaphone, 
                  initargs=(env.sizeCell, env.MegaphonesCells, env.MegaphonesCells_count, env.MegaphonesCells_index,
-                           env.MegaphonesBuffers, env.MegaphonesBuffers_count, env.MegaphonesBuffers_index,
+                           env.MegaphonesBuffersInt, env.MegaphonesBuffersInt_count, env.MegaphonesBuffersInt_index,
+                           env.MegaphonesBuffersExt, env.MegaphonesBuffersExt_count, env.MegaphonesBuffersExt_index,
                            env.bounds[0], env.bounds[1], env.bounds[2], env.ground, env.audibility2D, env.uib, env.VoxelIndex,
                            env.audibilityVoxels, env.sizeBuilding, env.buildings, env.countMegaphones, env.leftMegaphones, 
                            env.madeChecks)) as pool:

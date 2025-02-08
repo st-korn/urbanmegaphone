@@ -84,10 +84,14 @@ MegaphonesCells = None # Linear 1D-array with couples (x,y) signed long integer 
 MegaphonesCells_count = None # Linear 1D-array with signed long integer values counts of each MegaphonesCells_count[UIM] cells in MegaphonesCells array
 MegaphonesCells_index = None # Linear 1D-array with signed long integer values indexes first of MegaphonesCells_index[UIM] cell in MegaphonesCells array
 countMegaphonesCells = None # Count of cells under megaphones
-MegaphonesBuffers = None # Linear 1D-array with couples (x,y) signed long integer coordinates of cells under buffer zones of megaphones
-MegaphonesBuffers_count = None # Linear 1D-array with signed long integer values counts of each MegaphonesBuffers_count[UIM] cells in MegaphonesBuffers array
-MegaphonesBuffers_index = None # Linear 1D-array with signed long integer values indexes first of MegaphonesBuffers_index[UIM] cell in MegaphonesBuffers array
-countMegaphonesBuffers = None # Count of cells in megaphones buffer zones
+MegaphonesBuffersInt = None # Linear 1D-array with couples (x,y) signed long integer coordinates of cells under buffer zones in the buildings of megaphones
+MegaphonesBuffersInt_count = None # Linear 1D-array with signed long integer values counts of each MegaphonesBuffers_count[UIM] cells in MegaphonesBuffers array
+MegaphonesBuffersInt_index = None # Linear 1D-array with signed long integer values indexes first of MegaphonesBuffers_index[UIM] cell in MegaphonesBuffers array
+countMegaphonesBuffersInt = None # Count of cells in megaphones buffer zones in the buildings
+MegaphonesBuffersExt = None # Linear 1D-array with couples (x,y) signed long integer coordinates of cells under buffer zones on the streets of megaphones
+MegaphonesBuffersExt_count = None # Linear 1D-array with signed long integer values counts of each MegaphonesBuffers_count[UIM] cells in MegaphonesBuffers array
+MegaphonesBuffersExt_index = None # Linear 1D-array with signed long integer values indexes first of MegaphonesBuffers_index[UIM] cell in MegaphonesBuffers array
+countMegaphonesBuffersExt = None # Count of cells in megaphones buffer zones on the streets
 countChecks = None # Count of total ckesks for audibility calculation (combination of megaphones cells and buffers cells)
 madeChecks = None # Counter of calculated checks at current time
 
@@ -104,7 +108,8 @@ gdfCellsBuildings = None # 2D intersect of buildings and voxels centers
 gdfBuffersLiving = None # 2D voxels centers of buffer zones arround living buildings (if ShowSquares = 'buffer')
 gdfMegaphones = None # 2D points of megaphones
 gdfCellsMegaphones = None # 2D cells under megaphones
-gdfBuffersMegaphones = None # 2D voxels centers of buffer zones arround megaphones (possible audibility)
+gdfBuffersMegaphonesInt = None # 2D voxels centers of buffer zones of possible audibility arround megaphones in the buildings
+gdfBuffersMegaphonesExt = None # 2D voxels centers of buffer zones of possible audibility arround megaphones at the streets
 
 # Miscellaneous data
 # ============================================
@@ -267,8 +272,11 @@ def clearMemory():
     global gdfCellsMegaphones
     del gdfCellsMegaphones
 
-    global gdfBuffersMegaphones
-    del gdfBuffersMegaphones
+    global gdfBuffersMegaphonesInt
+    del gdfBuffersMegaphonesInt
+
+    global gdfBuffersMegaphonesExt
+    del gdfBuffersMegaphonesExt
 
     gc.collect()
     logger.success("Memory clean. Continue soon...")

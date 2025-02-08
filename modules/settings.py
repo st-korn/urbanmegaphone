@@ -72,26 +72,30 @@ distanceMegaphoneAndBuilding = sizeVoxel*2
 # Default height of standalone megaphone, meter. Default value is 9 metes.
 heightStansaloneMegaphone = 9
 
-#Default value of sound power of one megaphone, dBA. 120 dBA by default
+#Default value of sound power of one megaphone, dBA. 
+# Recomended value: 120 dBA: the maximum sound level that does not harm a human
 dBAMegaphone = 120
 
-# Average sound decline, when passing through the standart window, dBA. -30 dBA by default
-dBAWindow = -30
+# Average sound decline, when passing through the standart window, dBA. 
+# Recomended values: -30 dBA for good windows, -25 dBA - windows of average quality
+dBAWindow = -25
 
-# Maximum noise level on the streets in the city, dBA. 55 dBA by default
+# Maximum noise level on the streets in the city, dBA. 
+# Recomended values: 55 dBA during the day, 45 dBA at night time
 dBAStreet = 55
 
-# Maximum noise level in living homes, dBA. 40 dBA by default
-dBAHome = 40
+# Maximum noise level in living homes, dBA.
+# Recomended values: 40 dBA during the day, 30 dBA at night time
+dBAHome = 30
 
-# Difference of noise levels so that a person can clearly hear the sound, dBA. +15 dBA by default
+# Difference of noise levels so that a person can clearly hear the sound, dBA.
+# Recomended value: +15 dBA
 dBALevel = +15
 
 # Max distance between megaphone and point, where theoretically is possible an audibility, meters. 
 # Used to speed up and facilitate calculations. Default value is 1000 meters.
-distancePossibleAudibilityStreet = math.pow(10, (dBAMegaphone-dBAStreet-dBALevel)/20)
-distancePossibleAudibilityBuildings = math.exp((dBAMegaphone-dBAWindow-dBAHome-dBALevel)/20)
-distancePossibleAudibility = math.ceil( max( distancePossibleAudibilityStreet, distancePossibleAudibilityBuildings ) )
+distancePossibleAudibilityInt = math.pow(10, (dBAMegaphone+dBAWindow-dBAHome-dBALevel)/20) # in the buildings
+distancePossibleAudibilityExt = math.pow(10, (dBAMegaphone-dBAStreet-dBALevel)/20) # on the streets
 
 # Step size to check audibility of voxels, part of voxels count along the longest axis distance. 
 # Maximum value is 1.0. Smaller values lead to more accurate, but longer calculations. Default value is 0.5
@@ -100,4 +104,4 @@ sizeStep = 1.0
 # Real calculate audibility of voxels. Default value is True
 # For debug purposes you can set it to False,
 # then all voxels and squares in the distancePossibleAudibility will be marked as audible
-flagCalculateAudibility = False
+flagCalculateAudibility = True
