@@ -127,6 +127,7 @@ def LoadMegaphones():
     env.MegaphonesBuffers_index = mp.RawArray(ctypes.c_long, env.countMegaphones)    
     indexCells = 0
     indexBuffers = 0
+    env.countChecks = 0
     for uim in env.tqdm(range(env.countMegaphones)):
         megaphoneCells = env.gdfCellsMegaphones.loc[env.gdfCellsMegaphones['UIM'] == uim]
         env.MegaphonesCells_count[uim] = len(megaphoneCells.index)
@@ -144,10 +145,12 @@ def LoadMegaphones():
             env.MegaphonesBuffers[indexBuffers+1] = int(cell.y)
             indexBuffers = indexBuffers + env.sizeCell
             modules.earth.getGroundHeight(int(cell.x), int(cell.y), None)
+        env.countChecks = env.countChecks + (env.MegaphonesCells_count[uim] * env.MegaphonesBuffers_count[uim])
         del megaphoneCells
         del megaphoneBuffers
     env.logger.success('{} megaphones, {} cells under megaphones, {} cells in megaphones buffer zones stored', 
                        env.printLong(env.countMegaphones), env.printLong(env.countMegaphonesCells), env.printLong(env.countMegaphonesBuffers))
+    env.logger.success('{} total checks will be performed', env.printLong(env.countChecks))
 
     # Select livings buffer zone, excluded megaphones potential audibility zone
     if cfg.ShowSquares == 'buffer':

@@ -87,9 +87,11 @@ MegaphonesBuffers = None # Linear 1D-array with couples (x,y) signed long intege
 MegaphonesBuffers_count = None # Linear 1D-array with signed long integer values counts of each MegaphonesBuffers_count[UIM] cells in MegaphonesBuffers array
 MegaphonesBuffers_index = None # Linear 1D-array with signed long integer values indexes first of MegaphonesBuffers_index[UIM] cell in MegaphonesBuffers array
 countMegaphonesBuffers = None # Count of cells in megaphones buffer zones
+countChecks = None # Count of total ckesks for audibility calculation (combination of megaphones cells and buffers cells)
 
-# Count of megaphones, for which calculations are still being finished or are awaiting execution
+# Counter of megaphones, which calculations are still not being finished or they are awaiting for an execution
 leftMegaphones = None
+leftChecks = None
 
 # DatraFrame, GeoDataFrame tables, Shapely geometries
 # ============================================

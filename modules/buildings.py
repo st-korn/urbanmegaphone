@@ -210,8 +210,9 @@ def VizualizeAllVoxels():
                        env.printLong(totalVoxels), f'{totalVoxels/env.countVoxels:.0%}', env.printLong(env.countVoxels) )
     env.logger.info("|| {} ({}) of {} living voxels analyzed",
                        env.printLong(livingVoxels), f'{livingVoxels/env.countLivingVoxels:.0%}', env.printLong(env.countLivingVoxels) )
-    env.logger.success("|| {} ({}) of {} flats are audibility", 
-                       env.printLong(round(audibilityFlats)), f'{audibilityFlats/totalFlats:.0%}', env.printLong(round(totalFlats)))
+    env.logger.success("|| {} ({}) of {} flats are audibility, {} ({}) non-audibility flats", 
+                       env.printLong(round(audibilityFlats)), f'{audibilityFlats/totalFlats:.0%}', env.printLong(round(totalFlats)),
+                       env.printLong(round(totalFlats)-round(audibilityFlats)), f'{(1-audibilityFlats/totalFlats):.0%}')
     env.logger.info("|| {} ({}) of {} flats analyzed",
                        env.printLong(round(totalFlats)), f'{totalFlats/env.countFlats:.0%}', env.printLong(env.countFlats) )
     env.logger.success("=========================================================================================================")
