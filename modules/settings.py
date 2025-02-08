@@ -96,3 +96,8 @@ distancePossibleAudibility = math.ceil( max( distancePossibleAudibilityStreet, d
 # Step size to check audibility of voxels, part of voxels count along the longest axis distance. 
 # Maximum value is 1.0. Smaller values lead to more accurate, but longer calculations. Default value is 0.5
 sizeStep = 1.0
+
+# Real calculate audibility of voxels. Default value is True
+# For debug purposes you can set it to False,
+# then all voxels and squares in the distancePossibleAudibility will be marked as audible
+flagCalculateAudibility = False

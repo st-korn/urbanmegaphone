@@ -39,6 +39,10 @@ def CheckAudibility(xDst, yDst, zDst, uibDst, xSrc, ySrc, zSrc, uibSrc):
     # Global variables
     global boundsY, ground, uibs, buildingsSize, buildings
 
+    # Check if we do not need to calculate audibility
+    if not(cfg.flagCalculateAudibility):
+        return True
+
     # Common building is audibility by default
     if ((uibSrc>=0) and (uibDst == uibSrc)):
         return True
