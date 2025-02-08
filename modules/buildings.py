@@ -36,11 +36,14 @@ def GenerateBuildings():
     env.logger.trace(env.gdfBuildings)
     env.gdfBuildings.geometry = env.gdfBuildings.geometry.translate(xoff=-env.boundsMin[0], yoff=env.boundsMax[1], zoff=0.0)
     env.logger.trace(env.gdfBuildings)
+    env.logger.success("{} vector buildings found", env.printLong(len(env.gdfBuildings.index)))
 
+    # Remove buildings outside of currend world
+    env.gdfBuildings = env.gdfBuildings.loc[env.gdfBuildings.within(env.plgnBounds)]
     # Add unique identificator of building (UIB)
     env.gdfBuildings['UIB'] = np.arange(len(env.gdfBuildings.index))
+    env.logger.success("{} buildings left after removing buildings outside of current world area", env.printLong(len(env.gdfBuildings.index)))
     env.logger.trace(env.gdfBuildings)
-    env.logger.success("{} vector buildings found", env.printLong(len(env.gdfBuildings.index)))
 
     env.logger.info("Split buildings to voxel's grid cells...")
 
@@ -75,6 +78,9 @@ def GenerateBuildings():
     # Save floors, flats and average ground for buildings by their UIBs
     env.logger.info("Allocate memory and store buildings parameters...")
     env.countBuildings = len(env.gdfBuildings.index)
+    env.countBuildingsCells = len(env.gdfCellsBuildings.index)
+    env.LivingBuildings = 0
+    env.countFlats = 0
     env.buildings = mp.RawArray(ctypes.c_ushort, env.countBuildings*env.sizeBuilding)
     for b in env.gdfBuildings.itertuples(): # tqdm is not needed
         env.buildings[int(b.UIB*env.sizeBuilding)] = int(b.floors)
@@ -82,18 +88,27 @@ def GenerateBuildings():
             if not(np.isnan(b.GP)):
                 env.buildings[int(b.UIB*env.sizeBuilding+1)] = int(b.GP)
         if not(np.isnan(b.flats)):
-            env.buildings[int(b.UIB*env.sizeBuilding+2)] = int(b.flats)
+            if b.flats>0:
+                env.buildings[int(b.UIB*env.sizeBuilding+2)] = int(b.flats)
+                env.LivingBuildings = env.LivingBuildings + 1
+                env.countFlats = env.countFlats + int(b.flats)
     # Loop through cells and count voxels count. Save voxels index and UIBs for each cell
     env.countVoxels = 0
+    env.countLivingVoxels = 0
     for cell in env.tqdm(env.gdfCellsBuildings.itertuples(), total=len(env.gdfCellsBuildings.index)):
         env.uib[cell.x*env.bounds[1]+cell.y] = int(cell.UIB)
         env.VoxelIndex[int(cell.x*env.bounds[1]+cell.y)] = int(env.countVoxels)
         env.countVoxels = env.countVoxels + int(cell.floors)
+        if not(np.isnan(cell.flats)):
+            if cell.flats>0:
+                env.countLivingVoxels = env.countLivingVoxels + int(cell.floors)
         env.buildings[int(cell.UIB*env.sizeBuilding+3)] = env.buildings[int(cell.UIB*env.sizeBuilding+3)] + int(cell.floors)
     # Allocate memory for buildings voxels
     env.audibilityVoxels = mp.RawArray(ctypes.c_byte, env.countVoxels)
-    env.logger.success("{} buildings stored. {} voxels of buildings allocated", 
-                       env.printLong(env.countBuildings), env.printLong(env.countVoxels))
+    env.logger.success("{} buildings stored (including {} living buildings). {} flats found", 
+                       env.printLong(env.countBuildings), env.printLong(env.LivingBuildings), env.printLong(env.countFlats) )
+    env.logger.success("{} voxels of buildings allocated (including {} living voxels)",
+                       env.printLong(env.countVoxels), env.printLong(env.countLivingVoxels) )
 
 # ============================================
 # Generate necessary voxel VTK objects from vtkPoints 
@@ -140,13 +155,20 @@ def VizualizeAllVoxels():
 
     # Loop throught grid of earth surface cells audibility
     idx2D = 0
+    totalCells = 0
+    totalFlats = 0
+    totalVoxels = 0
+    audibilityFlats = 0
     for x in env.tqdm(range(env.bounds[0])):
         for y in range(env.bounds[1]):
             uib = env.uib[idx2D]
             if uib>=0:
+                totalCells = totalCells + 1
                 idxZ = env.VoxelIndex[idx2D]
                 floors = env.buildings[uib*env.sizeBuilding]
                 flats = env.buildings[uib*env.sizeBuilding+2]
+                voxels = env.buildings[uib*env.sizeBuilding+3]
+                totalVoxels = totalVoxels + floors
                 if cfg.BuildingGroundMode != 'levels':
                     z = env.buildings[uib*env.sizeBuilding+1]
                 else:
@@ -155,27 +177,41 @@ def VizualizeAllVoxels():
                     audibility = env.audibilityVoxels[idxZ+floor]
                     if audibility>0:
                         env.pntsVoxels_yes.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+                        totalFlats = totalFlats + flats/voxels
+                        audibilityFlats = audibilityFlats + flats/voxels
                     elif audibility<0:
                         env.pntsVoxels_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+                        totalFlats = totalFlats + flats/voxels
                     else:
                         if flats>0:
-                            env.pntsVoxels_living.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+                            env.pntsVoxels_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel) # not env.pntsVoxels_living
+                            totalFlats = totalFlats + flats/voxels
                         else:
                             env.pntsVoxels_industrial.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.5+floor)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
             idx2D = idx2D + 1
 
     VizualizePartOfVoxels(env.pntsVoxels_yes, env.Colors.GetColor3d("Green"), 1)
     VizualizePartOfVoxels(env.pntsVoxels_no, env.Colors.GetColor3d("Tomato"), 1)
-    VizualizePartOfVoxels(env.pntsVoxels_living, env.Colors.GetColor3d("Gold"), 1)
     VizualizePartOfVoxels(env.pntsVoxels_industrial, env.Colors.GetColor3d("Gray"), 1)
 
-    totalVoxelsCount = env.pntsVoxels_yes.GetNumberOfPoints() + env.pntsVoxels_no.GetNumberOfPoints() + \
-                        env.pntsVoxels_living.GetNumberOfPoints()
-    env.logger.success("{} ({}) audibility voxels, {} ({}) non-audibility voxels, {} ({}) unknown voxels. {} non-living voxels",
+    livingVoxels = env.pntsVoxels_yes.GetNumberOfPoints() + env.pntsVoxels_no.GetNumberOfPoints()
+
+    env.logger.success("=========================================================================================================")
+    env.logger.success("|| BUILDINGS STATISTICS:")
+    env.logger.success("|| {} ({}) audibility voxels, {} ({}) non-audibility voxels, {} non-living voxels",
                        env.printLong(env.pntsVoxels_yes.GetNumberOfPoints()),
-                       f'{env.pntsVoxels_yes.GetNumberOfPoints()/totalVoxelsCount:.0%}',
+                       f'{env.pntsVoxels_yes.GetNumberOfPoints()/livingVoxels:.0%}',
                        env.printLong(env.pntsVoxels_no.GetNumberOfPoints()),
-                       f'{env.pntsVoxels_no.GetNumberOfPoints()/totalVoxelsCount:.0%}',
-                       env.printLong(env.pntsVoxels_living.GetNumberOfPoints()),
-                       f'{env.pntsVoxels_living.GetNumberOfPoints()/totalVoxelsCount:.0%}',
+                       f'{env.pntsVoxels_no.GetNumberOfPoints()/livingVoxels:.0%}',
                        env.printLong(env.pntsVoxels_industrial.GetNumberOfPoints()) )
+    env.logger.debug("|| {} ({}) of {} building's cells analyzed",
+                       env.printLong(totalCells), f'{totalCells/env.countBuildingsCells:.0%}', env.printLong(env.countBuildingsCells) )
+    env.logger.debug("|| {} ({}) of {} voxels analyzed",
+                       env.printLong(totalVoxels), f'{totalVoxels/env.countVoxels:.0%}', env.printLong(env.countVoxels) )
+    env.logger.info("|| {} ({}) of {} living voxels analyzed",
+                       env.printLong(livingVoxels), f'{livingVoxels/env.countLivingVoxels:.0%}', env.printLong(env.countLivingVoxels) )
+    env.logger.success("|| {} ({}) of {} flats are audibility", 
+                       env.printLong(round(audibilityFlats)), f'{audibilityFlats/totalFlats:.0%}', env.printLong(round(totalFlats)))
+    env.logger.info("|| {} ({}) of {} flats analyzed",
+                       env.printLong(round(totalFlats)), f'{totalFlats/env.countFlats:.0%}', env.printLong(env.countFlats) )
+    env.logger.success("=========================================================================================================")

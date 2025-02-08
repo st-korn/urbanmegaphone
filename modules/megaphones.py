@@ -47,7 +47,7 @@ def LoadMegaphones():
     env.gdfMegaphones = env.gdfMegaphones.loc[env.gdfMegaphones.within(env.plgnBounds)]
     # Add unique identificator of megaphone (UIM)
     env.gdfMegaphones['UIM'] = np.arange(len(env.gdfMegaphones.index))
-    env.logger.success("{} megaphones left after removing megaphones outside of current area", len(env.gdfMegaphones.index))
+    env.logger.success("{} megaphones left after removing megaphones outside of current world area", len(env.gdfMegaphones.index))
     env.logger.trace(env.gdfMegaphones)
 
     # Join megaphones and cells of buildings GeoDataFrames
@@ -68,7 +68,7 @@ def LoadMegaphones():
             height = cfg.heightStansaloneMegaphone / cfg.sizeVoxel
             env.pntsMegaphones_standalone_cones.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z-0.5)*cfg.sizeVoxel+cfg.heightStansaloneMegaphone/2, (cell.y+0.5)*cfg.sizeVoxel)
             env.pntsMegaphones_spheres.InsertNextPoint((cell.x+0.5)*cfg.sizeVoxel, (z-0.5)*cfg.sizeVoxel+cfg.heightStansaloneMegaphone, (cell.y+0.5)*cfg.sizeVoxel)
-            env.logger.warning("Megaphone too far from the any building: {}. Use {} voxels as ground and {} voxels as height",
+            env.logger.warning("Megaphone too far from any building: {}. Use {} voxels ground and {} voxels height",
                                cell.geometry, z, f'{height:.1f}')
         else:
             if cfg.BuildingGroundMode != 'levels':
@@ -85,7 +85,7 @@ def LoadMegaphones():
                        f'{cfg.distancePossibleAudibility:.1f}')
 
     # Generate zones of possible audibility
-    env.logger.info("Generate zones of possible audibility...")
+    env.logger.info("Locate zones of possible audibility...")
 
     # Join megaphones and buildings GeoDataFrames
     env.gdfMegaphones = env.gdfMegaphones.sjoin_nearest(env.gdfBuildings, how='left', max_distance=cfg.distanceMegaphoneAndBuilding)
@@ -104,7 +104,6 @@ def LoadMegaphones():
     env.logger.trace(env.gdfBuffersMegaphones)
 
     # Join buffer zones and centers of voxel's squares GeoDataFrames
-    env.logger.info("Find cells in buffer zones of possible audibility...")
     env.gdfBuffersMegaphones = env.gdfCells.sjoin(env.gdfBuffersMegaphones, how='inner',predicate='within')
     env.logger.trace(env.gdfBuffersMegaphones)
     env.logger.trace(env.gdfBuffersMegaphones.dtypes)

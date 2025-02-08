@@ -47,7 +47,8 @@ audibility2D = None # Just matrix
 # Squares matrix: 2D-array of signed long integer values [−2 147 483 647, +2 147 483 647]:
 # integer unique building's identificator in this place.
 # At first initialized by -1 values
-uib = None
+countBuildingsCells = None # Total count of buildings cells (uib>=0)
+uib = None # Just array
 
 # Squares matrix: 2D-array of unsigned long integer values [0, 4 294 967 295]:
 # integer index of first signed byte element of first floor voxel in flat audibilityVoxels array
@@ -60,6 +61,7 @@ VoxelIndex = None
 # Contains separate sequential values for each floor
 # At first initialized by 0 values
 countVoxels = None # Total count of buildings voxels
+countLivingVoxels = None # Count of living-buildings voxels
 audibilityVoxels = None # Just array
 
 # Linear array: 1D-array of the fives values of unsigned short integer values [0, 65535]:
@@ -70,6 +72,8 @@ audibilityVoxels = None # Just array
 # [UIB*5+4] value - count of total voxels with audibility
 sizeBuilding = 5 # count of values for each building
 countBuildings = None # count of buildings
+LivingBuildings = None # count of living buildings
+countFlats = None # count of flats
 buildings = None
 
 # Store coordinates of cells for megaphones and its buffer zones
@@ -83,6 +87,9 @@ MegaphonesBuffers = None # Linear 1D-array with couples (x,y) signed long intege
 MegaphonesBuffers_count = None # Linear 1D-array with signed long integer values counts of each MegaphonesBuffers_count[UIM] cells in MegaphonesBuffers array
 MegaphonesBuffers_index = None # Linear 1D-array with signed long integer values indexes first of MegaphonesBuffers_index[UIM] cell in MegaphonesBuffers array
 countMegaphonesBuffers = None # Count of cells in megaphones buffer zones
+
+# Count of megaphones, for which calculations are still being finished or are awaiting execution
+leftMegaphones = None
 
 # DatraFrame, GeoDataFrame tables, Shapely geometries
 # ============================================
@@ -157,7 +164,6 @@ mapTexture = [] # vtkPolyDataMapper
 actTexture = [] # vtkActor
 
 # Arrays of VTK objects: polygonal squares of DEM's surface
-pntsSquares_unassigned = vtkPoints()
 pntsSquares_yes = vtkPoints()
 pntsSquares_no = vtkPoints()
 pldtSquares = [] # vtkPolyData
@@ -167,10 +173,9 @@ mapSquares = [] # vtkPolyDataMapper
 actSquares = [] # vtkActor
 
 # Arrays of VTK objects: cubes of buildings
-pntsVoxels_industrial = vtkPoints()
-pntsVoxels_living = vtkPoints()
 pntsVoxels_yes = vtkPoints()
 pntsVoxels_no = vtkPoints()
+pntsVoxels_industrial = vtkPoints()
 pldtVoxels = [] # vtkPolyData
 cbVoxels = [] # vtkCubeSource
 glphVoxels = [] # vtkGlyph3D

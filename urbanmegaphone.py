@@ -30,8 +30,8 @@ if __name__ == '__main__':
     modules.megaphones.LoadMegaphones() # Load megaphones points
     env.clearMemory() # Clear memory from unused variables
     modules.audibility.CalculateAudibility() # Calculate audibility of squares and voxels
-    modules.buildings.VizualizeAllVoxels() # Generate voxels of buildings vizualiztion
     modules.earth.VizualizeAllSquares() # Generate squares of earth surface vizualization
+    modules.buildings.VizualizeAllVoxels() # Generate voxels of buildings vizualiztion
     modules.megaphones.VizualizeAllMegaphones() # Generate cones and spheres for megaphones vizualization
 
     # Prepare VTK-window for view and interact
@@ -71,10 +71,10 @@ if __name__ == '__main__':
 
     # Run VTK-window
     # ============================================
-    env.logger.success("Done. Ready for viewing")
+    env.logger.success("Done. Ready for viewing!")
     env.Interactor.Start()
 
     # Finish
     # ============================================
-    env.logger.success("Glad to work hard, see you")
+    env.logger.success("Glad to work hard, see you again!")
     env.logger.info("Please wait for the completion of memory cleanup...")

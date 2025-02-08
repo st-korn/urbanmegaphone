@@ -240,12 +240,11 @@ def GenerateEarthSurface():
 def PrepareLivingBuffer():
     if cfg.ShowSquares == 'buffer':
         # Make buffer zones around buildings
-        env.logger.info("Draw buffer zones around living buildings")
+        env.logger.info("Locate buffer zones around living buildings...")
         gsBuffer = env.gdfBuildings[ env.gdfBuildings['flats']>0 ].geometry.buffer(cfg.BufferRadius)
         env.logger.trace(gsBuffer)
 
         # Join buffer zones and centers of voxel's squares GeoDataFrames
-        env.logger.info("Find cells in buffer zones around living buildings...")
         boundary = gpd.GeoSeries(unary_union(gsBuffer))
         gdfBuffer = gpd.GeoDataFrame(geometry=boundary)
         env.logger.trace(boundary)
@@ -368,19 +367,20 @@ def VizualizeAllSquares():
             elif env.audibility2D[idx2D]<0:
                 env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.1)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
             elif (env.audibility2D[idx2D]==0) and (cfg.ShowSquares == 'full'):
-                env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.1)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+                env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.1)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel) # not env.pntsSquares_unassigned
             idx2D = idx2D + 1
 
     VizualizePartOfSquares(env.pntsSquares_yes, env.Colors.GetColor3d("Green"), 0.5)
     VizualizePartOfSquares(env.pntsSquares_no, env.Colors.GetColor3d("Tomato"), 0.5)
-    VizualizePartOfSquares(env.pntsSquares_unassigned, env.Colors.GetColor3d("Gold"), 0.5)
 
-    totalSquaresCount = env.pntsSquares_yes.GetNumberOfPoints() + env.pntsSquares_no.GetNumberOfPoints() + \
-                        env.pntsSquares_unassigned.GetNumberOfPoints()
-    env.logger.success("{} ({}) audibility squares, {} ({}) non-audibility squares, {} ({}) unknown squares",
+    totalSquaresCount = env.pntsSquares_yes.GetNumberOfPoints() + env.pntsSquares_no.GetNumberOfPoints()
+    env.logger.success("=========================================================================================================")
+    env.logger.success("|| URBAN ENVIRONMENT STATISTIC:")
+    env.logger.success("|| {} ({}) audibility squares, {} ({}) non-audibility squares",
                        env.printLong(env.pntsSquares_yes.GetNumberOfPoints()), 
                        f'{env.pntsSquares_yes.GetNumberOfPoints()/totalSquaresCount:.0%}',
                        env.printLong(env.pntsSquares_no.GetNumberOfPoints()), 
-                       f'{env.pntsSquares_no.GetNumberOfPoints()/totalSquaresCount:.0%}',
-                       env.printLong(env.pntsSquares_unassigned.GetNumberOfPoints()), 
-                       f'{env.pntsSquares_unassigned.GetNumberOfPoints()/totalSquaresCount:.0%}')
+                       f'{env.pntsSquares_no.GetNumberOfPoints()/totalSquaresCount:.0%}' )
+    env.logger.info("|| {} ({}) of {} squares analyzed",
+                       env.printLong(totalSquaresCount), f'{totalSquaresCount/(env.bounds[0]*env.bounds[1]):.0%}', env.printLong(env.bounds[0]*env.bounds[1]) )
+    env.logger.success("=========================================================================================================")

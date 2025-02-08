@@ -27,12 +27,12 @@ import modules.environment as env # Environment defenition
 # ============================================
 def ReadWorldBounds():
 
-    env.logger.info("Find the dimensions of the world being explored")
+    env.logger.info("Finding the dimensions of the world being explored:")
 
     # -------------------------------------------------------------------
     # Read bounds of raster files
 
-    env.logger.info("Loop through raster files")
+    env.logger.info("Loop through raster files...")
 
     for file in Path('.',cfg.folderRaster).glob("*.tif", case_sensitive=False):
 
@@ -58,7 +58,7 @@ def ReadWorldBounds():
     # -------------------------------------------------------------------
     # Read bounds of DEM files in the intersecting part of rasters
 
-    env.logger.info("Loop through DEM files")
+    env.logger.info("Loop through DEM files...")
 
     for file in Path('.',cfg.folderDEM).glob("*.tif", case_sensitive=False):
 
@@ -145,3 +145,4 @@ def ReadWorldBounds():
             'geometry' : gpd.points_from_xy((arr_x+0.5)*cfg.sizeVoxel, (arr_y+0.5)*cfg.sizeVoxel)})
     env.logger.trace(env.gdfCells)
     env.logger.success("World grid created: {} cells", env.printLong(len(env.gdfCells.index)))
+    env.logger.success("============================================")
