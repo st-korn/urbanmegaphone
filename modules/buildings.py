@@ -172,7 +172,7 @@ def VizualizeAllVoxels():
                 if cfg.BuildingGroundMode != 'levels':
                     z = env.buildings[uib*env.sizeBuilding+1]
                 else:
-                    z = env.ground[x*env.bounds[1]+y]
+                    z = env.ground[idx2D]
                 for floor in range(floors):
                     audibility = env.audibilityVoxels[idxZ+floor]
                     if audibility>0:

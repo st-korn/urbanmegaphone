@@ -361,7 +361,11 @@ def VizualizeAllSquares():
     idx2D = 0
     for x in env.tqdm(range(env.bounds[0])):
         for y in range(env.bounds[1]):
-            z = env.ground[x*env.bounds[1]+y]
+            z = env.ground[idx2D]
+            uib = env.uib[idx2D]
+            if uib >= 0:
+                if cfg.BuildingGroundMode != 'levels':
+                    z = min(z, env.buildings[uib*env.sizeBuilding+1])
             if env.audibility2D[idx2D]>0:
                 env.pntsSquares_yes.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.1)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
             elif env.audibility2D[idx2D]<0:
