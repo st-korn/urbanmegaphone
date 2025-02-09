@@ -138,6 +138,7 @@ def LoadMegaphones():
     # Allocate memory and store megaphones and their zones
     env.logger.info("Allocate memory and store megaphones and their zones...")
     env.countMegaphones = len(env.gdfMegaphones.index)
+    env.leftMegaphones = mp.RawArray(ctypes.c_ubyte, env.countMegaphones)
     env.countMegaphonesCells = len(env.gdfCellsMegaphones.index)
     env.MegaphonesCells = mp.RawArray(ctypes.c_long, env.countMegaphonesCells*env.sizeCell)
     env.MegaphonesCells_count = mp.RawArray(ctypes.c_long, env.countMegaphones)
@@ -150,11 +151,14 @@ def LoadMegaphones():
     env.MegaphonesBuffersExt = mp.RawArray(ctypes.c_long, env.countMegaphonesBuffersExt*env.sizeCell)
     env.MegaphonesBuffersExt_count = mp.RawArray(ctypes.c_long, env.countMegaphones)
     env.MegaphonesBuffersExt_index = mp.RawArray(ctypes.c_long, env.countMegaphones)
+    env.countChecks = mp.RawArray(ctypes.c_ulonglong, env.countMegaphones)
+    env.madeChecks = mp.RawArray(ctypes.c_ulonglong, env.countMegaphones)
+    env.totalChecks = 0
     indexCells = 0
     indexBuffersInt = 0
     indexBuffersExt = 0
-    env.countChecks = 0
     for uim in env.tqdm(range(env.countMegaphones)):
+        env.leftMegaphones[uim] = 1
         megaphoneCells = env.gdfCellsMegaphones.loc[env.gdfCellsMegaphones['UIM'] == uim]
         env.MegaphonesCells_count[uim] = len(megaphoneCells.index)
         env.MegaphonesCells_index[uim] = indexCells
@@ -179,8 +183,9 @@ def LoadMegaphones():
             env.MegaphonesBuffersExt[indexBuffersExt+1] = int(cell.y)
             indexBuffersExt = indexBuffersExt + env.sizeCell
             modules.earth.getGroundHeight(int(cell.x), int(cell.y), None)
-        env.countChecks = env.countChecks + (env.MegaphonesCells_count[uim] * env.MegaphonesBuffersInt_count[uim]) + \
-                                            (env.MegaphonesCells_count[uim] * env.MegaphonesBuffersExt_count[uim])
+        env.countChecks[uim] = (env.MegaphonesCells_count[uim] * env.MegaphonesBuffersInt_count[uim]) + \
+                               (env.MegaphonesCells_count[uim] * env.MegaphonesBuffersExt_count[uim])
+        env.totalChecks = env.totalChecks + env.countChecks[uim]
         del megaphoneCells
         del megaphoneBuffersInt
         del megaphoneBuffersExt
@@ -188,7 +193,7 @@ def LoadMegaphones():
                        env.printLong(env.countMegaphones), env.printLong(env.countMegaphonesCells) )
     env.logger.success('{} cells under buildings, {} cells at the streets in megaphones zones  of possible audibility stored',  
                        env.printLong(env.countMegaphonesBuffersInt), env.printLong(env.countMegaphonesBuffersExt) )
-    env.logger.success('{} total checks will be performed', env.printLong(env.countChecks))
+    env.logger.success('{} total checks will be performed', env.printLong(env.totalChecks))
 
     # Select livings buffer zone, excluded megaphones potential audibility zone
     if cfg.ShowSquares == 'buffer':

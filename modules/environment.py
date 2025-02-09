@@ -79,21 +79,22 @@ buildings = None
 # Store coordinates of cells for megaphones and its buffer zones
 sizeCell = 2 # Each cell have two signed long integer values [−2 147 483 647, +2 147 483 647] for its (x,y) cells coordinates
 countMegaphones = None # Total count of megaphones
-leftMegaphones = None # Counter of megaphones, which calculations are still not being finished or they are awaiting for an execution
+leftMegaphones = None # Linear 1D-array [UIM] unsigned char with 1 if calculation process of current megaphone is still planed or running, and 0 if it is just finished
+countMegaphonesCells = None # Count of cells under megaphones
 MegaphonesCells = None # Linear 1D-array with couples (x,y) signed long integer coordinates of cells under megaphones
 MegaphonesCells_count = None # Linear 1D-array with signed long integer values counts of each MegaphonesCells_count[UIM] cells in MegaphonesCells array
 MegaphonesCells_index = None # Linear 1D-array with signed long integer values indexes first of MegaphonesCells_index[UIM] cell in MegaphonesCells array
-countMegaphonesCells = None # Count of cells under megaphones
+countMegaphonesBuffersInt = None # Count of cells in megaphones buffer zones in the buildings
 MegaphonesBuffersInt = None # Linear 1D-array with couples (x,y) signed long integer coordinates of cells under buffer zones in the buildings of megaphones
 MegaphonesBuffersInt_count = None # Linear 1D-array with signed long integer values counts of each MegaphonesBuffers_count[UIM] cells in MegaphonesBuffers array
 MegaphonesBuffersInt_index = None # Linear 1D-array with signed long integer values indexes first of MegaphonesBuffers_index[UIM] cell in MegaphonesBuffers array
-countMegaphonesBuffersInt = None # Count of cells in megaphones buffer zones in the buildings
+countMegaphonesBuffersExt = None # Count of cells in megaphones buffer zones on the streets
 MegaphonesBuffersExt = None # Linear 1D-array with couples (x,y) signed long integer coordinates of cells under buffer zones on the streets of megaphones
 MegaphonesBuffersExt_count = None # Linear 1D-array with signed long integer values counts of each MegaphonesBuffers_count[UIM] cells in MegaphonesBuffers array
 MegaphonesBuffersExt_index = None # Linear 1D-array with signed long integer values indexes first of MegaphonesBuffers_index[UIM] cell in MegaphonesBuffers array
-countMegaphonesBuffersExt = None # Count of cells in megaphones buffer zones on the streets
-countChecks = None # Count of total ckesks for audibility calculation (combination of megaphones cells and buffers cells)
-madeChecks = None # Counter of calculated checks at current time
+countChecks = None # Linear 1D-array [UIM] unsigned long long with count of total ckesks for audibility calculation (combination of megaphones cells and buffers cells)
+madeChecks = None # Linear 1D-array [UIM] unsigned long long with counters of calculated checks at current time
+totalChecks = None # integer count of total ckesks for audibility calculation (combination of megaphones cells and buffers cells)
 
 # DatraFrame, GeoDataFrame tables, Shapely geometries
 # ============================================

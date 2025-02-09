@@ -82,7 +82,7 @@ dBAWindow = -25
 
 # Maximum noise level on the streets in the city, dBA. 
 # Recomended values: 55 dBA during the day, 45 dBA at night time
-dBAStreet = 55
+dBAStreet = 50
 
 # Maximum noise level in living homes, dBA.
 # Recomended values: 40 dBA during the day, 30 dBA at night time
@@ -104,4 +104,4 @@ sizeStep = 1.0
 # Real calculate audibility of voxels. Default value is True
 # For debug purposes you can set it to False,
 # then all voxels and squares in the distancePossibleAudibility will be marked as audible
-flagCalculateAudibility = True
+flagCalculateAudibility = False
