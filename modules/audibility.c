@@ -5,7 +5,6 @@
 */
 
 #include <math.h>
-
 /**
  * @brief Retrieves integer vertical coordinate of the first voxel of building in (x, y) cell with UIB=uib. uib cannot be negative. Do not use this function for a cells without buildings.
  *
@@ -63,13 +62,13 @@ unsigned short get_first_building_voxel(unsigned int x, unsigned int y,
  * 1 if the destination voxel is audible but distance between them and sound source is more than possible_distance_int,
  * -1 otherwise.
  */
-signed char check_audibility(unsigned int x_dst, unsigned int y_dst, unsigned int z_dst, signed long uib_dst, 
-    unsigned int x_src, unsigned int y_src, unsigned int z_src, signed long uib_src, 
+signed char check_audibility(signed long x_dst, signed long y_dst, signed long z_dst, signed long uib_dst, 
+    signed long x_src, signed long y_src, signed long z_src, signed long uib_src, 
     unsigned int bounds_y, signed short *ground, signed long *uibs, 
     unsigned int building_size, unsigned short *buildings, 
-    unsigned char building_ground_mode, float size_step, 
-    unsigned char flag_calculate_audibility, float possible_distance_int,
-    unsigned char audibility_prev) {
+    unsigned char building_ground_mode, double size_step, 
+    unsigned char flag_calculate_audibility, double possible_distance_int,
+    signed char audibility_prev) {
 
     // Voxel is just audible. Nothing to check
     if (audibility_prev > 1) {
@@ -77,10 +76,10 @@ signed char check_audibility(unsigned int x_dst, unsigned int y_dst, unsigned in
     }
 
     // Calculate distance between source and destination voxels
-    signed int dx = x_dst - x_src;
-    signed int dy = y_dst - y_src;
-    signed int dz = z_dst - z_src;
-    float distance = sqrt(dx * dx + dy * dy + dz * dz);
+    double dx = x_dst - x_src;
+    double dy = y_dst - y_src;
+    double dz = z_dst - z_src;
+    double distance = sqrt(dx * dx + dy * dy + dz * dz);
 
     
     // Check, if we can not improve audibility of the destination voxel
@@ -110,19 +109,19 @@ signed char check_audibility(unsigned int x_dst, unsigned int y_dst, unsigned in
     }
 
     // Find the maximum distance along the axes
-    signed int max_axis_distance = fmax(fmax(abs(dx), abs(dy)), abs(dz)); 
+    double max_axis_distance = fmax(fmax(abs(dx), abs(dy)), abs(dz)); 
     // Calculate step size on the longest axis to check audibility of voxels
-    float step = size_step / max_axis_distance; 
+    double step = size_step / max_axis_distance; 
 
     // Analyze segment between source and destination voxels
     // We move in small steps along the segment and check for extraneous buildings or the earth's surface.
-    float t = 0.0;
+    double t = 0.0;
     while (t <= 1.0) {
 
         // Calculate coordinates of the Intermediate voxel (x, y, z) on the segment
-        unsigned int x = round(x_src + t * dx);
-        unsigned int y = round(y_src + t * dy);
-        unsigned int z = round(z_src + t * dz);
+        signed long x = round(x_src + t * dx);
+        signed long y = round(y_src + t * dy);
+        signed long z = round(z_src + t * dz);
         signed long uib = uibs[x * bounds_y + y];
         
         // if intermediate voxel does not belong to source or destination buildings
@@ -218,7 +217,7 @@ void calculate_audibility_of_megaphone(unsigned long uim, unsigned short cells_s
                             building_ground_mode, size_step, 
                             flag_calculate_audibility, possible_distance_int, flag);
                         audibility_voxels[voxel_index[x_buffer * bounds_y + y_buffer] + floor] = flag;
-                        (*count_audibility_voxels) += (flag ? 1 : 0);
+                        (*count_audibility_voxels) += (flag>0 ? 1 : 0);
                     }
                 }
             }
@@ -247,7 +246,7 @@ void calculate_audibility_of_megaphone(unsigned long uim, unsigned short cells_s
                 building_ground_mode, size_step, 
                 flag_calculate_audibility, possible_distance_int, flag);
             audibility_2d[x_buffer * bounds_y + y_buffer] = flag;
-            (*count_audibility_squares) += (flag ? 1 : 0);
+            (*count_audibility_squares) += (flag>0 ? 1 : 0);
 
             idx_buffer_ext += cells_size;
         }

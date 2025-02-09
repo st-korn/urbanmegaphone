@@ -104,4 +104,4 @@ sizeStep = 1.0
 # Real calculate audibility of voxels. Default value is True
 # For debug purposes you can set it to False,
 # then all voxels and squares in the distancePossibleAudibility will be marked as audible
-flagCalculateAudibility = True
+flagCalculateAudibility = True  
