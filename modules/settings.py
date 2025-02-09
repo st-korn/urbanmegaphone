@@ -14,7 +14,7 @@ folderMEGAPHONES = 'MEGAPHONES' # Subfolder (in current folder) with vector mega
 
 # Debug log detail level, from verbose to terse:
 # "TRACE" or "DEBUG" or "INFO" or "SUCCESS" or "WARNING" or "ERROR" or "CRITICAL"
-logLevel = "INFO"
+logLevel = "DEBUG"
 
 
 # Quality of world's detail

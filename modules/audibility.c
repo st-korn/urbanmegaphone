@@ -148,7 +148,52 @@ signed char check_audibility(signed long x_dst, signed long y_dst, signed long z
     return target;
 }
 
-
+/**
+ * @brief Calculates the audibility of surface squares and building voxels for a specific megaphone 
+ * (for all their cells). It iterates through the cells associated with the megaphone and 
+ * checks the audibility of each cell of buffer zones: first - internal buffer zones of the buildings, 
+ * next - external buffer zones at the streets. The function updates the audibility status 
+ * of each cell and voxel based on the presence of buildings and the ground level 
+ * between megaphone and destination cell.
+ *
+ * Parameters:
+ * @param uim The index of the megaphone being processed.
+ * Pointers on shared memory arrays and its sizes:
+ * @param cells_size The size of each cell at arrays in shared memory.
+ * @param cells Pointer to the array of cells of a megaphone coordinates.
+ * @param cells_count Pointer to the array of megaphones cells counts.
+ * @param cells_index Pointer to the array of megaphones cells indexes.
+ * @param buffers_int Pointer to the array of cells coordinates of internal (in the buildings) buffers for each megaphone.
+ * @param buffers_int_count Pointer to the array of count of cells of internal buffers for each megaphone.
+ * @param buffers_int_index Pointer to the array of index of the first cell of internal buffers for each megaphone.
+ * @param buffers_ext Pointer to the array of cells coordinates of external (at the streets) buffers for each megaphone.
+ * @param buffers_ext_count Pointer to the array of count of cells of external buffers for each megaphone.
+ * @param buffers_ext_index Pointer to the array of index of the first cell of external buffers for each megaphone.
+ * @param bounds_x The x-dimension size of the world.
+ * @param bounds_y The y-dimension size of the world.
+ * @param bounds_z The z-dimension size of the world.
+ * @param ground Pointer to the 2D-array of integer first voxels vertical coordinates on the ground level for each world's cell.
+ * @param audibility_2d Pointer to the 2D-array of audibility status on the surface for each world's cell.
+ * @param uibs Pointer to the 2D-array of building identifiers (if their exists) for each world's cell.
+ * @param voxel_index Pointer to the array of voxel indexes if audibility_voxels array for each world's cell.
+ * @param audibility_voxels Pointer to the linear serial array of voxel audibility status.
+ * @param building_size The size of each building entry in the buildings array.
+ * @param buildings Pointer to the linear serial array of building information.
+ * @param made_checks Pointer to the 1D-array for counters of numbers of checks performed for each megaphone.
+ * Constants and parameters:
+ * @param height_standalone_megaphone The height of the standalone megaphone.
+ * @param building_ground_mode Mode to determine the ground point of buildings.
+ * @param size_step The step size for checking audibility of voxels.
+ * @param flag_calculate_audibility Flag to calculate audibility (1) or use only distance without any checking (0).
+ * @param possible_distance_int The distance of possible audibility in the buildings.
+ * Returned result values:
+ * @param count_checked_squares Pointer to the counter of checked squares.
+ * @param count_audibility_squares Pointer to the counter of audible squares (based on the checking results).
+ * @param count_checked_voxels Pointer to the counter of checked voxels.
+ * @param count_audibility_voxels Pointer to the counter of audible voxels (based on the checking results).
+ *
+ * @return void
+ */
 void calculate_audibility_of_megaphone(unsigned long uim, unsigned short cells_size, 
     signed long *cells, signed long *cells_count, signed long *cells_index,
     signed long *buffers_int, signed long *buffers_int_count, signed long *buffers_int_index,

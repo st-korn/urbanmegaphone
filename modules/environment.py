@@ -41,7 +41,7 @@ ground = None
 
 # Squares matrix: 2D-array of signed byte integer values [−127, +127]:
 # integer value of audibility on the earth's surface in this place: 
-# -1 (no), 0 (unknown), 1(only on the streets), 2(on the streets and in the buildings)
+# -1 (no), 0 (unknown), 1(only on the streets here), 2(on the streets and in the buildings)
 # At first initialized by 0 values
 audibility2D = None # Just matrix
 
@@ -57,7 +57,7 @@ uib = None # Just array
 VoxelIndex = None
 
 # Linear array: 1D-array of signed byte integer values [−127, +127]:
-# integer value of audibility on voxels of buildings: -1 (no), 0 (unknown), 1(yes)
+# integer value of audibility on voxels of buildings: -1 (no), 0 (unknown), 1 or 2 (yes)
 # use VoxelIndex matrix to find desired index of element in this array
 # Contains separate sequential values for each floor
 # At first initialized by 0 values
