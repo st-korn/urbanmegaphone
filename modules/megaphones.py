@@ -82,6 +82,8 @@ def LoadMegaphones():
     # Echo distance of maxium possible audibility
     env.logger.success("Maximum distance of possible audibility is {} meter in the buildings and {} meter on the streets", 
                        f'{cfg.distancePossibleAudibilityInt:.1f}', f'{cfg.distancePossibleAudibilityExt:.1f}' )
+    if cfg.distancePossibleAudibilityInt > cfg.distancePossibleAudibilityExt:
+        env.logger.error("Audibility on the streets is less than in the buildings. It's impossible")
 
     # Prepare for genetaion of zones of possible audibility
 

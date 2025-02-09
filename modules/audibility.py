@@ -142,7 +142,8 @@ def InitializeAudibilityOfMegaphone(pCellsSize, pCells, pCellsCount, pCellsIndex
                                      ctypes.c_uint, ctypes.c_uint, ctypes.c_uint, ctypes.c_long,
                                      ctypes.c_uint, ctypes.POINTER(ctypes.c_short), ctypes.POINTER(ctypes.c_long),
                                      ctypes.c_uint, ctypes.POINTER(ctypes.c_ushort),
-                                     ctypes.c_ubyte, ctypes.c_float, ctypes.c_ubyte )
+                                     ctypes.c_ubyte, ctypes.c_float, 
+                                     ctypes.c_ubyte, ctypes.c_float)
     lib.check_audibility.restype = ctypes.c_ubyte
 
 # ============================================
@@ -205,13 +206,14 @@ def CalculateAudibilityOfMegaphone(uim):
                     for floor in range(floors):
                         # Check building voxel audibility
                         countCheckedVoxels = countCheckedVoxels + 1
-                        flag = (audibilityVoxels[ VoxelIndex[xBuffer*boundsY+yBuffer] + floor ] > 0)
+                        flag = (audibilityVoxels[ VoxelIndex[xBuffer*boundsY+yBuffer] + floor ] > 1)
                         if not(flag): # If voxel is not audibility yet
                             #flag = CheckAudibility(xBuffer, yBuffer, zStart+floor, uibTest, xCell, yCell, zCell, uibMegaphone)
                             flag = lib.check_audibility(xBuffer, yBuffer, zStart+floor, uibTest, xCell, yCell, zCell, uibMegaphone,
                                                         boundsY, ground, uibs, buildingsSize, buildings, 
-                                                        flagBuildingGroungMode, cfg.sizeStep, flagCalculateAudibility)   
-                            audibilityVoxels[ VoxelIndex[xBuffer*boundsY+yBuffer] + floor ] = (1 if flag else -1)
+                                                        flagBuildingGroungMode, cfg.sizeStep, 
+                                                        flagCalculateAudibility, cfg.distancePossibleAudibilityInt/cfg.sizeVoxel)   
+                            audibilityVoxels[ VoxelIndex[xBuffer*boundsY+yBuffer] + floor ] = (flag if flag>0 else -1)
                         countAudibilityVoxels = countAudibilityVoxels + (1 if flag else 0)
 
             idxBufferInt = idxBufferInt + cellsSize # Go to next test cell
@@ -226,13 +228,14 @@ def CalculateAudibilityOfMegaphone(uim):
 
             # Check ground square audibility
             countCheckedSquares = countCheckedSquares + 1
-            flag = (audibility2D[xBuffer*boundsY+yBuffer] > 0)
+            flag = (audibility2D[xBuffer*boundsY+yBuffer] > 1)
             if not(flag): # If voxel is not audibility yet
                 #flag = CheckAudibility(xBuffer, yBuffer, zStart, uibTest, xCell, yCell, zCell, uibMegaphone)
                 flag = lib.check_audibility(xBuffer, yBuffer, zStart, uibTest, xCell, yCell, zCell, uibMegaphone,
                             boundsY, ground, uibs, buildingsSize, buildings, 
-                            flagBuildingGroungMode, cfg.sizeStep, flagCalculateAudibility)   
-                audibility2D[xBuffer*boundsY+yBuffer] = (1 if flag else -1)
+                            flagBuildingGroungMode, cfg.sizeStep, 
+                            flagCalculateAudibility, cfg.distancePossibleAudibilityInt/cfg.sizeVoxel)
+                audibility2D[xBuffer*boundsY+yBuffer] = (flag if flag>0 else -1)
             countAudibilitySquares = countAudibilitySquares + (1 if flag else 0)
 
             idxBufferExt = idxBufferExt + cellsSize # Go to next test cell
@@ -254,7 +257,7 @@ def CalculateAudibilityOfMegaphone(uim):
 # ============================================
 def CalculateAudibility():
     env.logger.info("Switching to multiprocessing mode...")
-    env.logger.info("Please note that due the CPU cores, the actual time may be x2-x5 long as expected at first...")
+    env.logger.info("Please note that due the CPU cores, the actual time may be x2 long as expected at first...")
 
     # Collect array of processes parameters
     params = []

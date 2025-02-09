@@ -368,23 +368,28 @@ def VizualizeAllSquares():
                 if cfg.BuildingGroundMode != 'levels':
                     z = min(z, env.buildings[uib*env.sizeBuilding+1]) # Use building's ground level
             # Create points for squares of the earth's surface
-            if env.audibility2D[idx2D]>0:
-                env.pntsSquares_yes.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.1)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+            if env.audibility2D[idx2D]>1:
+                env.pntsSquares_full.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.1)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
+            elif env.audibility2D[idx2D]>0:
+                env.pntsSquares_only.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.1)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
             elif env.audibility2D[idx2D]<0:
                 env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.1)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel)
             elif (env.audibility2D[idx2D]==0) and (cfg.ShowSquares == 'full'):
                 env.pntsSquares_no.InsertNextPoint((x+0.5)*cfg.sizeVoxel, (z+0.1)*cfg.sizeVoxel, (y+0.5)*cfg.sizeVoxel) # not env.pntsSquares_unassigned
             idx2D = idx2D + 1
 
-    VizualizePartOfSquares(env.pntsSquares_yes, env.Colors.GetColor3d("Green"), 0.5)
+    VizualizePartOfSquares(env.pntsSquares_full, env.Colors.GetColor3d("Green"), 0.5)
+    VizualizePartOfSquares(env.pntsSquares_only, env.Colors.GetColor3d("Gold"), 0.5)
     VizualizePartOfSquares(env.pntsSquares_no, env.Colors.GetColor3d("Tomato"), 0.5)
 
-    totalSquaresCount = env.pntsSquares_yes.GetNumberOfPoints() + env.pntsSquares_no.GetNumberOfPoints()
+    totalSquaresCount = env.pntsSquares_full.GetNumberOfPoints() + env.pntsSquares_only.GetNumberOfPoints() \
+                      + env.pntsSquares_no.GetNumberOfPoints()
+    audibilitySquaresCount = env.pntsSquares_full.GetNumberOfPoints() + env.pntsSquares_only.GetNumberOfPoints()
     env.logger.success("=========================================================================================================")
     env.logger.success("|| URBAN ENVIRONMENT STATISTIC:")
     env.logger.success("|| {} ({}) audibility squares, {} ({}) non-audibility squares",
-                       env.printLong(env.pntsSquares_yes.GetNumberOfPoints()), 
-                       f'{env.pntsSquares_yes.GetNumberOfPoints()/totalSquaresCount:.0%}',
+                       env.printLong(audibilitySquaresCount), 
+                       f'{audibilitySquaresCount/totalSquaresCount:.0%}',
                        env.printLong(env.pntsSquares_no.GetNumberOfPoints()), 
                        f'{env.pntsSquares_no.GetNumberOfPoints()/totalSquaresCount:.0%}' )
     env.logger.info("|| {} ({}) of {} squares analyzed",

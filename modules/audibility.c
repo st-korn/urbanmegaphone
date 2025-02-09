@@ -57,7 +57,12 @@ unsigned short get_first_building_voxel(unsigned int x, unsigned int y,
  *       1..n - each voxel of building positioned at the common level for the entire building
  * @param size_step The step size for checking audibility of voxels.
  * @param flag_calculate_audibility Flag to calculate audibility (1) or not (0).
- * @return unsigned char 1 if the destination voxel is audible, 0 otherwise.
+ * @param possible_distance_int The distance of possible audibility in the buildings.
+ * @return unsigned char 2 if the destination voxel is audible 
+ * and distance between them and sound source is less than possible_distance_int,
+ * 1 if the destination voxel is audible 
+ * but distance between them and sound source is more than possible_distance_int,
+ * 0 otherwise.
  */
 unsigned char check_audibility(unsigned int x_dst, unsigned int y_dst, 
     unsigned int z_dst, signed long uib_dst, unsigned int x_src, 
@@ -65,26 +70,32 @@ unsigned char check_audibility(unsigned int x_dst, unsigned int y_dst,
     unsigned int bounds_y, signed short *ground, signed long *uibs, 
     unsigned int building_size, unsigned short *buildings, 
     unsigned char building_ground_mode, float size_step, 
-    unsigned char flag_calculate_audibility) {
+    unsigned char flag_calculate_audibility, float possible_distance_int) {
 
-    // Check if we do not need to calculate audibility
-    if (flag_calculate_audibility == 0) {
-        return 1;
-    }
-
-    // Common building is audibility by default
-    if ((uib_src >= 0) && (uib_dst == uib_src)) {
-        return 1;
-    }
-    
     // Calculate distance between source and destination voxels
     int dx = x_dst - x_src;
     int dy = y_dst - y_src;
     int dz = z_dst - z_src;
     float distance = sqrt(dx * dx + dy * dy + dz * dz);
     if (distance == 0) { // Avoid division by zero
-        return 1;
+        return 2;
     }
+    // Check if the distance is greater than the distance of possible audibility in the buildings
+    int target = 1;
+    if (distance <= possible_distance_int) { 
+        target = 2;
+    }
+
+    // Check if we do not need to calculate audibility
+    if (flag_calculate_audibility == 0) {
+        return target;
+    }
+
+    // Common building is audibility by default
+    if ((uib_src >= 0) && (uib_dst == uib_src)) {
+        return target;
+    }
+    
     int max_axis_distance = fmax(fmax(abs(dx), abs(dy)), abs(dz));
     float step = size_step / max_axis_distance; // Step size to check audibility of voxels
 
@@ -117,5 +128,5 @@ unsigned char check_audibility(unsigned int x_dst, unsigned int y_dst,
     }
 
     // If no obstacles were found, the destination voxel is audible
-    return 1;
+    return target;
 }
