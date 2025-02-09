@@ -114,7 +114,7 @@ def CalculateAudibilityOfMegaphone(num,uim):
             boundsX, boundsY, boundsZ, ground, audibility2D, uibs, VoxelIndex,
             audibilityVoxels, buildingsSize, buildings, 
             madeChecks, round(cfg.heightStansaloneMegaphone / cfg.sizeVoxel),
-            0 if cfg.BuildingGroundMode == 'levels' else 1, cfg.sizeStep,
+            0 if cfg.BuildingGroundMode == 'levels' else 1, cfg.sizeStep,            
             1 if cfg.flagCalculateAudibility else 0, cfg.distancePossibleAudibilityInt/cfg.sizeVoxel,
             ctypes.byref(countCheckedSquares), ctypes.byref(countAudibilitySquares), 
             ctypes.byref(countCheckedVoxels), ctypes.byref(countAudibilityVoxels))

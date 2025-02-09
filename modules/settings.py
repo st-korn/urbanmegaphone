@@ -14,7 +14,7 @@ folderMEGAPHONES = 'MEGAPHONES' # Subfolder (in current folder) with vector mega
 
 # Debug log detail level, from verbose to terse:
 # "TRACE" or "DEBUG" or "INFO" or "SUCCESS" or "WARNING" or "ERROR" or "CRITICAL"
-logLevel = "DEBUG"
+logLevel = "INFO"
 
 
 # Quality of world's detail
@@ -98,7 +98,7 @@ distancePossibleAudibilityInt = math.pow(10, (dBAMegaphone+dBAWindow-dBAHome-dBA
 distancePossibleAudibilityExt = math.pow(10, (dBAMegaphone-dBAStreet-dBALevel)/20) # on the streets
 
 # Step size to check audibility of voxels, part of voxels count along the longest axis distance. 
-# Maximum value is 1.0. Smaller values lead to more accurate, but longer calculations. Default value is 0.5
+# Maximum value is 1.0. Smaller values lead to more accurate, but longer calculations. Default value is 1.0
 sizeStep = 1.0
 
 # Real calculate audibility of voxels. Default value is True

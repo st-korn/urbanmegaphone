@@ -127,7 +127,7 @@ signed char check_audibility(signed long x_dst, signed long y_dst, signed long z
         // if intermediate voxel does not belong to source or destination buildings
         if ((uib >= 0) && (uib != uib_src) && (uib != uib_dst)) {
             // If there is an extraneous building on the intermediate voxel, check if the intermediate voxel is higher than the building
-            if (z < (get_first_building_voxel(x, y, uib, bounds_y, ground, building_size, buildings, building_ground_mode) + buildings[uib * building_size])) {
+            if (z < (get_first_building_voxel(x, y, uib, bounds_y, ground, building_size, buildings, building_ground_mode) + buildings[uib * building_size] )) {
                 // If previous audibility was better, return it
                 return (audibility_prev > 0 ? audibility_prev : -1);
             }
@@ -135,7 +135,7 @@ signed char check_audibility(signed long x_dst, signed long y_dst, signed long z
 
         // If there is no building there, check if the intermediate voxel is higher than the earth's surface
         if (uib < 0) {
-            if (z < (ground[x * bounds_y + y] - 1)) { // smoothing out the steps of the earth's surface
+            if (z < ( ground[x * bounds_y + y] -1 )) { // -1 for smoothing out the steps of the earth's surface
                 // If previous audibility was better, return it
                 return (audibility_prev > 0 ? audibility_prev : -1);
             }
@@ -223,7 +223,8 @@ void calculate_audibility_of_megaphone(unsigned long uim, unsigned short cells_s
         if (uib_megaphone < 0) {
             z_cell = ground[x_cell * bounds_y + y_cell] + height_standalone_megaphone;
         } else {
-            z_cell = get_first_building_voxel(x_cell, y_cell, uib_megaphone, bounds_y, ground, building_size, buildings, building_ground_mode);
+            z_cell = get_first_building_voxel(x_cell, y_cell, uib_megaphone, bounds_y, ground, 
+                building_size, buildings, building_ground_mode) + buildings[uib_megaphone * building_size];
         }
 
         // Loop through internal and external buffers
@@ -246,7 +247,8 @@ void calculate_audibility_of_megaphone(unsigned long uim, unsigned short cells_s
                 // If this is a living building
                 if (flats > 0) {
 
-                    z_start = get_first_building_voxel(x_buffer, y_buffer, uib_test, bounds_y, ground, building_size, buildings, building_ground_mode);
+                    z_start = get_first_building_voxel(x_buffer, y_buffer, uib_test, bounds_y, ground, 
+                        building_size, buildings, building_ground_mode);
                     unsigned short floors = buildings[uib_test * building_size];
 
                     // Loop through floors of the building
@@ -266,7 +268,7 @@ void calculate_audibility_of_megaphone(unsigned long uim, unsigned short cells_s
                     }
                 }
             }
-            idx_buffer_int += cells_size; // Go to next test cell
+            idx_buffer_int += cells_size; // Go to next test cell from internal buffer
         }
 
         // Loop through buffer zone on the streets
@@ -293,11 +295,11 @@ void calculate_audibility_of_megaphone(unsigned long uim, unsigned short cells_s
             audibility_2d[x_buffer * bounds_y + y_buffer] = flag;
             (*count_audibility_squares) += (flag>0 ? 1 : 0);
 
-            idx_buffer_ext += cells_size;
+            idx_buffer_ext += cells_size; // Go to next test cell from external buffer
         }
 
-        idx_cell += cells_size;
-        made_checks[uim] += buffers_int_count[uim] + buffers_ext_count[uim];
+        idx_cell += cells_size; // Go to next megaphone cell
+        made_checks[uim] += buffers_int_count[uim] + buffers_ext_count[uim]; // update statistics in shared memory
     }
 
 }
