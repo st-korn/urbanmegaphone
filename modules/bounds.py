@@ -34,7 +34,7 @@ def ReadWorldBounds():
 
     env.logger.info("Loop through raster files...")
 
-    for file in Path('.',cfg.folderRaster).glob("*.tif", case_sensitive=False):
+    for file in Path('.',cfg.folderRASTER).glob("*.tif", case_sensitive=False):
 
         # Open GeoTIFF and conver coordinates to Web-Mercator
         gtf = GeoTiff(file, as_crs=3857)

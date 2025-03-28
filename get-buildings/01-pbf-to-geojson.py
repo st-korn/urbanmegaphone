@@ -21,7 +21,7 @@ boundsMax = [None, None] # lon, lat
 logger.info("Find the dimensions of the world being explored")
 logger.info("Loop through raster files")
 
-for file in Path('.',folderRaster).glob("*.tif", case_sensitive=False):
+for file in Path('.',folderRASTER).glob("*.tif", case_sensitive=False):
 
     # Open GeoTIFF and conver coordinates to WGS84 degrees
     gtf = GeoTiff(file, as_crs=4326)

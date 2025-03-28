@@ -44,6 +44,13 @@
     pip install osmium
     pip install textdistance
     ```
+
+    For run web-server to show generated 3D-world:
+    ```console
+    pip install trame
+    pip install trame-vuetify
+    pip install trame-vtk
+    ```
     We use own copy in `modules` folder of python [`geotiff`](https://github.com/KipCrossing/geotiff.git) library, because our [pull request](https://github.com/KipCrossing/geotiff/pull/74) has not been processed yet. If you already have this library installed, please uninstall it.
 
 3. Clone this repository. In any folder run:

@@ -280,7 +280,7 @@ def VizualizeAllMegaphones():
     env.vtkPoints2CSV('mgphn_spehres.csv', env.pntsMegaphones_spheres)
     env.logger.success("Megaphones exported")
 
-    env.logger.success("{} megaphones on {} buildings, {} standalone megaphones", 
-                       env.printLong(env.pntsMegaphones_buildings_cones.GetNumberOfPoints()),
-                       env.countMegaphones - env.pntsMegaphones_standalone_cones.GetNumberOfPoints(),
-                       env.printLong(env.pntsMegaphones_standalone_cones.GetNumberOfPoints()))
+    env.writeStat("{} megaphones on {} buildings, {} standalone megaphones".format(
+                  env.printLong(env.pntsMegaphones_buildings_cones.GetNumberOfPoints()),
+                  env.countMegaphones - env.pntsMegaphones_standalone_cones.GetNumberOfPoints(),
+                  env.printLong(env.pntsMegaphones_standalone_cones.GetNumberOfPoints())) )

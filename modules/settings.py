@@ -7,7 +7,7 @@ import math
 # ============================================
 
 # Path to files and folders
-folderRaster = 'RASTER' # Subfolder (in current folder) with raster tiles (.tif)
+folderRASTER = 'RASTER' # Subfolder (in current folder) with raster tiles (.tif)
 folderDEM = 'DEM' # Subfolder (in current folder) with DEM tiles (.tif)
 folderBUILDINGS = 'BUILDINGS' # Subfolder (in current folder) with vector buildings polygones (.geojson)
 folderMEGAPHONES = 'MEGAPHONES' # Subfolder (in current folder) with vector megaphones points (.geojson)
