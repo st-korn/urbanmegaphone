@@ -43,7 +43,7 @@ def GenerateEarthSurface():
 
     env.logger.info("Loop through raster files")
 
-    for fileR in Path('.',cfg.folderRaster).glob("*.tif", case_sensitive=False):
+    for fileR in Path('.',cfg.folderRASTER).glob("*.tif", case_sensitive=False):
 
         # Open GeoTIFF and convert coordinates to Web-Mercator
         gtfR = GeoTiff(fileR, as_crs=3857)
