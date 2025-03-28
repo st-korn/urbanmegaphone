@@ -5,6 +5,7 @@
 
 # Modules import
 # ============================================
+from pathlib import Path # Crossplatform pathing
 import vtk # Use other 3D-visualization features
 import time # Tracking the execution time
 
@@ -20,6 +21,11 @@ import modules.audibility # Multiprocessing audibility calculation
 # Only for main process
 if __name__ == '__main__':
     start_time = time.time() # Record the start time
+
+    # Delete all files in folderOUTPUT directory
+    # ============================================
+    for fileD in Path('.',cfg.folderOUTPUT).glob("*.*", case_sensitive=False):
+        fileD.unlink()
 
     # Real work
     # ============================================

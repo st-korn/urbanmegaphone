@@ -194,25 +194,30 @@ def VizualizeAllVoxels():
     VizualizePartOfVoxels(env.pntsVoxels_no, env.Colors.GetColor3d("Tomato"), 1)
     VizualizePartOfVoxels(env.pntsVoxels_industrial, env.Colors.GetColor3d("Gray"), 1)
 
+    env.vtkPoints2CSV('vox_industrial.csv', env.pntsVoxels_industrial)
+    env.vtkPoints2CSV('vox_yes.csv', env.pntsVoxels_yes)
+    env.vtkPoints2CSV('vox_no.csv', env.pntsVoxels_no)
+    env.logger.success("Voxels exported")
+
     livingVoxels = env.pntsVoxels_yes.GetNumberOfPoints() + env.pntsVoxels_no.GetNumberOfPoints()
 
-    env.logger.success("=========================================================================================================")
-    env.logger.success("|| BUILDINGS STATISTICS:")
-    env.logger.success("|| {} ({}) audibility voxels, {} ({}) non-audibility voxels, {} non-living voxels",
-                       env.printLong(env.pntsVoxels_yes.GetNumberOfPoints()),
-                       f'{env.pntsVoxels_yes.GetNumberOfPoints()/livingVoxels:.0%}',
-                       env.printLong(env.pntsVoxels_no.GetNumberOfPoints()),
-                       f'{env.pntsVoxels_no.GetNumberOfPoints()/livingVoxels:.0%}',
-                       env.printLong(env.pntsVoxels_industrial.GetNumberOfPoints()) )
+    env.writeStat("=========================================================================================================")
+    env.writeStat("|| BUILDINGS STATISTICS:")
+    env.writeStat("|| {} ({}) audibility voxels, {} ({}) non-audibility voxels, {} non-living voxels".format(
+                  env.printLong(env.pntsVoxels_yes.GetNumberOfPoints()),
+                  f'{env.pntsVoxels_yes.GetNumberOfPoints()/livingVoxels:.0%}',
+                  env.printLong(env.pntsVoxels_no.GetNumberOfPoints()),
+                  f'{env.pntsVoxels_no.GetNumberOfPoints()/livingVoxels:.0%}',
+                  env.printLong(env.pntsVoxels_industrial.GetNumberOfPoints()) ) )
     env.logger.debug("|| {} ({}) of {} building's cells analyzed",
-                       env.printLong(totalCells), f'{totalCells/env.countBuildingsCells:.0%}', env.printLong(env.countBuildingsCells) )
+                     env.printLong(totalCells), f'{totalCells/env.countBuildingsCells:.0%}', env.printLong(env.countBuildingsCells) )
     env.logger.debug("|| {} ({}) of {} voxels analyzed",
-                       env.printLong(totalVoxels), f'{totalVoxels/env.countVoxels:.0%}', env.printLong(env.countVoxels) )
-    env.logger.info("|| {} ({}) of {} living voxels analyzed",
-                       env.printLong(livingVoxels), f'{livingVoxels/env.countLivingVoxels:.0%}', env.printLong(env.countLivingVoxels) )
-    env.logger.success("|| {} ({}) of {} flats are audibility, {} ({}) non-audibility flats", 
+                     env.printLong(totalVoxels), f'{totalVoxels/env.countVoxels:.0%}', env.printLong(env.countVoxels) )
+    env.writeStat("|| {} ({}) of {} living voxels analyzed".format(
+                    env.printLong(livingVoxels), f'{livingVoxels/env.countLivingVoxels:.0%}', env.printLong(env.countLivingVoxels) ), "info" )
+    env.writeStat("|| {} ({}) of {} flats are audibility, {} ({}) non-audibility flats".format(
                        env.printLong(round(audibilityFlats)), f'{audibilityFlats/totalFlats:.0%}', env.printLong(round(totalFlats)),
-                       env.printLong(round(totalFlats)-round(audibilityFlats)), f'{(1-audibilityFlats/totalFlats):.0%}')
-    env.logger.info("|| {} ({}) of {} flats analyzed",
-                       env.printLong(round(totalFlats)), f'{totalFlats/env.countFlats:.0%}', env.printLong(env.countFlats) )
-    env.logger.success("=========================================================================================================")
+                       env.printLong(round(totalFlats)-round(audibilityFlats)), f'{(1-audibilityFlats/totalFlats):.0%}' ) )
+    env.writeStat("|| {} ({}) of {} flats analyzed".format(
+                       env.printLong(round(totalFlats)), f'{totalFlats/env.countFlats:.0%}', env.printLong(env.countFlats) ), "info" )
+    env.writeStat("=========================================================================================================")

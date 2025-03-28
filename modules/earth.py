@@ -16,6 +16,7 @@ import vtk # Use other 3D-visualization features
 import geopandas as gpd # For vector objects
 from shapely.ops import unary_union # For combine vector objects 
 import gc # For garbage collectors
+from vtkmodules.vtkIOXML import vtkXMLPolyDataWriter # For export VTK objects to files
 
 # Own core modules
 import modules.settings as cfg # Settings defenition
@@ -211,7 +212,16 @@ def GenerateEarthSurface():
             actor.SetTexture(texture)
             actor.GetProperty().SetOpacity(1) #(1 if cfg.ShowSquares=='none' else 0.5)
             env.actTexture.append(actor)
+            env.strTextureFileName.append(fileR.name)
             env.logger.success("{}: DEM ready for render",fileD.name)
+
+            # Export surface to ParaView-compatible format
+            fileV = Path('.',cfg.folderOUTPUT, f"{len(env.mapTexture)}_{fileR.name}.vtp")
+            exporter = vtk.vtkXMLPolyDataWriter()
+            exporter.SetInputData(mapper.GetInput())
+            exporter.SetFileName(fileV)
+            exporter.Write()
+            env.logger.success("Surface exported to {}",fileV)
 
             # Create cell locator
             locator = vtk.vtkCellLocator()
@@ -382,16 +392,21 @@ def VizualizeAllSquares():
     VizualizePartOfSquares(env.pntsSquares_only, env.Colors.GetColor3d("Gold"), 0.5)
     VizualizePartOfSquares(env.pntsSquares_no, env.Colors.GetColor3d("Tomato"), 0.5)
 
+    env.vtkPoints2CSV('sq_full.csv', env.pntsSquares_full)
+    env.vtkPoints2CSV('sq_only.csv', env.pntsSquares_only)
+    env.vtkPoints2CSV('sq_no.csv', env.pntsSquares_no)
+    env.logger.success("Squares exported")
+
     totalSquaresCount = env.pntsSquares_full.GetNumberOfPoints() + env.pntsSquares_only.GetNumberOfPoints() \
                       + env.pntsSquares_no.GetNumberOfPoints()
     audibilitySquaresCount = env.pntsSquares_full.GetNumberOfPoints() + env.pntsSquares_only.GetNumberOfPoints()
-    env.logger.success("=========================================================================================================")
-    env.logger.success("|| URBAN ENVIRONMENT STATISTIC:")
-    env.logger.success("|| {} ({}) audibility squares, {} ({}) non-audibility squares",
+    env.writeStat("=========================================================================================================")
+    env.writeStat("|| URBAN ENVIRONMENT STATISTIC:")
+    env.writeStat("|| {} ({}) audibility squares, {} ({}) non-audibility squares".format(
                        env.printLong(audibilitySquaresCount), 
                        f'{audibilitySquaresCount/totalSquaresCount:.0%}',
                        env.printLong(env.pntsSquares_no.GetNumberOfPoints()), 
-                       f'{env.pntsSquares_no.GetNumberOfPoints()/totalSquaresCount:.0%}' )
-    env.logger.info("|| {} ({}) of {} squares analyzed",
-                       env.printLong(totalSquaresCount), f'{totalSquaresCount/(env.bounds[0]*env.bounds[1]):.0%}', env.printLong(env.bounds[0]*env.bounds[1]) )
-    env.logger.success("=========================================================================================================")
+                       f'{env.pntsSquares_no.GetNumberOfPoints()/totalSquaresCount:.0%}' ) )
+    env.writeStat("|| {} ({}) of {} squares analyzed".format(
+                       env.printLong(totalSquaresCount), f'{totalSquaresCount/(env.bounds[0]*env.bounds[1]):.0%}', env.printLong(env.bounds[0]*env.bounds[1]) ), "info")
+    env.writeStat("=========================================================================================================")

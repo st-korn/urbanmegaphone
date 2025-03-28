@@ -16,6 +16,7 @@ from vtkmodules.vtkCommonColor import vtkNamedColors # Use colors
 import vtkmodules.vtkRenderingOpenGL2 # Use OpenGL for render
 import math # For rounding up numbers
 import gc # For garbage collectors
+from pathlib import Path # Crossplatform pathing
 
 # Own core modules
 import modules.settings as cfg # Settings defenition
@@ -169,6 +170,7 @@ fltarTexture = [] # vtkFloatArray array of texture coordinates
 txtrTexture = [] # vtkTexture
 mapTexture = [] # vtkPolyDataMapper
 actTexture = [] # vtkActor
+strTextureFileName = [] # string
 
 # Arrays of VTK objects: polygonal squares of DEM's surface
 pntsSquares_full = vtkPoints()
@@ -250,6 +252,24 @@ def boxM2Int(lon_min, lon_max, lat_min, lat_max):
 # ============================================
 def printLong(number):
     return f'{number:_}'.replace("_", ".")
+
+# ============================================
+# Write points to CSV file
+# ============================================
+def vtkPoints2CSV(filename, points):
+    with open(Path('.',cfg.folderOUTPUT, filename), 'w') as file:
+        file.write("x,y,z\n")
+        for i in range(points.GetNumberOfPoints()):
+            point = points.GetPoint(i)
+            file.write(f'{point[0]},{point[1]},{point[2]}\n')
+
+# ============================================
+# Write to TXT file and log a message with the specified level
+# ============================================
+def writeStat(message, level="success"):
+    with open(Path('.', cfg.folderOUTPUT, 'result.txt'), 'a') as file:
+        file.write(message+"\n")
+    getattr(logger, level)(message)
 
 # ============================================
 # Clear memory from unused GeoPandas GeoDataSet's

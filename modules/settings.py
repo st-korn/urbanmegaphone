@@ -11,6 +11,7 @@ folderRaster = 'RASTER' # Subfolder (in current folder) with raster tiles (.tif)
 folderDEM = 'DEM' # Subfolder (in current folder) with DEM tiles (.tif)
 folderBUILDINGS = 'BUILDINGS' # Subfolder (in current folder) with vector buildings polygones (.geojson)
 folderMEGAPHONES = 'MEGAPHONES' # Subfolder (in current folder) with vector megaphones points (.geojson)
+folderOUTPUT = 'OUTPUT' # Subfolder (in current folder) with output files
 
 # Debug log detail level, from verbose to terse:
 # "TRACE" or "DEBUG" or "INFO" or "SUCCESS" or "WARNING" or "ERROR" or "CRITICAL"

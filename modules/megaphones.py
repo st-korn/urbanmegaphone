@@ -274,6 +274,12 @@ def VizualizeAllMegaphones():
     env.sphMegaphones.append(sphereMegaphone)
     VizualizePartOfMegaphones(env.pntsMegaphones_spheres, sphereMegaphone, env.Colors.GetColor3d("GreenYellow"), 1.0)
 
+    # Export megaphones to CSV
+    env.vtkPoints2CSV('mgphn_buildings.csv', env.pntsMegaphones_buildings_cones)
+    env.vtkPoints2CSV('mgphn_standalone.csv', env.pntsMegaphones_standalone_cones)
+    env.vtkPoints2CSV('mgphn_spehres.csv', env.pntsMegaphones_spheres)
+    env.logger.success("Megaphones exported")
+
     env.logger.success("{} megaphones on {} buildings, {} standalone megaphones", 
                        env.printLong(env.pntsMegaphones_buildings_cones.GetNumberOfPoints()),
                        env.countMegaphones - env.pntsMegaphones_standalone_cones.GetNumberOfPoints(),
